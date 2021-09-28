@@ -63,13 +63,6 @@ option_list <- list(
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
-opt$main_sample_dir <- "data/anderson-single-cell/GSE140819"
-opt$sample_matrix_file <- "GSM4186961_HTAPP-312-SMP-901_fresh-T1_channel1_raw_gene_bc_matrices_h5.h5"
-opt$sample_metadata_file <- "GSM4186961_metadata_HTAPP-312-SMP-901_fresh-T1_channel1.csv.gz"
-opt$input_file_type <- "h5"
-opt$output_dir <- "data/anderson-single-cell/pre-filtered-sce"
-opt$output_filename <- "GSM4186961_pre-filtered_sce.rds"
-
 # Directory to save output
 output_dir <- file.path(opt$output_dir)
 if (!dir.exists(output_dir)) {
@@ -85,7 +78,6 @@ if(opt$input_file_type == "cellranger") {
   sce <- DropletUtils::read10xCounts(matrix_file)
   metadata <-
     data.table::fread(file.path(opt$main_sample_dir, opt$sample_metadata_file))
-}
 
 #### Filter based on metadata --------------------------------------------------
 
@@ -96,8 +88,11 @@ metadata_filtered <- metadata %>%
   dplyr::filter(emptydrop == FALSE & doublet == FALSE)
 
 # filter using cell barcodes
-filtered_sce <- sce[,colData(sce)$Barcode %in% metadata_filtered$Barcode]
+sce <- sce[,colData(sce)$Barcode %in% metadata_filtered$Barcode]
 
-#### Save filtered SCE ---------------------------------------------------------
+}
 
-readr::write_rds(filtered_sce, file.path(output_dir, opt$output_filename))
+#### Save output SCE -----------------------------------------------------------
+
+readr::write_rds(sce, file.path(output_dir, opt$output_filename))
+

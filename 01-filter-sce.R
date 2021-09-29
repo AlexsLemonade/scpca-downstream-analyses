@@ -11,9 +11,6 @@
 #   --seed 2021 \
 #   --gene_detected_row_cutoff 5 \
 #   --gene_means_cutoff 0.1 \
-#   --mito_percent_cutoff 20 \
-#   --detected_gene_cutoff 500 \
-#   --umi_count_cutoff 500 \
 #   --filtering_method "miQC"
 
 ## Set up -------------------------------------------------------------
@@ -87,35 +84,36 @@ option_list <- list(
     c("-m", "--gene_means_cutoff"),
     type = "integer",
     default = 0.1,
-    help = "mean gene expression cutoff",
+    help = "gene mean expression cutoff",
     metavar = "integer"
   ),
   optparse::make_option(
     c("-c", "--mito_percent_cutoff"),
     type = "integer",
     default = 20,
-    help = "mitochondrial percent cutoff",
+    help = "cell mitochondrial percent cutoff -- not needed for miQC filtering",
     metavar = "integer"
   ),
   optparse::make_option(
     c("-p", "--detected_gene_cutoff"),
     type = "integer",
     default = 500,
-    help = "detected genes (cell) cutoff",
+    help = "cell detected genes cutoff -- not needed for miQC filtering",
     metavar = "integer"
   ),
   optparse::make_option(
     c("-u", "--umi_count_cutofff"),
     type = "integer",
     default = 500,
-    help = "UMI counts cutoff",
+    help = "cell UMI counts cutoff -- not needed for miQC filtering",
     metavar = "integer"
   ),
   optparse::make_option(
     c("-f", "--filtering_method"),
     type = "character",
     default = "miQC",
-    help = "the selected filtered method -- can be miQC or manual"
+    help = "the selected filtered method -- can be miQC or manual; will be miQC
+            by default"
   )
 )
 
@@ -139,8 +137,13 @@ if (!dir.exists(plots_dir)) {
   dir.create(plots_dir, recursive = TRUE)
 }
 
-output_sce_file <- file.path(filtered_dir, paste0("filtered_", opt$sample_name, "_", opt$filtering_method, "_sce.rds"))
-output_filtered_cell_plot <- file.path(plots_dir, paste0(opt$sample_name, "_", opt$filtering_method, "_cell_filtering.png"))
+output_sce_file <- file.path(
+  filtered_dir,
+  paste0("filtered_", opt$sample_name, "_", opt$filtering_method, "_sce.rds"))
+
+output_filtered_cell_plot <- file.path(
+  plots_dir,
+  paste0(opt$sample_name, "_", opt$filtering_method, "_cell_filtering.png"))
 
 #### Filter data ---------------------------------------------------------------
 
@@ -198,10 +201,14 @@ if (opt$filtering_method == "manual") {
   filtered_cell_plot <- ggarrange(filtered_model_plot, filtered_cell_plot,
                                   ncol = 1, nrow = 2)
   
+} else {
+  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
 }
 
 ggsave(output_filtered_cell_plot, filtered_cell_plot)
 
+# Use the default parameters of `addPerFeatureQC()` to add detected and mean
+# gene stats to the rowData of the SCE object
 filtered_sce <- addPerFeatureQC(filtered_sce)
 
 # Filter the genes (rows)

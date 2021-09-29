@@ -65,7 +65,7 @@ if (!dir.exists(normalized_dir)) {
 output_sce_file <- file.path(
   normalized_dir, paste0("normalized_", opt$sample_name, "_sce.rds"))
 
-#### Filter data ---------------------------------------------------------------
+#### Read in data --------------------------------------------------------------
 
 # Read in filtered sce object
 filtered_sce <- readr::read_rds(opt$filtered_sample_sce_filepath)

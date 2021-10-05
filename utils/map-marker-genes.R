@@ -69,14 +69,14 @@ if (opt$type_of_identifier == "gene symbol") {
     column = "ENSEMBL",
     multiVals = "list"
   ) %>%
-    tibble::enframe(name = "Symbol", value = "Ensembl") %>%
+    tibble::enframe(name = "gene_symbol", value = "gene_id") %>%
     # enframe() makes a `list` column; we will simplify it with unnest()
     # This will result in one row of our data frame per list item
-    tidyr::unnest(cols = Ensembl) %>%
+    tidyr::unnest(cols = gene_id) %>%
     # grab only the unique rows
     dplyr::distinct() %>%
     # join the remaining columns
-    dplyr::left_join(marker_genes, by = c("Symbol" = "gene_symbol"))
+    dplyr::left_join(marker_genes, by = "gene_symbol")
 } else if (opt$type_of_identifier == "ensembl id") {
   marker_genes_mapped <- mapIds(
     # organism annotation package
@@ -89,14 +89,14 @@ if (opt$type_of_identifier == "gene symbol") {
     column = "SYMBOL",
     multiVals = "list"
   ) %>%
-    tibble::enframe(name = "Ensembl", value = "Symbol") %>%
+    tibble::enframe(name = "gene_id", value = "gene_symbol") %>%
     # enframe() makes a `list` column; we will simplify it with unnest()
     # This will result in one row of our data frame per list item
-    tidyr::unnest(cols = Symbol) %>%
+    tidyr::unnest(cols = gene_symbol) %>%
     # grab only the unique rows
     dplyr::distinct() %>%
     # join the remaining columns
-    dplyr::left_join(marker_genes, by = c("Ensembl" = "gene_id"))
+    dplyr::left_join(marker_genes, by = "gene_id")
 } else {
   stop(
     "Incorrect input gene identifier columns. Columns containing gene symbols

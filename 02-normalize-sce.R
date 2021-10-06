@@ -1,7 +1,8 @@
-## Read in SingleCellExperiment RDS object that has been filtered for highly
-## expressed cells, using miQC or a manual filtering method, and filtered for
-## highly expressed genes. This script will then normalize the filtered object
-## using functions from the `scran` and `scater` packages.
+## Read in SingleCellExperiment RDS object that has been filtered to remove
+## cells on the basis of their mitochondrial read percentage and detected genes
+## and to remove lowly expressed or undetected genes. This script will then
+## normalize the filtered object using functions from the `scran` and `scater` 
+## packages.
 
 # Command line usage:
 

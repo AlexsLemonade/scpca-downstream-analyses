@@ -1,6 +1,8 @@
 # Map provided gene identifiers for downstream use in the marker genes analysis.
-# Provided gene identifiers may be in the format of gene symbols or Ensembl IDs
-# and should be specified using the --type_of_identifier flag.
+# The format of and the column in which the provided gene identifiers should be
+# specified using the appropriate command line flags outline below, for mapping
+# to the desired gene identifiers as should also be specifed via a command line
+# flag.
 
 # Command line usage:
 # Rscript --vanilla 00-map-marker-genes.R \

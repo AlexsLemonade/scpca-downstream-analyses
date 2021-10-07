@@ -1,8 +1,8 @@
 # Map provided gene identifiers for downstream use in the marker genes analysis.
-# The format of the provided gene identifiers, and the column in which they can
-# be found in the input file, should be specified using the appropriate
-# command line flags outlined below. The desired gene identifiers to be mapped
-# to should also be specified via the appropriate command line flag.
+# The type of gene identifiers you are converting *from*, the column in which
+# they can be found in the input file, and the type of gene identifiers you are
+# converting *to* should all be specified using the command line flags outlined
+# below. 
 # 
 # Run `Rscript utils/map-marker-genes.R --help` for more on what values should
 # be specified for each of the command line flags.

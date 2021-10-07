@@ -1,6 +1,6 @@
 # Map provided gene identifiers for downstream use in the marker genes analysis.
-# The format of the provided gene identifiers, and the and the column in which
-# they can be found in the input file, should be specified using the appropriate
+# The format of the provided gene identifiers, and the column in which they can
+# be found in the input file, should be specified using the appropriate
 # command line flags outlined below. The desired gene identifiers to be mapped
 # to should also be specified via the appropriate command line flag.
 # 

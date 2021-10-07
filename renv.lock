@@ -62,6 +62,12 @@
       "Source": "Bioconductor",
       "Hash": "b7d1aa70f71252a7f9d3a927d43846cd"
     },
+    "BiocVersion": {
+      "Package": "BiocVersion",
+      "Version": "3.12.0",
+      "Source": "Bioconductor",
+      "Hash": "ee4d027afb8f52fec1f46b9f0a8660e9"
+    },
     "DBI": {
       "Package": "DBI",
       "Version": "1.1.1",
@@ -881,24 +887,6 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "35beff0d8469fbb7037925dde658888c"
-    },
-    "org.Dr.eg.db": {
-      "Package": "org.Dr.eg.db",
-      "Version": "3.12.0",
-      "Source": "Bioconductor",
-      "Hash": "ab7c2fb8fa90a7f9ca785a0d7afae5d6"
-    },
-    "org.Hs.eg.db": {
-      "Package": "org.Hs.eg.db",
-      "Version": "3.12.0",
-      "Source": "Bioconductor",
-      "Hash": "3d2aea7762e91aa3d5b7c267c56d9055"
-    },
-    "org.Mm.eg.db": {
-      "Package": "org.Mm.eg.db",
-      "Version": "3.12.0",
-      "Source": "Bioconductor",
-      "Hash": "4e4ee144dea09b789a4269a68306c0b5"
     },
     "pbkrtest": {
       "Package": "pbkrtest",

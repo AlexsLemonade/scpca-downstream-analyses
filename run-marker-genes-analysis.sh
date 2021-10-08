@@ -16,6 +16,8 @@ script_directory="$(perl -e 'use File::Basename;
   print dirname(abs_path(@ARGV[0]));' -- "$0")"
 cd "$script_directory" || exit
 
+RUN_MAPPING=${RUN_MAPPING:-FALSE}
+
 main_data_dir="data/anderson-single-cell"
 sample_name="GSM4186961"
 sample_matrix="data/anderson-single-cell/GSE140819/GSM4186961_HTAPP-312-SMP-901_fresh-T1_channel1_raw_gene_bc_matrices_h5.h5"
@@ -26,7 +28,6 @@ input_identifiers="SYMBOL"
 output_identifiers="ENSEMBL"
 identifier_column_name="gene_symbol"
 organism="Homo sapiens"
-RUN_MAPPING=TRUE
 SEED=2021
 
 # Run the gene identifier mapping script if `RUN_MAPPING = TRUE`

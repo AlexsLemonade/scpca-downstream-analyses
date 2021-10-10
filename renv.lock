@@ -814,7 +814,7 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "miQC",
       "RemoteUsername": "greenelab",
-      "RemoteRef": "HEAD",
+      "RemoteRef": "0eab0b6898e6968c4a1fb528748780e03ac9f6f6",
       "RemoteSha": "e64676ebd2943970ad0943b70eda06bcfae5ab10",
       "Hash": "b34387db2ac7bc3f91f4b890d48e340a"
     },
@@ -1089,7 +1089,7 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scpcaTools",
       "RemoteUsername": "AlexsLemonade",
-      "RemoteRef": "HEAD",
+      "RemoteRef": "92c0b49c0202cb394a2ea7ee164eefd63d17f4e1",
       "RemoteSha": "5aa78a0c5b4dfa6fca7fffe2fee60539bd080420",
       "Hash": "af3fd8a730219614141d46a5ec8a398d"
     },

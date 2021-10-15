@@ -28,6 +28,12 @@ option_list <- list(
     help = "path to normalized sample SCE RDS file",
   ),
   optparse::make_option(
+    c("-n", "--top_n"),
+    type = "integer",
+    default = 2000,
+    help = "top number of high variance genes to use for dimension reduction",
+  ),
+  optparse::make_option(
     c("-s", "--seed"),
     type = "integer",
     default = 2021,
@@ -54,7 +60,7 @@ normalized_sce <- readr::read_rds(opt$sce)
 gene_variance <- scran::modelGeneVar(normalized_sce)
 
 # select the most variable genes
-subset_genes <- scran::getTopHVGs(gene_variance, n = 2000)
+subset_genes <- scran::getTopHVGs(gene_variance, n = opt$top_n)
 
 # calculate a PCA matrix using those genes
 normalized_sce <-

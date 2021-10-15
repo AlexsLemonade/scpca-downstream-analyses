@@ -1,14 +1,12 @@
-## Read in SingleCellExperiment RDS object that has been filtered to remove
-## cells on the basis of their mitochondrial read percentage and detected genes
-## and to remove lowly expressed or undetected genes. This script will then
-## normalize the filtered object using functions from the `scran` and `scater` 
-## packages.
+## Read in SingleCellExperiment RDS object that has been normalized using
+## functions from the `scran` and `scater` packages. This script will add PCA
+## and UMAP dimensionality results to the normalized SCE object, also using
+## functions from the `scran` and `scater` packages.
 
 # Command line usage:
 
-# Rscript --vanilla 02-normalize-sce.R \
-#   --sce "data/anderson-single-cell/filtered/filtered_GSM4186961_miQC_sce.rds" \
-#   --output_filepath data/anderson-single-cell/normalized/normalized_GSM4186961_sce.rds \
+# Rscript --vanilla 03-dimension-reduction.R \
+#   --sce "data/anderson-single-cell/normalized/normalized_GSM4186961_sce.rds" \
 #   --seed 2021 \
 
 ## Set up -------------------------------------------------------------

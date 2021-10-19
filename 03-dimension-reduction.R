@@ -45,8 +45,7 @@ option_list <- list(
   ),
   optparse::make_option(
     c("-o", "--overwrite"),
-    type = "character",
-    default = "yes",
+    action = "store_true",
     help = "specify whether or not to overwrite any existing dimension reduction
             results; the default is yes, overwrite the results",
   )
@@ -82,28 +81,33 @@ gene_variance <- scran::modelGeneVar(normalized_sce)
 # select the most variable genes
 subset_genes <- scran::getTopHVGs(gene_variance, n = opt$top_n)
 
-# if there are dimension reductions results in the sce and the user has not
-# specified whether or not to overwrite the results, stop script with an error
-if (!is.null(reducedDims(normalized_sce)) & is.null(opt$overwrite)) {
-  stop(
-    "Do you want to overwrite the existing dimension reduction
-               results? Specify 'yes' or 'no' using the --overwrite flag."
-  )
-} else if (opt$overwrite == "yes" |
-           is.null(reducedDims(normalized_sce))) {
-  # if `opt$overwrite == yes` or if there are no dimension reduction results in
-  # the sce object, add PCA and UMAP results
-  message("Overwriting dimension reduction PCA and UMAP results.")
+# make function to add dimensionality reduction to sce
+dim_reduction <- function(normalized_sce, subset_genes) {
   
-  # calculate a PCA matrix using those genes
-  normalized_sce <-
-    runPCA(normalized_sce, subset_row = subset_genes)
-  
+  # add PCA to normalized sce
+  normalized_sce <- runPCA(normalized_sce, subset_row = subset_genes)
+
   # calculate a UMAP matrix using the PCA results
   normalized_sce <- runUMAP(normalized_sce, dimred = "PCA")
-  
-} else if (opt$overwrite == "no") {
-  message("Skipping dimension reduction steps.")
+}
+
+
+# if there are dimension reductions results in the sce and the user has not
+# specified whether or not to overwrite the results, stop script with an error
+if (!is.null(reducedDims(normalized_sce))) {
+  if(opt$overwrite){
+    # perform dimensionality reduction
+    message("Overwriting dimension reduction PCA and UMAP results.")
+    normalized_sce <- dim_reduction(normalized_sce, subset_genes)
+  } else {
+    stop(
+      "Do you want to overwrite the existing dimension reduction
+               results? Specify 'yes' or 'no' using the --overwrite flag."
+    )
+  }
+} else {
+  # perform dimensionality reduction 
+  normalized_sce <- dim_reduction(normalized_sce, subset_genes)
 }
 
 #### Save normalized file with dimensionality results --------------------------

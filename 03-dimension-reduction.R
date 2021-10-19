@@ -46,8 +46,8 @@ option_list <- list(
   optparse::make_option(
     c("-o", "--overwrite"),
     action = "store_true",
-    help = "specify whether or not to overwrite any existing dimension reduction
-            results; the default is yes, overwrite the results",
+    help = "specifies whether or not to overwrite any existing dimension reduction
+            results"
   )
 )
 
@@ -91,22 +91,22 @@ dim_reduction <- function(normalized_sce, subset_genes) {
   normalized_sce <- runUMAP(normalized_sce, dimred = "PCA")
 }
 
-
 # if there are dimension reductions results in the sce and the user has not
 # specified whether or not to overwrite the results, stop script with an error
 if (!is.null(reducedDims(normalized_sce))) {
-  if(opt$overwrite){
+  if (!is.null(opt$overwrite)) {
     # perform dimensionality reduction
     message("Overwriting dimension reduction PCA and UMAP results.")
     normalized_sce <- dim_reduction(normalized_sce, subset_genes)
   } else {
     stop(
-      "Do you want to overwrite the existing dimension reduction
-               results? Specify 'yes' or 'no' using the --overwrite flag."
+      "Dimensionality reduction results exist. Skipping dimensionality reduction
+      steps. If you want to overwrite the existing results, use the --overwrite
+      flag."
     )
   }
 } else {
-  # perform dimensionality reduction 
+  # perform dimensionality reduction
   normalized_sce <- dim_reduction(normalized_sce, subset_genes)
 }
 

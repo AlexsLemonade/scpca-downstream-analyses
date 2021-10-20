@@ -69,13 +69,15 @@ plot_markers_expression_sina <- function(normalized_sce,
   # subsetting
   ensembl_id_column_sym <- rlang::sym(ensembl_id_column)
   
+  # Run the `prepare_expression_df` function
+  expression_means_df <- prepare_expression_df(normalized_sce,
+                                               marker_genes,
+                                               ensembl_id_column)
+  
   if(!is.null(gene_symbol_column)) {
     gene_symbol_column_sym <- rlang::sym(gene_symbol_column)
     
-    # Run the `prepare_expression_df` function
-    expression_means_df <- prepare_expression_df(normalized_sce,
-                                                 marker_genes,
-                                                 ensembl_id_column) %>%
+    expression_means_df <- expression_means_df %>%
       dplyr::select(-cell_barcode) %>%
       dplyr::distinct() %>%
       # ensure that the symbol column contains the all_mean_expressed name
@@ -96,10 +98,6 @@ plot_markers_expression_sina <- function(normalized_sce,
       theme(axis.text.x = element_text(angle = 90))
     
   } else {
-    # Run the `prepare_expression_df` function
-    expression_means_df <- prepare_expression_df(normalized_sce,
-                                                 marker_genes,
-                                                 ensembl_id_column)
     
     sina_expression_plot <- ggplot(expression_means_df, aes(
       x = !!ensembl_id_column_sym,
@@ -134,17 +132,14 @@ plot_markers_expression_umap <- function(normalized_sce,
   #   umap_plot: UMAP plots colored by gene expression for each of the
   #              individual marker gene symbols
   
-  # Get the UMAP matrix
-  umap_matrix <- data.frame(reducedDim(normalized_sce, "UMAP")) %>%
-    tibble::rownames_to_column("cell_barcode")
-  
   # Run the `prepare_expression_df` function
   expression_means_df <- prepare_expression_df(normalized_sce,
                                                marker_genes,
                                                ensembl_id_column)
   
-  # Join the UMAP results with the expression data using the cell barcodes
-  expression_umap_df <- umap_matrix %>%
+  # Get the UMAP matrix and then join the UMAP results with the expression data using the cell barcodes
+  expression_umap_df <- data.frame(reducedDim(normalized_sce, "UMAP")) %>%
+    tibble::rownames_to_column("cell_barcode") %>%
     dplyr::left_join(expression_means_df, by = "cell_barcode")
   
   
@@ -189,17 +184,14 @@ plot_markers_expression_pca <- function(normalized_sce,
   #   pca_plot: PCA plots colored by gene expression for each of the
   #              individual marker gene symbols
   
-  # Get the PCA matrix
-  pca_matrix <- data.frame(reducedDim(normalized_sce, "PCA")) %>%
-    tibble::rownames_to_column("cell_barcode")
-  
   # Run the `prepare_expression_df` function
   expression_means_df <- prepare_expression_df(normalized_sce,
                                                marker_genes,
                                                ensembl_id_column)
   
-  # Join the PCA results with the expression data using the cell barcodes
-  expression_pca_df <- pca_matrix %>%
+  # Get the PCA matrix and join the PCA results with the expression data using the cell barcodes
+  expression_pca_df <- data.frame(reducedDim(normalized_sce, "PCA")) %>%
+    tibble::rownames_to_column("cell_barcode") %>%
     dplyr::left_join(expression_means_df, by = "cell_barcode")
   
   # Plot first two principal components, color by marker gene expression

@@ -1,0 +1,115 @@
+## Read in SingleCellExperiment RDS object that has been normalized using
+## functions from the `scran` and `scater` packages. This script will add PCA
+## and UMAP dimensionality results to the normalized SCE object, also using
+## functions from the `scran` and `scater` packages.
+
+# Command line usage:
+
+# Rscript --vanilla 03-dimension-reduction.R \
+#   --sce "data/anderson-single-cell/normalized/normalized_GSM4186961_sce.rds" \
+#   --seed 2021 \
+#   --top_n 2000 \
+#   --overwrite "yes"
+
+## Set up -------------------------------------------------------------
+
+## Load libraries
+library(scater)
+library(scran)
+library(magrittr)
+library(optparse)
+
+#### Command line arguments/options --------------------------------------------
+
+# Declare command line options
+option_list <- list(
+  optparse::make_option(
+    c("-i", "--sce"),
+    type = "character",
+    default = NULL,
+    help = "path to normalized sample SCE RDS file",
+  ),
+  optparse::make_option(
+    c("-n", "--top_n"),
+    type = "double",
+    default = 2000,
+    help = "top number of high variance genes to use for dimension reduction;
+            the default is top_n = 2000",
+  ),
+  optparse::make_option(
+    c("-s", "--seed"),
+    type = "integer",
+    default = 2021,
+    help = "seed integer",
+    metavar = "integer"
+  ),
+  optparse::make_option(
+    c("-o", "--overwrite"),
+    action = "store_true",
+    help = "specifies whether or not to overwrite any existing dimension reduction
+            results"
+  )
+)
+
+# Read the arguments passed
+opt_parser <- optparse::OptionParser(option_list = option_list)
+opt <- optparse::parse_args(opt_parser)
+
+# Set the seed
+set.seed(opt$seed)
+
+#### Read in data --------------------------------------------------------------
+
+# Check that the file exists
+if (!file.exists(opt$sce)){
+  stop(paste(opt$sce, "does not exist."))
+}
+
+# Read in normalized sce object
+normalized_sce <- readr::read_rds(opt$sce)
+
+#### Add PCA and UMAP results --------------------------------------------------
+
+# Check that `top_n` is an integer
+if (!(opt$top_n %% 1 == 0)){
+  stop(paste(opt$top_n, "must be an integer."))
+}
+
+# model gene variance using `scran:modelGeneVar()`
+gene_variance <- scran::modelGeneVar(normalized_sce)
+
+# select the most variable genes
+subset_genes <- scran::getTopHVGs(gene_variance, n = opt$top_n)
+
+# make function to add dimensionality reduction to sce
+dim_reduction <- function(normalized_sce, subset_genes) {
+  
+  # add PCA to normalized sce
+  normalized_sce <- runPCA(normalized_sce, subset_row = subset_genes)
+
+  # calculate a UMAP matrix using the PCA results
+  normalized_sce <- runUMAP(normalized_sce, dimred = "PCA")
+}
+
+# if there are dimension reductions results in the sce and the user has not
+# specified whether or not to overwrite the results, stop script with an error
+if (!is.null(reducedDims(normalized_sce))) {
+  if (!is.null(opt$overwrite)) {
+    # perform dimensionality reduction
+    message("Overwriting dimension reduction PCA and UMAP results.")
+    normalized_sce <- dim_reduction(normalized_sce, subset_genes)
+  } else {
+    stop(
+      "Dimensionality reduction results exist. Skipping dimensionality reduction
+      steps. If you want to overwrite the existing results, use the --overwrite
+      flag."
+    )
+  }
+} else {
+  # perform dimensionality reduction
+  normalized_sce <- dim_reduction(normalized_sce, subset_genes)
+}
+
+#### Save normalized file with dimensionality results --------------------------
+
+readr::write_rds(normalized_sce, opt$sce)

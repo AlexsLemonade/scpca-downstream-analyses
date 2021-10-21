@@ -38,6 +38,9 @@ library(scater)
 library(ggplot2)
 library(ComplexHeatmap)
 
+# Set seed for heatmap colors
+set.seed(201)
+
 # Source custom functions script
 source(file.path("utils", "marker-genes-analysis-functions.R"))
 ```
@@ -68,23 +71,47 @@ normalized_sce_logcounts_matrix <- normalized_sce_logcounts_matrix[,colnames(nor
 normalized_sce_zscores_matrix <- scale(normalized_sce_logcounts_matrix,
                                     center = TRUE, scale = TRUE)
 
-# prepare the matrix for heatmap plotting
-normalized_sce_zscores_matrix <- prepare_matrix_colnames(
-  normalized_sce_zscores_matrix,
-  marker_genes,
-  params$ensembl_id_column,
-  params$gene_symbol_column)
-
-# prepare the heatmap annotation
-if(!is.null(params$gene_symbol_column)) {
-  gene_id_column <- params$gene_symbol_column
+# prepare the matrix and column annotation for heatmap plotting
+if(!is.null(params$gene_set_column)) {
+  if (!is.null(params$gene_symbol_column)) {
+    normalized_sce_zscores_matrix <- colnames_to_gene_symbols(
+        normalized_sce_zscores_matrix,
+        marker_genes,
+        params$ensembl_id_column,
+        params$gene_symbol_column
+      )
+    gene_id_column <- params$gene_symbol_column
+    column_annotation <-
+      prepare_heatmap_annotation(
+        normalized_sce_zscores_matrix,
+        marker_genes,
+        gene_id_column,
+        params$gene_set_column
+      )
+  } else {
+    gene_id_column <- params$ensembl_id_column
+    column_annotation <-
+      prepare_heatmap_annotation(
+        normalized_sce_zscores_matrix,
+        marker_genes,
+        gene_id_column,
+        params$gene_set_column
+      )
+  }
 } else {
-  gene_id_column <- params$ensembl_id_column
+  if (!is.null(params$gene_symbol_column)) {
+    normalized_sce_zscores_matrix <-
+      colnames_to_gene_symbols(
+        normalized_sce_zscores_matrix,
+        marker_genes,
+        params$ensembl_id_column,
+        params$gene_symbol_column
+      )
+    column_annotation <- NULL
+  } else {
+    column_annotation <- NULL
+  }
 }
-column_annotation <- prepare_heatmap_annotation(normalized_sce_zscores_matrix,
-                                                marker_genes,
-                                                gene_id_column,
-                                                params$gene_set_column)
 ```
 
 ### Heatmap plotting

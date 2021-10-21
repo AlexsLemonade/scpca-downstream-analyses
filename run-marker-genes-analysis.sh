@@ -7,6 +7,23 @@ set -euo pipefail
 # filter, and normalize scripts (which are also optional based on the format of
 # the data).
 
+# Usage
+# Run marker gene analysis for h5 files using miQC filtering
+# run-marker-genes-analysis.sh --output_dir "data/results" \
+# --sample_name "GSM4186961" \
+# --sample_matrix "path/to/sample-file-matrix.h5" \
+# --sample_metadata "path/to/sample-file-metadata.csv" \
+# --marker_genes "data/marker-genes/nb_marker_genes.tsv" \
+# --input_file_type "h5" \
+# --filtering_method "miQC"
+
+# Run marker gene analysis for raw cellranger files using manual filtering
+# run-marker-genes-analysis.sh --output_dir "data/results" \
+# --sample_name "GSM4186961" \
+# --sample_matrix "path/to/sample-file-matrix.h5" \
+# --marker_genes "data/marker-genes/nb_marker_genes.tsv" \
+# --input_file_type "cellranger" \
+# --filtering_method "miQC"
 ###############################################################################
 
 # This script should always run as if it were being called from
@@ -18,17 +35,22 @@ cd "$script_directory" || exit
 
 RUN_MAPPING=${RUN_MAPPING:-FALSE}
 
-main_data_dir="data/anderson-single-cell"
-sample_name="GSM4186961"
-sample_matrix="data/anderson-single-cell/GSE140819/GSM4186961_HTAPP-312-SMP-901_fresh-T1_channel1_raw_gene_bc_matrices_h5.h5"
-sample_metadata="data/anderson-single-cell/GSE140819/GSM4186961_metadata_HTAPP-312-SMP-901_fresh-T1_channel1.csv.gz"
-marker_genes="data/anderson-single-cell/marker-genes/nb_marker_genes.tsv"
-mito_file="data/Homo_sapiens.GRCh38.103.mitogenes.txt"
-input_identifiers="SYMBOL"
-output_identifiers="ENSEMBL"
-identifier_column_name="gene_symbol"
-organism="Homo sapiens"
-SEED=2021
+mito_file=${mito_file:-data/Homo_sapiens.GRCh38.103.mitogenes.txt}
+input_identifiers=${input_identifiers:-SYMBOL}
+output_identifiers=${output_identifiers:-ENSEMBL}
+identifier_column_name=${identifier_column_name:-gene_symbol}
+organism=${organism:-Homo sapiens}
+SEED=${SEED:-2021}
+TOP_N=${TOP_N:-2000}
+
+# grab variables from command line
+while [ $# -gt 0 ]; do
+    if [[ $1 == *'--'* ]]; then
+        v="${1/--/}"
+        declare $v="$2"
+    fi
+    shift
+done
 
 # Run the gene identifier mapping script if `RUN_MAPPING = TRUE`
 if [[ RUN_MAPPING == "TRUE" ]]
@@ -40,7 +62,7 @@ then
     --identifier_column_name ${identifier_column_name} \
     --organism ${organism} \
     --multi_mappings "list" \
-    --output_file "${main_data_dir}/marker-genes/mapped_marker_genes.tsv"
+    --output_file "${output_dir}/mapped_marker_genes.tsv"
 else
   echo "Skipping gene identifier mapping."
 fi
@@ -49,25 +71,45 @@ fi
 Rscript --vanilla 00-prepare-sce.R \
  --sample_matrix_filepath ${sample_matrix} \
  --sample_metadata_filepath ${sample_metadata} \
- --input_file_type "h5" \
- --output_dir "${main_data_dir}/pre-filtered-sce" \
+ --input_file_type ${input_file_type} \
+ --output_dir "${output_dir}/${sample_name}" \
  --output_filename "${sample_name}_pre-filtered_sce.rds"
- 
+
 # Run the filtering script on pre-filtered SingleCellExperiment object (the
 # implementation below incorporates `miQC` filtering)
 Rscript --vanilla 01-filter-sce.R \
-  --sample_sce_filepath "${main_data_dir}/pre-filtered-sce/${sample_name}_pre-filtered_sce.rds" \
+  --sample_sce_filepath "${output_dir}/${sample_name}/${sample_name}_pre-filtered_sce.rds" \
   --sample_name ${sample_name} \
   --mito_file ${mito_file} \
-  --output_data_directory "${main_data_dir}/filtered" \
-  --output_plots_directory "plots" \
+  --output_data_directory "${output_dir}/${sample_name}" \
+  --output_plots_directory "${output_dir}/${sample_name}/plots" \
   --seed ${SEED} \
   --gene_detected_row_cutoff 5 \
   --gene_means_cutoff 0.1 \
-  --filtering_method "miQC"
+  --filtering_method ${filtering_method}
 
 # Run the normalization script on filtered SingleCellExperiment object
 Rscript --vanilla 02-normalize-sce.R \
-  --sce "${main_data_dir}/filtered/filtered_${sample_name}_miQC_sce.rds" \
-  --output_filepath "${main_data_dir}/normalized/normalized_${sample_name}_sce.rds" \
+  --sce "${output_dir}/${sample_name}/filtered_${sample_name}_miQC_sce.rds" \
+  --output_filepath "${output_dir}/${sample_name}/normalized_${sample_name}_sce.rds" \
   --seed ${SEED}
+
+# Run the dimension reduction script on the normalized SingleCellExperiment
+# object
+Rscript --vanilla 03-dimension-reduction.R \
+  --sce "${output_dir}/${sample_name}/normalized_${sample_name}_sce.rds" \
+  --seed ${SEED} \
+  --top_n 2000 \
+  --overwrite
+
+# Generate a html report displaying a hierarchical clustering heatmap and marker
+# gene expression plots
+Rscript -e "rmarkdown::render('marker-genes-report-template.Rmd', clean = TRUE,
+              output_file = '${output_dir}/${sample_name}/${sample_name}_provided_markers_report.html',
+              params = list(sample = '${sample_name}',
+                            normalized_sce = '${output_dir}/${sample_name}/normalized_${sample_name}_sce.rds',
+                            marker_genes = '${output_dir}/mapped_marker_genes.tsv',
+                            ensembl_id_column = 'ensembl',
+                            gene_symbol_column = 'gene_symbol',
+                            gene_set_column = 'gene_set'),
+              envir = new.env())"

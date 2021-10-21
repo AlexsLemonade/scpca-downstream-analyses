@@ -6,6 +6,111 @@
 #
 # source(file.path("utils", "marker-genes-analysis-functions.R"))
 
+prepare_matrix_colnames <- function(normalized_sce_matrix,
+                                    marker_genes,
+                                    ensembl_id_column,
+                                    gene_symbol_column) {
+  # Given a normalized SingleCellExperiment matrix, the name of the column with
+  # the Ensembl gene identifiers, and optionally (at command line) the name of
+  # the associated gene symbols, prepare the matrix column names for heatmap
+  # plotting.
+  #
+  # Args:
+  #   normalized_sce_matrix: matrix retrieved from a normalized
+  #                          SingleCellExperiment object
+  #   marker_genes: data frame with marker genes relevant to the data in the
+  #                 SingleCellExperiment object
+  #   ensembl_id_column: name of the column with the ensembl gene identifiers
+  #   gene_symbol_column: name of the column with the gene symbols that would be
+  #                       used for plotting if provided at the command line
+  
+  # turn the ensembl column names into a symbol for use when subsetting
+  ensembl_id_column_sym <- rlang::sym(ensembl_id_column)
+  
+  if (!is.null(gene_symbol_column)) {
+    gene_symbol_column_sym <- rlang::sym(gene_symbol_column)
+    
+    # we will want to replace the column names our matrix with the relevant gene
+    # symbols for plotting
+    map_ensembl_symbols <-
+      data.frame(ensembl = colnames(normalized_sce_matrix)) %>%
+      dplyr::left_join(marker_genes, by = c("ensembl" = ensembl_id_column))
+    
+    colnames(normalized_sce_matrix) <-
+      map_ensembl_symbols[[gene_symbol_column_sym]]
+  } else {
+    return(normalized_sce_matrix)
+  }
+  
+  return(normalized_sce_matrix)
+  
+}
+
+prepare_heatmap_annotation <- function(normalized_sce_matrix,
+                                       marker_genes,
+                                       gene_id_column,
+                                       gene_set) {
+  # Given a normalized SingleCellExperiment matrix, the name of the column with
+  # the gene identifiers (can be ensembl or gene symbols if present), and
+  # optionally (at command line) the name of column with the gene set info,
+  # prepare the column annotation object for the heatmap.
+  #
+  # Args:
+  #   normalized_sce_matrix: matrix retrieved from a normalized
+  #                          SingleCellExperiment object
+  #   marker_genes: data frame with marker genes relevant to the data in the
+  #                 SingleCellExperiment object
+  #   gene_id_column: name of the column with the gene identifiers (can be
+  #                   ensembl or gene symbols if provided)
+  #   gene_set: name of the column with the gene set information
+  
+  if (!is.null(gene_set)) {
+    gene_id_column_sym <- rlang::sym(gene_id_column)
+    gene_set_sym <- rlang::sym(gene_set)
+    
+    # create column annotation data frame
+    annotation_df <- marker_genes %>%
+      dplyr::select(gene_id_column_sym, gene_set_sym) %>%
+      dplyr::distinct()
+    
+    rownames(annotation_df) <- NULL
+    
+    # filter to ensure only those genes of that marker genes that had data stored
+    # in the sce object are kept in the annotation object
+    annotation_df <- annotation_df %>%
+      dplyr::filter(!!gene_id_column_sym %in% colnames(normalized_sce_matrix)) %>%
+      tibble::column_to_rownames(gene_id_column)
+    
+    gene_set_names <- annotation_df %>%
+      dplyr::arrange(gene_set) %>%
+      dplyr::pull(gene_set) %>%
+      unique()
+    
+    if (length(gene_set_names) > 8) {
+      stop(
+        "There are more than eight unique gene set values. Please choose a different gene set column with eight or less unique values or re-run without providing one."
+      )
+    } else {
+      # get colors for the annotation object
+      annotation_colors <-
+        palette.colors(palette = "Okabe-Ito")[2:(length(gene_set_names) + 1)]
+      
+      gene_set_colors = annotation_colors[1:length(gene_set_names)]
+      names(gene_set_colors) = gene_set_names
+      gene_set_colors <- as.list(gene_set_colors)
+      
+      # create the column annotation for the ComplexHeatmap
+      column_annotation <- HeatmapAnnotation(
+        df = annotation_df,
+        col = gene_set_colors,
+        annotation_label = c("Gene Set")
+      )
+    }
+  } else if (is.null(gene_set)) {
+    column_annotation <- NULL
+  }
+}
+
 prepare_expression_df <- function(normalized_sce,
                                   marker_genes,
                                   ensembl_id_column) {

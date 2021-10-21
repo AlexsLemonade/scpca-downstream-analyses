@@ -4,7 +4,9 @@ params:
   normalized_sce: "data/anderson-single-cell/normalized/normalized_GSM4186961_sce.rds"
   marker_genes: "marker-genes/mapped_marker_genes.tsv"
   date: !r Sys.Date()
-  gene_sets_present: TRUE
+  gene_sets_present: FALSE
+  ensembl_id_column: "ensembl"
+  gene_symbol_column: NULL
 
 title: "`r glue::glue('Gene expression plots for {params$sample}')`"
 author: "CCDL"
@@ -54,6 +56,8 @@ glue::glue("This sample has {num_cells} cells.")
 ## Perform Hierarchical Clustering
 
 ```{r}
+ensembl <- params$ensembl_id_column
+
 # get logcounts from normalized sce object
 normalized_sce_logcounts_matrix <- as.matrix(t(logcounts(normalized_sce)))
 
@@ -64,48 +68,88 @@ normalized_sce_logcounts_matrix <- normalized_sce_logcounts_matrix[,colnames(nor
 normalized_sce_zscores_matrix <- scale(normalized_sce_logcounts_matrix,
                                     center = TRUE, scale = TRUE)
 
-# we will want to replace the column names our matrix with the relevant gene
-# symbols for plotting
-map_ensembl_symbols <- data.frame(ensembl = colnames(normalized_sce_zscores_matrix)) %>%
-  dplyr::left_join(marker_genes, by = "ensembl")
-
-colnames(normalized_sce_zscores_matrix) <- map_ensembl_symbols$gene_symbol
+if (!is.null(params$gene_symbol_column)) {
+  gene_symbol <- params$gene_symbol_column
+  # we will want to replace the column names our matrix with the relevant gene
+  # symbols for plotting
+  map_ensembl_symbols <-
+    data.frame(ensembl = colnames(normalized_sce_zscores_matrix)) %>%
+    dplyr::left_join(marker_genes, by = "ensembl")
   
-# create column annotation data frame
-annotation_df <- marker_genes %>%
-  dplyr::select(gene_symbol, gene_set) %>%
-  dplyr::distinct()
-
-rownames(annotation_df) <- NULL
-
-# filter to ensure only those genes of that marker genes that had data stored
-# in the sce object are kept in the annotation object
-annotation_df <- annotation_df %>%
-  dplyr::filter(gene_symbol %in% colnames(normalized_sce_zscores_matrix)) %>%
-  tibble::column_to_rownames("gene_symbol")
-
-if(params$gene_sets_present == TRUE) {
-  gene_set_names <- annotation_df %>%
-    dplyr::arrange(gene_set) %>%
-    dplyr::pull(gene_set) %>%
-    unique()
+  colnames(normalized_sce_zscores_matrix) <-
+    map_ensembl_symbols$gene_symbol
   
-  # get colors for the annotation object
-  annotation_colors <-
-    palette.colors(palette = "Okabe-Ito")[2:(length(gene_set_names) + 1)]
+  # create column annotation data frame
+  annotation_df <- marker_genes %>%
+    dplyr::select(gene_symbol, gene_set) %>%
+    dplyr::distinct()
   
-  gene_set_colors = annotation_colors[1:length(gene_set_names)]
-  names(gene_set_colors) = gene_set_names
-  gene_set_colors <- as.list(gene_set_colors)
+  rownames(annotation_df) <- NULL
   
-  # create the column annotation for the ComplexHeatmap
-  column_annotation <- HeatmapAnnotation(
-    df = annotation_df,
-    col = gene_set_colors,
-    annotation_label = c("Gene Set")
-  )
-} else {
-  column_annotation <- NULL
+  # filter to ensure only those genes of that marker genes that had data stored
+  # in the sce object are kept in the annotation object
+  annotation_df <- annotation_df %>%
+    dplyr::filter(gene_symbol %in% colnames(normalized_sce_zscores_matrix)) %>%
+    tibble::column_to_rownames("gene_symbol")
+  
+  if (params$gene_sets_present == TRUE) {
+    gene_set_names <- annotation_df %>%
+      dplyr::arrange(gene_set) %>%
+      dplyr::pull(gene_set) %>%
+      unique()
+    
+    # get colors for the annotation object
+    annotation_colors <-
+      palette.colors(palette = "Okabe-Ito")[2:(length(gene_set_names) + 1)]
+    
+    gene_set_colors = annotation_colors[1:length(gene_set_names)]
+    names(gene_set_colors) = gene_set_names
+    gene_set_colors <- as.list(gene_set_colors)
+    
+    # create the column annotation for the ComplexHeatmap
+    column_annotation <- HeatmapAnnotation(
+      df = annotation_df,
+      col = gene_set_colors,
+      annotation_label = c("Gene Set")
+    )
+  } else {
+    column_annotation <- NULL
+  }
+} else if (is.null(params$gene_symbol_column)) {
+    # create column annotation data frame
+  annotation_df <- marker_genes %>%
+    dplyr::select(ensembl, gene_set) %>%
+    dplyr::distinct()
+  
+  rownames(annotation_df) <- NULL
+  
+  # filter to ensure only those genes of that marker genes that had data stored
+  # in the sce object are kept in the annotation object
+  annotation_df <- annotation_df %>%
+    dplyr::filter(ensembl %in% colnames(normalized_sce_zscores_matrix)) %>%
+    tibble::column_to_rownames("ensembl")
+  
+  if (params$gene_sets_present == TRUE) {
+    gene_set_names <- annotation_df %>%
+      dplyr::arrange(gene_set) %>%
+      dplyr::pull(gene_set) %>%
+      unique()
+    
+    # get colors for the annotation object
+    annotation_colors <-
+      palette.colors(palette = "Okabe-Ito")[2:(length(gene_set_names) + 1)]
+    
+    gene_set_colors = annotation_colors[1:length(gene_set_names)]
+    names(gene_set_colors) = gene_set_names
+    gene_set_colors <- as.list(gene_set_colors)
+    
+    # create the column annotation for the ComplexHeatmap
+    column_annotation <- HeatmapAnnotation(
+      df = annotation_df,
+      col = gene_set_colors,
+      annotation_label = c("Gene Set")
+    )
+  }
 }
 ```
 
@@ -137,7 +181,10 @@ marker genes in comparison to the mean expression of all genes present in the da
 
 ```{r}
 # plot expression of marker genes
-plot_markers_expression_sina(normalized_sce, marker_genes, "ensembl", "gene_symbol")
+plot_markers_expression_sina(normalized_sce,
+                             marker_genes,
+                             params$ensembl_id_column,
+                             params$gene_symbol_column)
 ```
 
 ### UMAP plots
@@ -146,7 +193,10 @@ Each plot below represents the UMAP results calculated using this sample's data.
 Each dot represents a cell and the color indicates the individual marker gene expression (each plot being relevant to a single marker gene).
 
 ```{r}
-plot_markers_expression_umap(normalized_sce, marker_genes, "ensembl", "gene_symbol")
+plot_markers_expression_umap(normalized_sce,
+                             marker_genes,
+                             params$ensembl_id_column,
+                             params$gene_symbol_column)
 ```
 
 ### PCA plots
@@ -155,7 +205,10 @@ Each plot below represents the PCA results calculated using this sample's data.
 Each dot represents a cell and the color indicates the individual marker gene expression (each plot being relevant to a single marker gene).
 
 ```{r}
-plot_markers_expression_pca(normalized_sce, marker_genes, "ensembl", "gene_symbol")
+plot_markers_expression_pca(normalized_sce,
+                            marker_genes,
+                            params$ensembl_id_column,
+                            params$gene_symbol_column)
 ```
 
 ## Session Info

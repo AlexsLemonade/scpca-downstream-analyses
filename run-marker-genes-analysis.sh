@@ -15,7 +15,9 @@ set -euo pipefail
 # --sample_metadata "path/to/sample-file-metadata.csv" \
 # --marker_genes "data/marker-genes/nb_marker_genes.tsv" \
 # --input_file_type "h5" \
-# --filtering_method "miQC"
+# --ensembl_id_column_name "ensembl" \
+# --gene_set_column_name "gene_set" \
+# --plotting_identifier_type "symbol"
 
 # Run marker gene analysis for raw cellranger files using manual filtering
 # run-marker-genes-analysis.sh --output_dir "data/results" \
@@ -40,6 +42,7 @@ input_identifiers=${input_identifiers:-SYMBOL}
 output_identifiers=${output_identifiers:-ENSEMBL}
 identifier_column_name=${identifier_column_name:-gene_symbol}
 organism=${organism:-Homo sapiens}
+filtering_method=${filtering_method:-miQC}
 SEED=${SEED:-2021}
 TOP_N=${TOP_N:-2000}
 
@@ -90,26 +93,42 @@ Rscript --vanilla 01-filter-sce.R \
 
 # Run the normalization script on filtered SingleCellExperiment object
 Rscript --vanilla 02-normalize-sce.R \
-  --sce "${output_dir}/${sample_name}/filtered_${sample_name}_miQC_sce.rds" \
-  --output_filepath "${output_dir}/${sample_name}/normalized_${sample_name}_sce.rds" \
+  --sce "${output_dir}/${sample_name}/${sample_name}_filtered_${filtering_method}_sce.rds" \
+  --output_filepath "${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds" \
   --seed ${SEED}
 
 # Run the dimension reduction script on the normalized SingleCellExperiment
 # object
 Rscript --vanilla 03-dimension-reduction.R \
-  --sce "${output_dir}/${sample_name}/normalized_${sample_name}_sce.rds" \
+  --sce "${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds" \
   --seed ${SEED} \
-  --top_n 2000 \
+  --top_n ${TOP_N} \
   --overwrite
 
 # Generate a html report displaying a hierarchical clustering heatmap and marker
 # gene expression plots
+if [[ ${plotting_identifier_type} == "symbol" ]]
+then
 Rscript -e "rmarkdown::render('marker-genes-report-template.Rmd', clean = TRUE,
               output_file = '${output_dir}/${sample_name}/${sample_name}_provided_markers_report.html',
               params = list(sample = '${sample_name}',
-                            normalized_sce = '${output_dir}/${sample_name}/normalized_${sample_name}_sce.rds',
+                            normalized_sce = '${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds',
                             marker_genes = '${output_dir}/mapped_marker_genes.tsv',
-                            ensembl_id_column = 'ensembl',
-                            gene_symbol_column = 'gene_symbol',
-                            gene_set_column = 'gene_set'),
+                            ensembl_id_column = '${ensembl_id_column_name}',
+                            gene_symbol_column = '${identifier_column_name}',
+                            gene_set_column = '${gene_set_column_name}'),
               envir = new.env())"
+elif [[ ${plotting_identifier_type} == "ensembl" ]]
+then
+Rscript -e "rmarkdown::render('marker-genes-report-template.Rmd', clean = TRUE,
+              output_file = '${output_dir}/${sample_name}/${sample_name}_provided_markers_report.html',
+              params = list(sample = '${sample_name}',
+                            normalized_sce = '${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds',
+                            marker_genes = '${output_dir}/mapped_marker_genes.tsv',
+                            ensembl_id_column = '${ensembl_id_column_name}',
+                            gene_set_column = '${gene_set_column_name}'),
+              envir = new.env())"
+else
+  echo "Plotting gene identifier specified is not supported. Specify 'symbol' or
+  'ensembl' using the --plotting_identifier_type flag."
+fi

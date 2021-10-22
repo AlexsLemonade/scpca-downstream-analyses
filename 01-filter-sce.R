@@ -139,7 +139,7 @@ if (!dir.exists(plots_dir)) {
 
 output_sce_file <- file.path(
   filtered_dir,
-  paste0("filtered_", opt$sample_name, "_", opt$filtering_method, "_sce.rds"))
+  paste0(opt$sample_name, "_filtered_", opt$filtering_method, "_sce.rds"))
 
 output_filtered_cell_plot <- file.path(
   plots_dir,

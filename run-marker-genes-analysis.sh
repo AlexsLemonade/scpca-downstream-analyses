@@ -45,6 +45,8 @@ organism=${organism:-Homo sapiens}
 filtering_method=${filtering_method:-miQC}
 SEED=${SEED:-2021}
 TOP_N=${TOP_N:-2000}
+plotting_identifier_type=${plotting_identifier_type:-symbol}
+ensembl_id_column_name=${ensembl_id_column_name:-ensembl}
 
 # grab variables from command line
 while [ $# -gt 0 ]; do

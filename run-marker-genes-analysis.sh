@@ -8,14 +8,13 @@ set -euo pipefail
 # the data).
 
 # Usage
-# Run marker gene analysis for h5 files using miQC filtering
+# Run marker gene analysis for h5 files using default miQC filtering
 # run-marker-genes-analysis.sh --output_dir "data/results" \
 # --sample_name "GSM4186961" \
 # --sample_matrix "path/to/sample-file-matrix.h5" \
 # --sample_metadata "path/to/sample-file-metadata.csv" \
 # --marker_genes "data/marker-genes/nb_marker_genes.tsv" \
 # --input_file_type "h5" \
-# --ensembl_id_column_name "ensembl" \
 # --gene_set_column_name "gene_set" \
 # --plotting_identifier_type "symbol"
 
@@ -25,7 +24,10 @@ set -euo pipefail
 # --sample_matrix "path/to/sample-file-matrix.h5" \
 # --marker_genes "data/marker-genes/nb_marker_genes.tsv" \
 # --input_file_type "cellranger" \
-# --filtering_method "miQC"
+# --filtering_method "manual" \
+# --gene_set_column_name "gene_set" \
+# --ensembl_id_column_name "ensembl" \
+# --plotting_identifier_type "ensembl"
 ###############################################################################
 
 # This script should always run as if it were being called from

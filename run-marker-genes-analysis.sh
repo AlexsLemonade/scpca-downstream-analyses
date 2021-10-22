@@ -53,14 +53,14 @@ while [ $# -gt 0 ]; do
 done
 
 # Run the gene identifier mapping script if `RUN_MAPPING = TRUE`
-if [[ RUN_MAPPING == "TRUE" ]]
+if [[ ${RUN_MAPPING} == "TRUE" ]]
 then
   Rscript --vanilla utils/map-marker-genes.R \
     --input_marker_gene_list ${marker_genes} \
     --input_identifiers ${input_identifiers} \
     --output_identifiers ${output_identifiers} \
     --identifier_column_name ${identifier_column_name} \
-    --organism ${organism} \
+    --organism "${organism}" \
     --multi_mappings "list" \
     --output_file "${output_dir}/mapped_marker_genes.tsv"
 else

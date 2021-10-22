@@ -239,12 +239,22 @@ plot_markers_expression_umap <- function(normalized_sce,
   
   # Plot UMAP, color by marker gene expression
   if(!is.null(gene_symbol_column)) {
+    # Turn the gene symbol column name into a symbol for use when filtering
+    gene_symbol_column_sym <- rlang::sym(gene_symbol_column)
+    expression_umap_df <- expression_umap_df %>%
+      dplyr::filter(!is.na(!!gene_symbol_column_sym))
+    
     umap_plot <- ggplot(expression_umap_df,
                         aes(x = X1, y = X2, color = gene_expression)) +
       geom_point(size = 0.5) +
       facet_wrap(as.formula(paste("~", gene_symbol_column))) +
       scale_color_viridis_c()
   } else {
+    # Turn the ensembl column name into a symbol for use when filtering
+    ensembl_id_column_sym <- rlang::sym(ensembl_id_column)
+    expression_umap_df <- expression_umap_df %>%
+      dplyr::filter(!is.na(!!ensembl_id_column_sym))
+    
     umap_plot <- ggplot(expression_umap_df,
                         aes(x = X1, y = X2, color = gene_expression)) +
       geom_point(size = 0.5) +
@@ -290,12 +300,22 @@ plot_markers_expression_pca <- function(normalized_sce,
   
   # Plot first two principal components, color by marker gene expression
   if (!is.null(gene_symbol_column)) {
+    # Turn the gene symbol column name into a symbol for use when filtering
+    gene_symbol_column_sym <- rlang::sym(gene_symbol_column)
+    expression_pca_df <- expression_pca_df %>%
+      dplyr::filter(!is.na(!!gene_symbol_column_sym))
+    
     pca_plot <- ggplot(expression_pca_df,
                        aes(x = PC1, y = PC2, color = gene_expression)) +
       geom_point(size = 0.5) +
       facet_wrap(as.formula(paste("~", gene_symbol_column))) +
       scale_color_viridis_c()
   } else {
+    # Turn the gene symbol column name into a symbol for use when filtering
+    ensembl_id_column_sym <- rlang::sym(ensembl_id_column)
+    expression_pca_df <- expression_pca_df %>%
+      dplyr::filter(!is.na(!!ensembl_id_column_sym))
+    
     pca_plot <- ggplot(expression_pca_df,
                        aes(x = PC1, y = PC2, color = gene_expression)) +
       geom_point(size = 0.5) +

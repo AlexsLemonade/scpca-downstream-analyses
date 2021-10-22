@@ -70,11 +70,19 @@ if(opt$input_file_type == "cellranger") {
     DropletUtils::read10xCounts(opt$sample_matrix_filepath)
   metadata <- data.table::fread(opt$sample_metadata_filepath)
   
-  # filter out any instances where emptydrop or doublet is `TRUE`
-  metadata_filtered <- metadata %>%
-    # create a `Barcode` column to filter the sce on
-    dplyr::mutate(Barcode = paste0(gsub("^.*-", "", V1), "-1")) %>%
-    dplyr::filter(emptydrop == FALSE & doublet == FALSE)
+  if ("emptydrop" %in% colnames(metadata)) {
+    # filter out any instances where emptydrop or doublet is `TRUE`
+    metadata_filtered <- metadata %>%
+      # create a `Barcode` column to filter the sce on
+      dplyr::mutate(Barcode = paste0(gsub("^.*-", "", V1), "-1")) %>%
+      dplyr::filter(emptydrop == FALSE & doublet == FALSE)
+  } else if (!("emptydrop") %in% colnames(metadata)) {
+    # filter out any instances where emptydrop or doublet is `TRUE`
+    metadata_filtered <- metadata %>%
+      # create a `Barcode` column to filter the sce on
+      dplyr::mutate(Barcode = paste0(gsub("^.*-", "", V1), "-1")) %>%
+      dplyr::filter(doublet == FALSE)
+  }
   # filter using cell barcodes
   sce <- sce[, colData(sce)$Barcode %in% metadata_filtered$Barcode]
   

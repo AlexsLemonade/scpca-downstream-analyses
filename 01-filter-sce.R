@@ -31,7 +31,6 @@ if (!("miQC" %in% installed.packages())) {
   }
   BiocManager::install("miQC")
 }
-library(miQC)
 
 #### Command line arguments/options --------------------------------------------
 
@@ -56,13 +55,13 @@ option_list <- list(
     help = "the path to the mito file"
   ),
   optparse::make_option(
-    c("-l", "--output_plots_directory"),
+    c("--output_plots_directory"),
     type = "character",
     default = NULL,
     help = "output plots directory"
   ),
   optparse::make_option(
-    c("-t", "--output_filepath"),
+    c("--output_filepath"),
     type = "character",
     default = NULL,
     help = "filepath to output filtered file"
@@ -110,7 +109,7 @@ option_list <- list(
     metavar = "integer"
   ),
   optparse::make_option(
-    c("-b", "--prob_compromised_cutoff"),
+    c("--prob_compromised_cutoff"),
     type = "integer",
     default = 0.75,
     help = "cell probability compromised cutoff -- this should be provided if
@@ -174,7 +173,12 @@ if (!is.null(sce_qc$prob_compromised)) {
 }
 
 # Perform filtering based on specified method
-if (opt$filtering_method == "manual") {
+if (!opt$filtering_method %in% c("manual", "miQC")) {
+  
+  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
+  
+} else if (opt$filtering_method == "manual") {
+  
   # Filter the cells
   mito_filter <-
     colData(sce_qc)$mito_percent < opt$mito_percent_cutoff
@@ -204,23 +208,16 @@ if (opt$filtering_method == "manual") {
                          "subsets_mito_")
   
   # Generate miQC model
-  sce_model <- mixtureModel(sce_qc)
+  sce_model <- miQC::mixtureModel(sce_qc)
   
   # Filter cells
-  filtered_sce <- filterCells(sce_qc, sce_model)
+  filtered_sce <- miQC::filterCells(sce_qc, sce_model)
   
-} else {
-  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
-}
-
-#### Plot filtered data --------------------------------------------------------
-
-if (opt$filtering_method == "miQC") {
   # Plot model
-  filtered_model_plot <- plotModel(sce_qc, sce_model)
+  filtered_model_plot <- miQC::plotModel(sce_qc, sce_model)
   
   # Plot filtering
-  filtered_cell_plot <- plotFiltering(sce_qc, sce_model)
+  filtered_cell_plot <- miQC::plotFiltering(sce_qc, sce_model)
   
   # Combine plots
   filtered_cell_plot <-
@@ -230,13 +227,13 @@ if (opt$filtering_method == "miQC") {
               nrow = 2)
   
   ggsave(output_filtered_cell_plot, filtered_cell_plot)
+  
 }
 
-if (is.null(rowData(filtered_sce)$mean)) {
-  # Use the default parameters of `addPerFeatureQC()` to add detected and mean
-  # gene stats to the rowData of the SCE object
-  filtered_sce <- addPerFeatureQC(filtered_sce)
-}
+# Remove old gene-level rowData statistics and recalculate
+drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
+rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols] 
+filtered_sce <- addPerFeatureQC(filtered_sce)
 
 # Filter the genes (rows)
 detected <-

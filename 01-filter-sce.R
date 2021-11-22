@@ -160,10 +160,17 @@ sce_qc <- readr::read_rds(opt$sample_sce_filepath)
 # Read in mito genes
 mito_genes <- unique(readLines(opt$mito_file))
 
-if (is.null(colData(sce_qc)$detected)) {
+if (is.null(sce_qc$detected)) {
   # We will filter by features (genes) using `scater::addPerFeatureQC()` and by
   # cells using `scpcaTools::add_cell_mito_qc()`
   sce_qc <- add_cell_mito_qc(sce_qc, mito_genes)
+}
+
+if (!is.null(sce_qc$prob_compromised)) {
+  
+  # Remove `prob_compromised` if it exists, as this will cause errors with
+  # plotModel
+  sce_qc$prob_compromised <- NULL
 }
 
 # Perform filtering based on specified method
@@ -189,29 +196,19 @@ if (opt$filtering_method == "manual") {
   
   
 } else if (opt$filtering_method == "miQC") {
-  if (!is.null(colData(sce_qc)$prob_compromised)) {
-    # Filter based in the values stored in `prob_compromised`
-    prob_compromised_values <- colData(sce_qc)$prob_compromised < opt$prob_compromised_cutoff
-    filtered_sce <- sce_qc[prob_compromised_values %in% colData(sce_qc)$prob_compromised]
-
-    # Remove `prob_compromised` if it exists, as this will cause errors with
-    # plotModel
-    filtered_sce$prob_compromised <- NULL
-    sce_model <- metadata(filtered_sce)$miQC_model
-    
-  } else if(is.null(colData(sce_qc)$prob_compromised)) {
-    # Rename columns for `mixtureModel()`
-    names(colData(sce_qc)) <-
-      stringr::str_replace(names(colData(sce_qc)),
-                           "^mito_",
-                           "subsets_mito_")
-    
-    # Generate miQC model
-    sce_model <- mixtureModel(sce_qc)
-    
-    # Filter cells
-    filtered_sce <- filterCells(sce_qc, sce_model)
-  }
+  
+  # Rename columns for `mixtureModel()`
+  names(colData(sce_qc)) <-
+    stringr::str_replace(names(colData(sce_qc)),
+                         "^mito_",
+                         "subsets_mito_")
+  
+  # Generate miQC model
+  sce_model <- mixtureModel(sce_qc)
+  
+  # Filter cells
+  filtered_sce <- filterCells(sce_qc, sce_model)
+  
 } else {
   stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
 }
@@ -220,10 +217,10 @@ if (opt$filtering_method == "manual") {
 
 if (opt$filtering_method == "miQC") {
   # Plot model
-  filtered_model_plot <- plotModel(filtered_sce, sce_model)
+  filtered_model_plot <- plotModel(sce_qc, sce_model)
   
   # Plot filtering
-  filtered_cell_plot <- plotFiltering(filtered_sce, sce_model)
+  filtered_cell_plot <- plotFiltering(sce_qc, sce_model)
   
   # Combine plots
   filtered_cell_plot <-
@@ -235,9 +232,11 @@ if (opt$filtering_method == "miQC") {
   ggsave(output_filtered_cell_plot, filtered_cell_plot)
 }
 
-# Use the default parameters of `addPerFeatureQC()` to add detected and mean
-# gene stats to the rowData of the SCE object
-filtered_sce <- addPerFeatureQC(filtered_sce)
+if (is.null(rowData(filtered_sce)$mean)) {
+  # Use the default parameters of `addPerFeatureQC()` to add detected and mean
+  # gene stats to the rowData of the SCE object
+  filtered_sce <- addPerFeatureQC(filtered_sce)
+}
 
 # Filter the genes (rows)
 detected <-

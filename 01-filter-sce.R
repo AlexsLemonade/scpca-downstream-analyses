@@ -6,11 +6,12 @@
 #   --sample_sce_filepath "data/anderson-single-cell/pre-filtered-sce/GSM4186961_pre-filtered_sce.rds" \
 #   --sample_name "GSM4186961" \
 #   --mito_file data/Homo_sapiens.GRCh38.103.mitogenes.txt \
-#   --output_data_directory data/anderson-single-cell/filtered \
+#   --output_filepath data/anderson-single-cell/results/sample_filtered_sce.rds \
 #   --output_plots_directory plots \
 #   --seed 2021 \
 #   --gene_detected_row_cutoff 5 \
 #   --gene_means_cutoff 0.1 \
+#   --prob_compromised_cutoff 0.75 \
 #   --filtering_method "miQC"
 
 ## Set up -------------------------------------------------------------
@@ -23,6 +24,9 @@ library(ggpubr)
 library(magrittr)
 library(scpcaTools)
 library(optparse)
+library(SingleCellExperiment)
+library(cowplot)
+library(scuttle)
 
 if (!("miQC" %in% installed.packages())) {
   if (!requireNamespace("BiocManager")) {
@@ -30,7 +34,6 @@ if (!("miQC" %in% installed.packages())) {
   }
   BiocManager::install("miQC")
 }
-library(miQC)
 
 #### Command line arguments/options --------------------------------------------
 
@@ -55,16 +58,16 @@ option_list <- list(
     help = "the path to the mito file"
   ),
   optparse::make_option(
-    c("-o", "--output_data_directory"),
-    type = "character",
-    default = NULL,
-    help = "output data directory"
-  ),
-  optparse::make_option(
-    c("-l", "--output_plots_directory"),
+    c("--output_plots_directory"),
     type = "character",
     default = NULL,
     help = "output plots directory"
+  ),
+  optparse::make_option(
+    c("--output_filepath"),
+    type = "character",
+    default = NULL,
+    help = "filepath to output filtered file"
   ),
   optparse::make_option(
     c("-s", "--seed"),
@@ -109,6 +112,14 @@ option_list <- list(
     metavar = "integer"
   ),
   optparse::make_option(
+    c("--prob_compromised_cutoff"),
+    type = "integer",
+    default = 0.75,
+    help = "cell probability compromised cutoff -- this should be provided if
+            `prob_compromised` already exists in the object",
+    metavar = "integer"
+  ),
+  optparse::make_option(
     c("-f", "--filtering_method"),
     type = "character",
     default = "miQC",
@@ -127,19 +138,17 @@ set.seed(opt$seed)
 ## Define file paths
 
 # Directory and file to save output
-filtered_dir <- file.path(opt$output_data_directory)
-if (!dir.exists(filtered_dir)) {
-  dir.create(filtered_dir, recursive = TRUE)
+output_file <- opt$output_filepath
+output_dir <- dirname(output_file)
+
+if (!dir.exists(output_dir)) {
+  dir.create(output_dir, recursive = TRUE)
 }
 
-plots_dir <- file.path(opt$output_plots_directory, opt$sample_name)
+plots_dir <- file.path(opt$output_plots_directory)
 if (!dir.exists(plots_dir)) {
   dir.create(plots_dir, recursive = TRUE)
 }
-
-output_sce_file <- file.path(
-  filtered_dir,
-  paste0(opt$sample_name, "_filtered_", opt$filtering_method, "_sce.rds"))
 
 output_filtered_cell_plot <- file.path(
   plots_dir,
@@ -148,17 +157,31 @@ output_filtered_cell_plot <- file.path(
 #### Filter data ---------------------------------------------------------------
 
 # Read in sce object
-sce <- readr::read_rds(opt$sample_sce_filepath)
+sce_qc <- readr::read_rds(opt$sample_sce_filepath)
 
 # Read in mito genes
 mito_genes <- unique(readLines(opt$mito_file))
 
-# We will filter by features (genes) using `scater::addPerFeatureQC()` and by
-# cells using `scpcaTools::add_cell_mito_qc()`
-sce_qc <- add_cell_mito_qc(sce, mito_genes)
+if (is.null(sce_qc$detected)) {
+  # We will filter by features (genes) using `scater::addPerFeatureQC()` and by
+  # cells using `scpcaTools::add_cell_mito_qc()`
+  sce_qc <- add_cell_mito_qc(sce_qc, mito_genes)
+}
+
+if (!is.null(sce_qc$prob_compromised)) {
+  
+  # Remove `prob_compromised` if it exists, as this will cause errors with
+  # plotModel
+  sce_qc$prob_compromised <- NULL
+}
 
 # Perform filtering based on specified method
-if (opt$filtering_method == "manual") {
+if (!opt$filtering_method %in% c("manual", "miQC")) {
+  
+  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
+  
+} else if (opt$filtering_method == "manual") {
+  
   # Filter the cells
   mito_filter <-
     colData(sce_qc)$mito_percent < opt$mito_percent_cutoff
@@ -169,12 +192,13 @@ if (opt$filtering_method == "manual") {
     sce_qc[, mito_filter & gene_filter & sum_filter]
   
   coldata_qc <- data.frame(colData(sce_qc))
-  filtered_cell_plot <- ggplot(coldata_qc, aes(x = sum, y = detected, color = mito_percent)) + 
+  filtered_cell_plot <-
+    ggplot(coldata_qc, aes(x = sum, y = detected, color = mito_percent)) +
     geom_point(alpha = 0.5) +
-    scale_color_viridis_c() + 
-    labs(x = "Total Count", y = "Number of Genes Expressed", color = "Mitochondrial \nFraction") + 
+    scale_color_viridis_c() +
+    labs(x = "Total Count", y = "Number of Genes Expressed", color = "Mitochondrial \nFraction") +
     theme_classic() +
-    geom_hline(yintercept = opt$detected_gene_cutoff) + 
+    geom_hline(yintercept = opt$detected_gene_cutoff) +
     geom_vline(xintercept = opt$umi_count_cutoff)
   
   
@@ -187,28 +211,31 @@ if (opt$filtering_method == "manual") {
                          "subsets_mito_")
   
   # Generate miQC model
-  sce_model <- mixtureModel(sce_qc)
+  sce_model <- miQC::mixtureModel(sce_qc)
   
   # Filter cells
-  filtered_sce <- filterCells(sce_qc, sce_model)
+  filtered_sce <- miQC::filterCells(sce_qc, sce_model)
   
   # Plot model
-  filtered_model_plot <- plotModel(sce_qc, sce_model)
+  filtered_model_plot <- miQC::plotModel(sce_qc, sce_model)
   
   # Plot filtering
-  filtered_cell_plot <- plotFiltering(sce_qc, sce_model)
+  filtered_cell_plot <- miQC::plotFiltering(sce_qc, sce_model)
   
-  filtered_cell_plot <- ggarrange(filtered_model_plot, filtered_cell_plot,
-                                  ncol = 1, nrow = 2)
+  # Combine plots
+  filtered_cell_plot <-
+    ggarrange(filtered_model_plot,
+              filtered_cell_plot,
+              ncol = 1,
+              nrow = 2)
   
-} else {
-  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
+  ggsave(output_filtered_cell_plot, filtered_cell_plot)
+  
 }
 
-ggsave(output_filtered_cell_plot, filtered_cell_plot)
-
-# Use the default parameters of `addPerFeatureQC()` to add detected and mean
-# gene stats to the rowData of the SCE object
+# Remove old gene-level rowData statistics and recalculate
+drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
+rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols] 
 filtered_sce <- addPerFeatureQC(filtered_sce)
 
 # Filter the genes (rows)
@@ -219,4 +246,4 @@ filtered_sce <- filtered_sce[detected & expressed,]
 
 #### Save output filtered sce --------------------------------------------------
 
-readr::write_rds(sce, output_sce_file)
+readr::write_rds(filtered_sce, output_file)

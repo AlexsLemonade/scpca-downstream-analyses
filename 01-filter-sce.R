@@ -24,6 +24,9 @@ library(ggpubr)
 library(magrittr)
 library(scpcaTools)
 library(optparse)
+library(SingleCellExperiment)
+library(cowplot)
+library(scuttle)
 
 if (!("miQC" %in% installed.packages())) {
   if (!requireNamespace("BiocManager")) {

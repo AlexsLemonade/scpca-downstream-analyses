@@ -24,7 +24,7 @@ script_directory="$(perl -e 'use File::Basename;
 cd "$script_directory" || exit
 
 # Set R version
-PATH="/opt/R/4.1.2/bin/:$PATH"
+RSCRIPT=${RSCRIPT:-"/opt/R/4.1.2/bin/Rscript --vanilla"}
 
 mito_file=${mito_file:-data/Homo_sapiens.GRCh38.103.mitogenes.txt}
 SEED=${SEED:-2021}
@@ -44,7 +44,7 @@ done
 # Run the filtering script on pre-filtered SingleCellExperiment object (the
 # implementation below incorporates `miQC` filtering)
 while read -r sample_id library_id filtering_method; do 
-  Rscript --vanilla 01-filter-sce.R \
+  Rscript 01-filter-sce.R \
     --sample_sce_filepath "data/Gawad_processed_data/${sample_id}/${library_id}_filtered.rds" \
     --sample_name ${library_id} \
     --mito_file ${mito_file} \

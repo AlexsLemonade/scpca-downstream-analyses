@@ -236,7 +236,7 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
 # Remove old gene-level rowData statistics and recalculate
 drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
 rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols] 
-filtered_sce <- addPerFeatureQC(filtered_sce)
+filtered_sce <- scuttle::addPerFeatureQC(filtered_sce)
 
 # Filter the genes (rows)
 detected <-

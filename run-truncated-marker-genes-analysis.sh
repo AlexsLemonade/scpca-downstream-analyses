@@ -23,6 +23,9 @@ script_directory="$(perl -e 'use File::Basename;
   print dirname(abs_path(@ARGV[0]));' -- "$0")"
 cd "$script_directory" || exit
 
+# Set R version
+PATH="/opt/R/4.1.2/bin/:$PATH"
+
 mito_file=${mito_file:-data/Homo_sapiens.GRCh38.103.mitogenes.txt}
 SEED=${SEED:-2021}
 TOP_N=${TOP_N:-2000}

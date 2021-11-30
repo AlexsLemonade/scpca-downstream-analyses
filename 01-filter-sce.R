@@ -16,6 +16,9 @@
 
 ## Set up -------------------------------------------------------------
 
+# Load project
+renv::load()
+
 ## Load libraries
 library(scater)
 library(scran)
@@ -236,7 +239,7 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
 # Remove old gene-level rowData statistics and recalculate
 drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
 rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols] 
-filtered_sce <- scuttle::addPerFeatureQCMetrics(filtered_sce)
+filtered_sce <- scater::addPerFeatureQC(filtered_sce)
 
 # Filter the genes (rows)
 detected <-

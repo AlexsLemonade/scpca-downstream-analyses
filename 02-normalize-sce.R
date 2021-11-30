@@ -13,6 +13,9 @@
 
 ## Set up -------------------------------------------------------------
 
+# Load project
+renv::load()
+
 ## Load libraries
 library(scater)
 library(scran)

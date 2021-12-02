@@ -6,6 +6,8 @@ set -euo pipefail
 # marker genes analysis scripts on the already pre-processed SingleCellExperiment
 # RDS files associated with the Gawad project analysis.
 
+#### Note that R 4.1 is required, along with bioconductor 3.14
+
 # Usage
 # Run truncated marker gene analysis for RDS files using miQC filtering
 # run-truncated-marker-genes-analysis.sh --output_dir "data/results" \

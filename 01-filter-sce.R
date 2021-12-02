@@ -16,6 +16,19 @@
 
 ## Set up -------------------------------------------------------------
 
+# Load project
+renv::load()
+
+# Check that R version us at least 4.1
+if (! (R.version$major == 4 && R.version$minor >= 1)){
+  stop("R version must be at least 4.1")
+}
+
+# Check that Bioconductor version is 3.14
+if (packageVersion("BiocVersion") < 3.14){
+  stop("Bioconductor version is less than 3.14")
+}
+
 ## Load libraries
 library(scater)
 library(scran)
@@ -236,7 +249,7 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
 # Remove old gene-level rowData statistics and recalculate
 drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
 rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols] 
-filtered_sce <- addPerFeatureQC(filtered_sce)
+filtered_sce <- scater::addPerFeatureQC(filtered_sce)
 
 # Filter the genes (rows)
 detected <-

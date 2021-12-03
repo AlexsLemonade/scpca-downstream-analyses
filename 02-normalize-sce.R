@@ -31,6 +31,7 @@ library(scater)
 library(scran)
 library(magrittr)
 library(optparse)
+library(tryCatchLog)
 
 #### Command line arguments/options --------------------------------------------
 
@@ -79,15 +80,28 @@ filtered_sce <- readr::read_rds(opt$sce)
 
 #### Normalize the data --------------------------------------------------------
 
-# Cluster similar cells
-qclust <- scran::quickCluster(filtered_sce)
+tryCatch(
+  expr = {
+    # Cluster similar cells
+    qclust <- scran::quickCluster(filtered_sce)
+  },
+  error = function(e){ 
+    print("Clustering similar cells failed. Skipping this sample.")
+  },
+  warning = function(w){
+    print(paste0("Clustering similar cells failed. Skipping normalization and dimension reduction for filtered sample ", opt$sce))
+  }
+  
+)
 
-# Compute sum factors for each cell cluster grouping
-filtered_sce <- scran::computeSumFactors(filtered_sce, clusters = qclust)
+if (exists("qclust")) {
+  # Compute sum factors for each cell cluster grouping
+  filtered_sce <- scran::computeSumFactors(filtered_sce, clusters = qclust)
+  
+  # Normalize and log transform
+  normalized_sce <- scater::logNormCounts(filtered_sce)
+  
+  # Save output normalized file
+  readr::write_rds(normalized_sce, output_file)
 
-# Normalize and log transform
-normalized_sce <- scater::logNormCounts(filtered_sce)
-
-#### Save output normalized file -----------------------------------------------
-
-readr::write_rds(normalized_sce, output_file)
+}

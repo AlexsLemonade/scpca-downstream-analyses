@@ -40,6 +40,7 @@ library(optparse)
 library(SingleCellExperiment)
 library(cowplot)
 library(scuttle)
+library(tryCatchLog)
 
 if (!("miQC" %in% installed.packages())) {
   if (!requireNamespace("BiocManager")) {
@@ -216,47 +217,71 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
   
   
 } else if (opt$filtering_method == "miQC") {
-  
-  # Rename columns for `mixtureModel()`
-  names(colData(sce_qc)) <-
-    stringr::str_replace(names(colData(sce_qc)),
-                         "^mito_",
-                         "subsets_mito_")
-  
-  # Generate miQC model
-  sce_model <- miQC::mixtureModel(sce_qc)
-  
-  # Filter cells
-  filtered_sce <- miQC::filterCells(sce_qc, sce_model)
-  
-  # Plot model
-  filtered_model_plot <- miQC::plotModel(sce_qc, sce_model)
-  
-  # Plot filtering
-  filtered_cell_plot <- miQC::plotFiltering(sce_qc, sce_model)
-  
-  # Combine plots
-  filtered_cell_plot <-
-    ggarrange(filtered_model_plot,
-              filtered_cell_plot,
-              ncol = 1,
-              nrow = 2)
-  
-  ggsave(output_filtered_cell_plot, filtered_cell_plot)
+  tryCatch(
+    expr = {
+      # Rename columns for `mixtureModel()`
+      names(colData(sce_qc)) <-
+        stringr::str_replace(names(colData(sce_qc)),
+                             "^mito_",
+                             "subsets_mito_")
+      
+      # Generate miQC model
+      sce_model <- miQC::mixtureModel(sce_qc)
+      
+      # Filter cells
+      filtered_sce <- miQC::filterCells(sce_qc, sce_model)
+      
+      # Plot model
+      filtered_model_plot <- miQC::plotModel(sce_qc, sce_model)
+      
+      # Plot filtering
+      filtered_cell_plot <- miQC::plotFiltering(sce_qc, sce_model)
+      
+      # Combine plots
+      filtered_cell_plot <-
+        ggarrange(filtered_model_plot,
+                  filtered_cell_plot,
+                  ncol = 1,
+                  nrow = 2)
+      
+      ggsave(output_filtered_cell_plot, filtered_cell_plot)
+      
+    },
+    error = function(e) {
+      print(
+        paste0(
+          "miQC filtering failed. Skipping filtering for sample ",
+          opt$sample_sce_filepath
+        )
+      )
+    },
+    warning = function(w) {
+      print(
+        paste0(
+          "miQC filtering failed. Skipping filtering for sample ",
+          opt$sample_sce_filepath
+        )
+      )
+    }
+    
+  )
   
 }
 
-# Remove old gene-level rowData statistics and recalculate
-drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
-rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols] 
-filtered_sce <- scater::addPerFeatureQC(filtered_sce)
-
-# Filter the genes (rows)
-detected <-
-  rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
-expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
-filtered_sce <- filtered_sce[detected & expressed,]
-
-#### Save output filtered sce --------------------------------------------------
-
-readr::write_rds(filtered_sce, output_file)
+if (exists("filtered_sce")) {
+  
+  # Remove old gene-level rowData statistics and recalculate
+  drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
+  rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
+  filtered_sce <- scater::addPerFeatureQC(filtered_sce)
+  
+  # Filter the genes (rows)
+  detected <-
+    rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
+  expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
+  filtered_sce <- filtered_sce[detected & expressed, ]
+  
+  # Save output filtered sce
+  readr::write_rds(filtered_sce, output_file)
+  
+}

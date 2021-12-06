@@ -53,12 +53,14 @@ while read -r sample_id library_id filtering_method; do
     --gene_means_cutoff 0.1 \
     --prob_compromised_cutoff 0.75 \
     --filtering_method ${filtering_method}
-    
-  # Run the normalization script on filtered SingleCellExperiment object
-  Rscript --vanilla 02-normalize-sce.R \
-    --sce "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" \
-    --output_filepath "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
-    --seed ${SEED}
+  
+  if [[ -f "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" ]]; then
+    # Run the normalization script on filtered SingleCellExperiment object
+    Rscript --vanilla 02-normalize-sce.R \
+      --sce "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" \
+      --output_filepath "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
+      --seed ${SEED}
+  fi
     
   if [[ -f "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" ]]; then
     # Run the dimension reduction script on the normalized SingleCellExperiment

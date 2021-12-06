@@ -258,8 +258,8 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
     warning = function(w) {
       print(
         paste0(
-          "miQC filtering failed. Skipping filtering for sample ",
-          opt$sample_sce_filepath
+          "miQC filtering failed. Skipping processing for sample ",
+          opt$sample_sce_filepath, ". Try `manual` filtering instead."
         )
       )
     }

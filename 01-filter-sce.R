@@ -232,7 +232,7 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
     error = function(e) {
       print(
         paste0(
-          "miQC filtering failed. Skipping filtering for sample ",
+          "miQC filtering failed. Skipping filtering and processing for sample ",
           opt$sample_sce_filepath
         )
       )

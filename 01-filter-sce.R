@@ -217,34 +217,16 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
   
   
 } else if (opt$filtering_method == "miQC") {
+  
+  # Rename columns for `mixtureModel()`
+  names(colData(sce_qc)) <-
+    stringr::str_replace(names(colData(sce_qc)),
+                         "^mito_",
+                         "subsets_mito_")
   tryCatch(
     expr = {
-      # Rename columns for `mixtureModel()`
-      names(colData(sce_qc)) <-
-        stringr::str_replace(names(colData(sce_qc)),
-                             "^mito_",
-                             "subsets_mito_")
-      
       # Generate miQC model
       sce_model <- miQC::mixtureModel(sce_qc)
-      
-      # Filter cells
-      filtered_sce <- miQC::filterCells(sce_qc, sce_model)
-      
-      # Plot model
-      filtered_model_plot <- miQC::plotModel(sce_qc, sce_model)
-      
-      # Plot filtering
-      filtered_cell_plot <- miQC::plotFiltering(sce_qc, sce_model)
-      
-      # Combine plots
-      filtered_cell_plot <-
-        ggarrange(filtered_model_plot,
-                  filtered_cell_plot,
-                  ncol = 1,
-                  nrow = 2)
-      
-      ggsave(output_filtered_cell_plot, filtered_cell_plot)
       
     },
     error = function(e) {
@@ -259,13 +241,33 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
       print(
         paste0(
           "miQC filtering failed. Skipping processing for sample ",
-          opt$sample_sce_filepath, ". Try `manual` filtering instead."
+          opt$sample_sce_filepath,
+          ". Try `manual` filtering instead."
         )
       )
     }
     
   )
   
+  if (exists("sce_model")) {
+    # Filter cells
+    filtered_sce <- miQC::filterCells(sce_qc, sce_model)
+    
+    # Plot model
+    filtered_model_plot <- miQC::plotModel(sce_qc, sce_model)
+    
+    # Plot filtering
+    filtered_cell_plot <- miQC::plotFiltering(sce_qc, sce_model)
+    
+    # Combine plots
+    filtered_cell_plot <-
+      ggarrange(filtered_model_plot,
+                filtered_cell_plot,
+                ncol = 1,
+                nrow = 2)
+    
+    ggsave(output_filtered_cell_plot, filtered_cell_plot)
+  }
 }
 
 if (exists("filtered_sce")) {

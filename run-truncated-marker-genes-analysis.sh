@@ -40,9 +40,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-# Run the filtering script on pre-filtered SingleCellExperiment object (the
-# implementation below incorporates `miQC` filtering)
-while read -r sample_id library_id filtering_method; do 
+while read -r sample_id library_id filtering_method; do
+  # Run the filtering script on pre-filtered SingleCellExperiment object
   Rscript --vanilla 01-filter-sce.R \
     --sample_sce_filepath "data/Gawad_processed_data/${sample_id}/${library_id}_filtered.rds" \
     --sample_name ${library_id} \
@@ -55,17 +54,21 @@ while read -r sample_id library_id filtering_method; do
     --prob_compromised_cutoff 0.75 \
     --filtering_method ${filtering_method}
   
-  # Run the normalization script on filtered SingleCellExperiment object
-  Rscript --vanilla 02-normalize-sce.R \
-    --sce "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" \
-    --output_filepath "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
-    --seed ${SEED}
-  
-  # Run the dimension reduction script on the normalized SingleCellExperiment
-  # object
-  Rscript --vanilla 03-dimension-reduction.R \
-    --sce "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
-    --seed ${SEED} \
-    --top_n ${TOP_N} \
-    --overwrite
+  if [[ -f "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" ]]; then
+    # Run the normalization script on filtered SingleCellExperiment object
+    Rscript --vanilla 02-normalize-sce.R \
+      --sce "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" \
+      --output_filepath "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
+      --seed ${SEED}
+  fi
+    
+  if [[ -f "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" ]]; then
+    # Run the dimension reduction script on the normalized SingleCellExperiment
+    # object
+    Rscript --vanilla 03-dimension-reduction.R \
+      --sce "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
+      --seed ${SEED} \
+      --top_n ${TOP_N} \
+      --overwrite
+  fi
 done < "$sample_metadata"

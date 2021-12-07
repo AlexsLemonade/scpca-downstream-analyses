@@ -3,14 +3,14 @@ set -euo pipefail
  
 ###############################################################################
 # Run the `01-filter-sce`, `02-normalize-sce`, and `03-dimension-reduction` 
-# marker genes analysis scripts on the already pre-processed SingleCellExperiment
-# RDS files associated with the Gawad project analysis.
+# scPCA downstream analysis scripts on the already pre-processed
+# SingleCellExperiment RDS files associated with the Gawad project analysis.
 
 #### Note that R 4.1 is required, along with bioconductor 3.14
 
 # Usage
-# Run truncated marker gene analysis for RDS files using miQC filtering
-# run-truncated-marker-genes-analysis.sh --output_dir "data/results" \
+# Run scPCA downstream analysis for pre-processed RDS files using miQC filtering
+# run-scpca-downstream-analysis.sh --output_dir "data/results" \
 # --sample_metadata "path/to/input-sample-file-metadata.tsv" \
 # --mito_file "path/to/mitogenes-file.txt"
 

@@ -2,15 +2,15 @@
 set -euo pipefail
  
 ###############################################################################
-# Run the marker genes analysis scripts including the optional marker genes
-# mapping script in `utils`, and the prepare SingleCellExperiment object,
+# Run the scPCA downstream analysis scripts including the optional genes of
+# interest mapping script in `utils`, and the prepare SingleCellExperiment object,
 # filter, and normalize scripts (which are also optional based on the format of
 # the data).
 
 # Usage
-# Run marker gene analysis pipeline from start to finish for all samples in
+# Run the scPCA downstream analysis pipeline from start to finish for all samples in
 # the GSE140819 public NB dataset
-# bash generare-sample-html-report.sh
+# bash generate-sample-html-reports.sh
 
 sample_data_dir="data/anderson-single-cell/GSE140819"
 sample_names=(GSM4186961 GSM4186962 GSM4186963 GSM4186964 GSM4186965 GSM4186967
@@ -46,11 +46,11 @@ for sample_name in "${sample_names[@]}"; do
   
   if [[ -e "${sample_data_dir}"/"${sample_matrix[$sample_name]}" ]]; then
   
-    bash run-marker-genes-analysis.sh --output_dir "data/anderson-single-cell/results" \
+    bash run-provided-goi-analysis.sh --output_dir "data/anderson-single-cell/results" \
     --sample_name "${sample_name}" \
     --sample_matrix "${sample_data_dir}"/"${sample_matrix[$sample_name]}" \
     --sample_metadata "${sample_data_dir}"/"${sample_metadata[$sample_name]}" \
-    --marker_genes "data/anderson-single-cell/marker-genes/nb_marker_genes.tsv" \
+    --goi_list "data/anderson-single-cell/goi-lists/nb_goi_list.tsv" \
     --input_file_type "h5" \
     --gene_set_column_name "gene_set"
   else

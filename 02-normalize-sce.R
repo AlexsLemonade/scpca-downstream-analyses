@@ -13,27 +13,10 @@
 
 ## Set up -------------------------------------------------------------
 
-# Load project
-renv::load()
+## Command line arguments/options
 
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
-
-## Load libraries
-library(scater)
-library(scran)
-library(magrittr)
+# Library needed to declare command line options
 library(optparse)
-library(tryCatchLog)
-
-#### Command line arguments/options --------------------------------------------
 
 # Declare command line options
 option_list <- list(
@@ -55,6 +38,12 @@ option_list <- list(
     default = 2021,
     help = "seed integer",
     metavar = "integer"
+  ),
+  optparse::make_option(
+    c("--project_directory"),
+    type = "character",
+    default = NULL,
+    help = "path to the main project directory",
   )
 )
 
@@ -62,8 +51,28 @@ option_list <- list(
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
-# Set the seed
+## Load project
+renv::load(opt$project_directory)
+
+# Check that R version us at least 4.1
+if (! (R.version$major == 4 && R.version$minor >= 1)){
+  stop("R version must be at least 4.1")
+}
+
+# Check that Bioconductor version is 3.14
+if (packageVersion("BiocVersion") < 3.14){
+  stop("Bioconductor version is less than 3.14")
+}
+
+## Load libraries
+library(scater)
+library(scran)
+library(magrittr)
+
+## Set the seed
 set.seed(opt$seed)
+
+## Define file paths
 
 # Directory and file to save output
 output_file <- opt$output_filepath
@@ -96,12 +105,13 @@ tryCatch(
 
 if (exists("qclust")) {
   # Compute sum factors for each cell cluster grouping
-  filtered_sce <- scran::computeSumFactors(filtered_sce, clusters = qclust)
+  filtered_sce <-
+    scran::computeSumFactors(filtered_sce, clusters = qclust)
   
   # Normalize and log transform
   normalized_sce <- scater::logNormCounts(filtered_sce)
   
   # Save output normalized file
   readr::write_rds(normalized_sce, output_file)
-
+  
 }

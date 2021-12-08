@@ -42,7 +42,7 @@ library(ComplexHeatmap)
 set.seed(201)
 
 # Source custom functions script
-source(file.path("utils", "provided-goi-analysis-functions.R"))
+source(file.path("..", "utils", "provided-goi-analysis-functions.R"))
 ```
 
 ## Read in data

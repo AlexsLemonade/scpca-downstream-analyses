@@ -39,7 +39,7 @@ cd "$script_directory" || exit
 
 RUN_MAPPING=${RUN_MAPPING:-TRUE}
 
-mito_file=${mito_file:-data/Homo_sapiens.GRCh38.103.mitogenes.txt}
+mito_file=${mito_file:-../data/Homo_sapiens.GRCh38.103.mitogenes.txt}
 input_identifiers=${input_identifiers:-SYMBOL}
 output_identifiers=${output_identifiers:-ENSEMBL}
 identifier_column_name=${identifier_column_name:-gene_symbol}
@@ -62,7 +62,7 @@ done
 # Run the gene identifier mapping script if `RUN_MAPPING = TRUE`
 if [[ ${RUN_MAPPING} == "TRUE" ]]
 then
-  Rscript --vanilla utils/map-goi-list.R \
+  Rscript --vanilla ../utils/map-goi-list.R \
     --input_goi_list ${goi_list} \
     --input_identifiers ${input_identifiers} \
     --output_identifiers ${output_identifiers} \
@@ -75,7 +75,7 @@ else
 fi
 
 # Run the 00 prepare SingleCellExperiment object script
-Rscript --vanilla 00-prepare-sce.R \
+Rscript --vanilla ../00-prepare-sce.R \
  --sample_matrix_filepath ${sample_matrix} \
  --sample_metadata_filepath ${sample_metadata} \
  --input_file_type ${input_file_type} \
@@ -84,7 +84,7 @@ Rscript --vanilla 00-prepare-sce.R \
 
 # Run the filtering script on pre-filtered SingleCellExperiment object (the
 # implementation below incorporates `miQC` filtering)
-Rscript --vanilla 01-filter-sce.R \
+Rscript --vanilla ../01-filter-sce.R \
   --sample_sce_filepath "${output_dir}/${sample_name}/${sample_name}_pre-filtered_sce.rds" \
   --sample_name ${sample_name} \
   --mito_file ${mito_file} \
@@ -96,14 +96,14 @@ Rscript --vanilla 01-filter-sce.R \
   --filtering_method ${filtering_method}
 
 # Run the normalization script on filtered SingleCellExperiment object
-Rscript --vanilla 02-normalize-sce.R \
+Rscript --vanilla ../02-normalize-sce.R \
   --sce "${output_dir}/${sample_name}/${sample_name}_filtered_${filtering_method}_sce.rds" \
   --output_filepath "${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds" \
   --seed ${SEED}
 
 # Run the dimension reduction script on the normalized SingleCellExperiment
 # object
-Rscript --vanilla 03-dimension-reduction.R \
+Rscript --vanilla ../03-dimension-reduction.R \
   --sce "${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds" \
   --seed ${SEED} \
   --top_n ${TOP_N} \

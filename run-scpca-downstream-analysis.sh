@@ -4,13 +4,13 @@ set -euo pipefail
 ###############################################################################
 # Run the `01-filter-sce`, `02-normalize-sce`, and `03-dimension-reduction` 
 # scPCA downstream analysis scripts on the already pre-processed
-# SingleCellExperiment RDS files associated with the Gawad project analysis.
+# SingleCellExperiment RDS files.
 
 #### Note that R 4.1 is required, along with bioconductor 3.14
 
 # Usage
 # Run scPCA downstream analysis for pre-processed RDS files using miQC filtering
-# run-scpca-downstream-analysis.sh --output_dir "data/results" \
+# bash run-scpca-downstream-analysis.sh --output_dir "data/results" \
 # --sample_metadata "path/to/input-sample-file-metadata.tsv" \
 # --mito_file "path/to/mitogenes-file.txt"
 
@@ -29,7 +29,8 @@ mito_file=${mito_file:-data/Homo_sapiens.GRCh38.103.mitogenes.txt}
 SEED=${SEED:-2021}
 TOP_N=${TOP_N:-2000}
 output_dir="data/Gawad_processed_data/results"
-sample_metadata="gawad-library-metadata.tsv"
+sample_metadata="project-metadata/gawad-library-metadata.tsv"
+project_dir="."
 
 # grab variables from command line
 while [ $# -gt 0 ]; do
@@ -52,16 +53,18 @@ while read -r sample_id library_id filtering_method; do
     --gene_detected_row_cutoff 5 \
     --gene_means_cutoff 0.1 \
     --prob_compromised_cutoff 0.75 \
-    --filtering_method ${filtering_method}
+    --filtering_method ${filtering_method} \
+    --project_directory ${project_dir}
   
   if [[ -f "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" ]]; then
     # Run the normalization script on filtered SingleCellExperiment object
     Rscript --vanilla 02-normalize-sce.R \
       --sce "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" \
       --output_filepath "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
-      --seed ${SEED}
+      --seed ${SEED} \
+      --project_directory ${project_dir}
   fi
-    
+
   if [[ -f "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" ]]; then
     # Run the dimension reduction script on the normalized SingleCellExperiment
     # object
@@ -69,6 +72,7 @@ while read -r sample_id library_id filtering_method; do
       --sce "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
       --seed ${SEED} \
       --top_n ${TOP_N} \
-      --overwrite
+      --overwrite \
+      --project_directory ${project_dir}
   fi
 done < "$sample_metadata"

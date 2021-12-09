@@ -12,7 +12,7 @@ Note that R 4.1 is required for running our pipeling, along with Bioconductor 3.
 
 The core downstream scPCA analysis pipeline, which includes filtering, normalization, and dimension reduction, can be implemented by running the following command from the main directory:
 
-`bash run-scpca-downstream-analysis.sh`
+`bash run-scpca-downstream-analysis.sh --sample_metadata "path/to/project_metadata.tsv"`
 
 Note that you will want to provide the metadata TSV file related to your project (with `sample_id`, `library_id`, and `filtering_method`) to the `--sample_metadata` command line flag.
 
@@ -28,7 +28,7 @@ bash optional-goi-analysis/run-provided-goi-analysis.sh \
  --sample_name "sample"  \
  --sample_matrix "path/to/sample/matrix" \
  --sample_metadata "path/to/sample/metadata" \
- --goi_list "path/to/goi-list
+ --goi_list "path/to/goi-list"
 ```
 
 Where `goi_list` is the path to the genes of interest TSV file relevant to your dataset.

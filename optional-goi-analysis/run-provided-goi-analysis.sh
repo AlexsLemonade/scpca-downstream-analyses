@@ -118,7 +118,7 @@ Rscript --vanilla ../03-dimension-reduction.R \
 if [[ ${plotting_identifier_type} == "symbol" ]]
 then
 Rscript -e "rmarkdown::render('goi-report-template.Rmd', clean = TRUE,
-              output_file = '${output_dir}/${sample_name}/${sample_name}_provided_markers_report.html',
+              output_file = '${output_dir}/${sample_name}/${sample_name}_goi_report.html',
               params = list(sample = '${sample_name}',
                             normalized_sce = '${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds',
                             goi_list = '${output_dir}/mapped_goi_list.tsv',

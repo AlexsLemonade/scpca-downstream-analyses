@@ -12,9 +12,15 @@ set -euo pipefail
 # the GSE140819 public NB dataset
 # bash generate-sample-html-reports.sh
 
+# This script should always run as if it were being called from
+# the directory it lives in.
+script_directory="$(perl -e 'use File::Basename;
+  use Cwd "abs_path";
+  print dirname(abs_path(@ARGV[0]));' -- "$0")"
+cd "$script_directory" || exit
+
 sample_data_dir="../data/anderson-single-cell/GSE140819"
-sample_names=(GSM4186961 GSM4186962 GSM4186963 GSM4186964 GSM4186965 GSM4186967
-GSM4186968 GSM4186969 GSM4186970)
+sample_names=(GSM4186961 GSM4186962 GSM4186963 GSM4186964 GSM4186965 GSM4186966 GSM4186967 GSM4186968 GSM4186969 GSM4186970)
 
 declare -A sample_matrix=(
   [GSM4186961]="GSM4186961_HTAPP-312-SMP-901_fresh-T1_channel1_raw_gene_bc_matrices_h5.h5"

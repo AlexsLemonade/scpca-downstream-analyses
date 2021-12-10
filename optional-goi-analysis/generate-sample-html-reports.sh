@@ -17,9 +17,9 @@ set -euo pipefail
 script_directory="$(perl -e 'use File::Basename;
   use Cwd "abs_path";
   print dirname(abs_path(@ARGV[0]));' -- "$0")"
-cd "$script_directory" || exit
+cd "$script_directory/.." || exit
 
-sample_data_dir="../data/anderson-single-cell/GSE140819"
+sample_data_dir="data/anderson-single-cell/GSE140819"
 sample_names=(GSM4186961 GSM4186962 GSM4186963 GSM4186964 GSM4186965 GSM4186966 GSM4186967 GSM4186968 GSM4186969 GSM4186970)
 
 declare -A sample_matrix=(
@@ -52,11 +52,11 @@ for sample_name in "${sample_names[@]}"; do
   
   if [[ -e "${sample_data_dir}"/"${sample_matrix[$sample_name]}" ]]; then
   
-    bash run-provided-goi-analysis.sh --output_dir "../data/anderson-single-cell/results" \
+    bash optional-goi-analysis/run-provided-goi-analysis.sh --output_dir "data/anderson-single-cell/results" \
     --sample_name "${sample_name}" \
     --sample_matrix "${sample_data_dir}"/"${sample_matrix[$sample_name]}" \
     --sample_metadata "${sample_data_dir}"/"${sample_metadata[$sample_name]}" \
-    --goi_list "../data/anderson-single-cell/goi-lists/nb_goi_list.tsv" \
+    --goi_list "data/anderson-single-cell/goi-lists/nb_goi_list.tsv" \
     --input_file_type "h5" \
     --gene_set_column_name "gene_set"
   else

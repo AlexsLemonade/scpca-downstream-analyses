@@ -2,7 +2,7 @@
 params:
   sample: Sample
   normalized_sce: "data/anderson-single-cell/normalized/normalized_GSM4186961_sce.rds"
-  marker_genes: "data/anderson-single-cell/marker-genes/mapped_marker_genes.tsv"
+  goi_list: "data/anderson-single-cell/goi-lists/mapped_goi_list.tsv"
   date: !r Sys.Date()
   gene_set_column: NULL
   ensembl_id_column: "ensembl"
@@ -42,7 +42,7 @@ library(ComplexHeatmap)
 set.seed(201)
 
 # Source custom functions script
-source(file.path("utils", "marker-genes-analysis-functions.R"))
+source(file.path("..", "utils", "provided-goi-analysis-functions.R"))
 ```
 
 ## Read in data
@@ -50,7 +50,7 @@ source(file.path("utils", "marker-genes-analysis-functions.R"))
 ```{r}
 normalized_sce <- read_rds(file.path(params$normalized_sce))
 
-marker_genes <- read_tsv(file.path(params$marker_genes))
+goi_list <- read_tsv(file.path(params$goi_list))
 
 num_cells <- dim(normalized_sce)[2]
 glue::glue("This sample has {num_cells} cells.")
@@ -64,8 +64,9 @@ ensembl_id_column_sym <- rlang::sym(params$ensembl_id_column)
 # get logcounts from normalized sce object
 normalized_sce_logcounts_matrix <- as.matrix(t(logcounts(normalized_sce)))
 
-# filter counts matrix to only data associated with the provided marker genes
-normalized_sce_logcounts_matrix <- normalized_sce_logcounts_matrix[,colnames(normalized_sce_logcounts_matrix) %in% marker_genes[[ensembl_id_column_sym]]]
+# filter counts matrix to only data associated with the provided genes of
+# interest
+normalized_sce_logcounts_matrix <- normalized_sce_logcounts_matrix[,colnames(normalized_sce_logcounts_matrix) %in% goi_list[[ensembl_id_column_sym]]]
 
 # transform counts into z-scores
 normalized_sce_zscores_matrix <- scale(normalized_sce_logcounts_matrix,
@@ -76,7 +77,7 @@ if(!is.null(params$gene_set_column)) {
   if (!is.null(params$gene_symbol_column)) {
     normalized_sce_zscores_matrix <- colnames_to_gene_symbols(
         normalized_sce_zscores_matrix,
-        marker_genes,
+        goi_list,
         params$ensembl_id_column,
         params$gene_symbol_column
       )
@@ -84,7 +85,7 @@ if(!is.null(params$gene_set_column)) {
     column_annotation <-
       prepare_heatmap_annotation(
         normalized_sce_zscores_matrix,
-        marker_genes,
+        goi_list,
         gene_id_column,
         params$gene_set_column
       )
@@ -93,7 +94,7 @@ if(!is.null(params$gene_set_column)) {
     column_annotation <-
       prepare_heatmap_annotation(
         normalized_sce_zscores_matrix,
-        marker_genes,
+        goi_list,
         gene_id_column,
         params$gene_set_column
       )
@@ -103,7 +104,7 @@ if(!is.null(params$gene_set_column)) {
     normalized_sce_zscores_matrix <-
       colnames_to_gene_symbols(
         normalized_sce_zscores_matrix,
-        marker_genes,
+        goi_list,
         params$ensembl_id_column,
         params$gene_symbol_column
       )
@@ -117,8 +118,8 @@ if(!is.null(params$gene_set_column)) {
 ### Heatmap plotting
 
 The below heatmap displays genes on the x-axis, cells on the y-axis, and color indicates gene expression scaled using a z-score. 
-Using only the provided marker genes, hierarchical clustering of cells was performed to identify if any clear structure or groupings of cells with similar gene expression patterns are present. 
-The colored bar on the top of the graph indicates which gene set the provided marker gene corresponds to. 
+Using only the provided genes of interest, hierarchical clustering of cells was performed to identify if any clear structure or groupings of cells with similar gene expression patterns are present. 
+The colored bar on the top of the graph indicates which gene set the provided gene of interest corresponds to. 
 
 ```{r, fig.width=10, fig.height=10}
 # create the ComplexHeatmap
@@ -140,12 +141,12 @@ Heatmap(normalized_sce_zscores_matrix,
 ### Sina plots
 
 The plot below displays the normalized and transformed expression for each of the provided
-marker genes in comparison to the mean expression of all genes present in the dataset. 
+genes of interest in comparison to the mean expression of all genes present in the dataset. 
 
 ```{r}
-# plot expression of marker genes
-plot_markers_expression_sina(normalized_sce,
-                             marker_genes,
+# plot expression of genes of interest
+plot_goi_expression_sina(normalized_sce,
+                             goi_list,
                              params$ensembl_id_column,
                              params$gene_symbol_column)
 ```
@@ -153,11 +154,11 @@ plot_markers_expression_sina(normalized_sce,
 ### UMAP plots
 
 Each plot below represents the UMAP results calculated using this sample's data.
-Each dot represents a cell and the color indicates the individual marker gene expression (each plot being relevant to a single marker gene).
+Each dot represents a cell and the color indicates the individual gene of interest's expression (each plot being relevant to a single gene of interest).
 
 ```{r}
-plot_markers_expression_umap(normalized_sce,
-                             marker_genes,
+plot_goi_expression_umap(normalized_sce,
+                             goi_list,
                              params$ensembl_id_column,
                              params$gene_symbol_column)
 ```
@@ -165,11 +166,11 @@ plot_markers_expression_umap(normalized_sce,
 ### PCA plots
 
 Each plot below represents the PCA results calculated using this sample's data.
-Each dot represents a cell and the color indicates the individual marker gene expression (each plot being relevant to a single marker gene).
+Each dot represents a cell and the color indicates the individual gene of interest's expression (each plot being relevant to a single gene of interest).
 
 ```{r}
-plot_markers_expression_pca(normalized_sce,
-                            marker_genes,
+plot_goi_expression_pca(normalized_sce,
+                            goi_list,
                             params$ensembl_id_column,
                             params$gene_symbol_column)
 ```

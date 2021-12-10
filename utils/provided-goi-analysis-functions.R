@@ -1,13 +1,13 @@
-## Custom functions to be sourced in the marker genes analysis reports template
+## Custom functions to be sourced in the provided goi analysis reports template
 ## notebook.
 
 # #### USAGE
 # This script is intended to be sourced in the script as follows:
 #
-# source(file.path("utils", "marker-genes-analysis-functions.R"))
+# source(file.path("utils", "provided-goi-analysis-functions.R"))
 
 colnames_to_gene_symbols <- function(normalized_sce_matrix,
-                                    marker_genes,
+                                    goi_list,
                                     ensembl_id_column,
                                     gene_symbol_column) {
   # Given a normalized SingleCellExperiment matrix, the name of the column with
@@ -17,8 +17,8 @@ colnames_to_gene_symbols <- function(normalized_sce_matrix,
   # Args:
   #   normalized_sce_matrix: matrix retrieved from a normalized
   #                          SingleCellExperiment object
-  #   marker_genes: data frame with marker genes relevant to the data in the
-  #                 SingleCellExperiment object
+  #   goi_list: data frame with provided genes of interest relevant to the data
+  #             in the SingleCellExperiment object
   #   ensembl_id_column: name of the column with the ensembl gene identifiers
   #   gene_symbol_column: name of the column with the gene symbols that would be
   #                       used for plotting if provided at the command line
@@ -30,7 +30,7 @@ colnames_to_gene_symbols <- function(normalized_sce_matrix,
   # symbols for plotting
   map_ensembl_symbols <-
     data.frame(ensembl = colnames(normalized_sce_matrix)) %>%
-    dplyr::left_join(marker_genes, by = c("ensembl" = ensembl_id_column))
+    dplyr::left_join(goi_list, by = c("ensembl" = ensembl_id_column))
   
   colnames(normalized_sce_matrix) <-
     map_ensembl_symbols[[gene_symbol_column_sym]]
@@ -40,7 +40,7 @@ colnames_to_gene_symbols <- function(normalized_sce_matrix,
 }
 
 prepare_heatmap_annotation <- function(normalized_sce_matrix,
-                                       marker_genes,
+                                       goi_list,
                                        gene_id_column,
                                        gene_set) {
   # Given a normalized SingleCellExperiment matrix, the name of the column with
@@ -51,7 +51,7 @@ prepare_heatmap_annotation <- function(normalized_sce_matrix,
   # Args:
   #   normalized_sce_matrix: matrix retrieved from a normalized
   #                          SingleCellExperiment object
-  #   marker_genes: data frame with marker genes relevant to the data in the
+  #   goi_list: data frame with genes of interest relevant to the data in the
   #                 SingleCellExperiment object
   #   gene_id_column: name of the column with the gene identifiers (can be
   #                   ensembl or gene symbols if provided)
@@ -61,13 +61,13 @@ prepare_heatmap_annotation <- function(normalized_sce_matrix,
   gene_set_sym <- rlang::sym(gene_set)
   
   # create column annotation data frame
-  annotation_df <- marker_genes %>%
+  annotation_df <- goi_list %>%
     dplyr::select(gene_id_column_sym, gene_set_sym) %>%
     dplyr::distinct()
   
   rownames(annotation_df) <- NULL
   
-  # filter to ensure only those genes of that marker genes that had data stored
+  # filter to ensure only those genes of the goi list that had data stored
   # in the sce object are kept in the annotation object
   annotation_df <- annotation_df %>%
     dplyr::filter(!!gene_id_column_sym %in% colnames(normalized_sce_matrix)) %>%
@@ -101,14 +101,14 @@ prepare_heatmap_annotation <- function(normalized_sce_matrix,
 }
 
 prepare_expression_df <- function(normalized_sce,
-                                  marker_genes,
+                                  goi_list,
                                   ensembl_id_column) {
-  # Given a normalized SingleCellExperiment object and a vector of marker genes,
+  # Given a normalized SingleCellExperiment object and a goi list,
   # prepare a gene expression data frame for plotting.
   #
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   marker_genes: data frame with marker genes relevant to the data in the
+  #   goi_list: data frame with genes of interest relevant to the data in the
   #                 SingleCellExperiment object
   #   ensembl_id_column: name of the column with the ensembl gene identifiers
   #                              used for mapping
@@ -119,7 +119,7 @@ prepare_expression_df <- function(normalized_sce,
   
   # Prepare a data frame containing the logcounts expression values associated
   # with each marker gene symbol
-  expression_means_df <- logcounts(normalized_sce[rownames(normalized_sce) %in% marker_genes[[ensembl_id_column_sym]],]) %>%
+  expression_means_df <- logcounts(normalized_sce[rownames(normalized_sce) %in% goi_list[[ensembl_id_column_sym]],]) %>%
     t() %>%
     as.data.frame() %>%
     tibble::rownames_to_column("cell_barcode") %>%
@@ -130,24 +130,24 @@ prepare_expression_df <- function(normalized_sce,
       names_to = ensembl_id_column,
       values_to = "gene_expression"
     ) %>%
-    dplyr::left_join(marker_genes, by = ensembl_id_column)
+    dplyr::left_join(goi_list, by = ensembl_id_column)
   
   return(expression_means_df)
   
 }
 
-plot_markers_expression_sina <- function(normalized_sce,
-                                         marker_genes,
-                                         ensembl_id_column,
-                                         gene_symbol_column = NULL) {
+plot_goi_expression_sina <- function(normalized_sce,
+                                     goi_list,
+                                     ensembl_id_column,
+                                     gene_symbol_column = NULL) {
   
-  # Given a normalized SingleCellExperiment object and a vector of marker genes,
-  # plot the gene expression of each marker gene on a sina plot against the
-  # average mean expression of all the marker genes.
+  # Given a normalized SingleCellExperiment object and a goi list,
+  # plot the gene expression of each gene of interest on a sina plot against the
+  # average mean expression of all the genes of interest.
   #
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   marker_genes: data frame with marker genes relevant to the data in the
+  #   goi_list: data frame with genes of interest relevant to the data in the
   #                 SingleCellExperiment object
   #   ensembl_id_column: name of the column with the ensembl gene identifiers
   #                              used for mapping
@@ -156,8 +156,9 @@ plot_markers_expression_sina <- function(normalized_sce,
   #
   # Returns:
   #   sina_expression_plot: sina plots displaying the logcounts expression
-  #                         values for each marker gene symbol relative to the
-  #                         mean logcounts expression of all the marker genes
+  #                         values for each gene of interest symbol relative to
+  #                         the mean logcounts expression of all the genes of
+  #                         interest
   
   # Turn the ensembl and gene symbol column names into symbols for use when
   # subsetting
@@ -165,7 +166,7 @@ plot_markers_expression_sina <- function(normalized_sce,
   
   # Run the `prepare_expression_df` function
   expression_means_df <- prepare_expression_df(normalized_sce,
-                                               marker_genes,
+                                               goi_list,
                                                ensembl_id_column)
   
   if(!is.null(gene_symbol_column)) {
@@ -204,8 +205,8 @@ plot_markers_expression_sina <- function(normalized_sce,
   return(sina_expression_plot)
 }
 
-plot_markers_expression_umap <- function(normalized_sce,
-                                         marker_genes,
+plot_goi_expression_umap <- function(normalized_sce,
+                                         goi_list,
                                          ensembl_id_column,
                                          gene_symbol_column = NULL){
   # Given a normalized SingleCellExperiment object and a vector of marker genes,
@@ -215,7 +216,7 @@ plot_markers_expression_umap <- function(normalized_sce,
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object containing UMAP
   #                   results
-  #   marker_genes: data frame with marker genes relevant to the data in the
+  #   goi_list: data frame with marker genes relevant to the data in the
   #                 SingleCellExperiment object
   #   ensembl_id_column: name of the column with the ensembl gene identifiers
   #                              used for mapping
@@ -228,7 +229,7 @@ plot_markers_expression_umap <- function(normalized_sce,
   
   # Run the `prepare_expression_df` function
   expression_means_df <- prepare_expression_df(normalized_sce,
-                                               marker_genes,
+                                               goi_list,
                                                ensembl_id_column)
   
   # Get the UMAP matrix and then join the UMAP results with the expression data using the cell barcodes
@@ -265,8 +266,8 @@ plot_markers_expression_umap <- function(normalized_sce,
   return(umap_plot)
 }
 
-plot_markers_expression_pca <- function(normalized_sce,
-                                        marker_genes,
+plot_goi_expression_pca <- function(normalized_sce,
+                                        goi_list,
                                         ensembl_id_column,
                                         gene_symbol_column = NULL){
   
@@ -277,7 +278,7 @@ plot_markers_expression_pca <- function(normalized_sce,
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object containing PCA
   #                   results
-  #   marker_genes: data frame with marker genes relevant to the data in the
+  #   goi_list: data frame with marker genes relevant to the data in the
   #                 SingleCellExperiment object
   #   ensembl_id_column: name of the column with the ensembl gene identifiers
   #                              used for mapping
@@ -290,7 +291,7 @@ plot_markers_expression_pca <- function(normalized_sce,
   
   # Run the `prepare_expression_df` function
   expression_means_df <- prepare_expression_df(normalized_sce,
-                                               marker_genes,
+                                               goi_list,
                                                ensembl_id_column)
   
   # Get the PCA matrix and join the PCA results with the expression data using the cell barcodes
@@ -298,7 +299,8 @@ plot_markers_expression_pca <- function(normalized_sce,
     tibble::rownames_to_column("cell_barcode") %>%
     dplyr::left_join(expression_means_df, by = "cell_barcode")
   
-  # Plot first two principal components, color by marker gene expression
+  # Plot first two principal components, color by the expression values
+  # associated with the provided genes of interest
   if (!is.null(gene_symbol_column)) {
     # Turn the gene symbol column name into a symbol for use when filtering
     gene_symbol_column_sym <- rlang::sym(gene_symbol_column)

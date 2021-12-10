@@ -8,24 +8,24 @@
 # be specified for each of the command line flags.
 
 # Command line usage:
-# Rscript --vanilla utils/map-marker-genes.R \
-# --input_marker_gene_list "data/anderson-single-cell/marker-genes/nb_marker_genes.tsv" \
+# Rscript --vanilla utils/map-goi-list.R \
+# --input_marker_gene_list "data/anderson-single-cell/goi-lists/nb_goi_list.tsv" \
 # --input_identifiers "SYMBOL" \
 # --output_identifiers "ENSEMBL" \
 # --identifier_column_name "gene_symbol" \
 # --organism "Homo sapiens" \
 # --multi_mappings "list" \
-# --output_file "data/anderson-single-cell/marker-genes/mapped_nb_marker_genes.tsv"
+# --output_file "data/anderson-single-cell/goi-lists/mapped_nb_goi_list.tsv"
 
 #### Command line arguments/options --------------------------------------------
 
 # Declare command line options
 option_list <- list(
   optparse::make_option(
-    c("-l", "--input_marker_gene_list"),
+    c("-l", "--input_goi_list"),
     type = "character",
     default = NULL,
-    help = "file path to the unmapped input marker gene list"
+    help = "file path to the unmapped input genes of interest list"
   ),
   optparse::make_option(
     c("-i", "--input_identifiers"),
@@ -91,13 +91,13 @@ library(AnnotationDbi)
 
 #### Read in data --------------------------------------------------------------
 
-marker_genes <- data.table::fread(opt$input_marker_gene_list, stringsAsFactors = FALSE)
+goi_list <- data.table::fread(opt$input_goi_list, stringsAsFactors = FALSE)
 
 #### Perform mapping -----------------------------------------------------------
 
 # turn column name into symbol for pulling the column info out of data frame
 identifier_column_name <- rlang::sym(opt$identifier_column_name)
-ids_for_mapping <- marker_genes %>%
+ids_for_mapping <- goi_list %>%
   dplyr::pull(identifier_column_name)
 
 # Define the annotation packages based on the specified organism
@@ -116,7 +116,7 @@ library(annotation_list[[opt$organism]], character.only = TRUE)
 annotation_package <- eval(parse(text = annotation_list[[opt$organism]]))
 
 # Perform mapping
-marker_genes_mapped <- mapIds(
+goi_list_mapped <- mapIds(
   # organism annotation package
   annotation_package,
   # the provided gene identifiers
@@ -137,8 +137,8 @@ marker_genes_mapped <- mapIds(
   # grab only the unique rows
   dplyr::distinct() %>%
   # join the remaining columns
-  dplyr::left_join(marker_genes, by = opt$identifier_column_name)
+  dplyr::left_join(goi_list, by = opt$identifier_column_name)
 
 #### Save mapped object to file ------------------------------------------------
 
-write_tsv(marker_genes_mapped, opt$output_file)
+write_tsv(goi_list_mapped, opt$output_file)

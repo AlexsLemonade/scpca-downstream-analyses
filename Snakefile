@@ -9,8 +9,8 @@ LIBRARY_ID = list(samples_information['library_id'])
           
 rule target:
     input:
-        expand("data/Gawad_processed_data/results/{sample_id}/{library_id}_filtered_miQC_sce.rds", sample_id = SAMPLES, library_id = LIBRARY_ID),
-        expand("data/Gawad_processed_data/results/{sample_id}/plots/{library_id}_miQC_cell_filtering.png", sample_id = SAMPLES, library_id = LIBRARY_ID)
+        expand("data/Gawad_processed_data/results/{ids[0]}/{ids[1]}_filtered_miQC_sce.rds", ids = zip(SAMPLES, LIBRARY_ID)),
+        expand("data/Gawad_processed_data/results/{ids[0]}/plots/{ids[1]}_miQC_cell_filtering.png", ids = zip(SAMPLES, LIBRARY_ID))
 
 rule filter_data:
     input:
@@ -19,7 +19,7 @@ rule filter_data:
         "data/Gawad_processed_data/results/{sample_id}/{library_id}_filtered_miQC_sce.rds",
         "data/Gawad_processed_data/results/{sample_id}/plots/{library_id}_miQC_cell_filtering.png"
     shell:
-        " Rscript --vanilla 01-filter-sce.R"
+        "Rscript --vanilla 01-filter-sce.R"
         "  --sample_sce_filepath data/Gawad_processed_data/{wildcards.sample_id}/{wildcards.library_id}_filtered.rds"
         "  --sample_name {wildcards.library_id}"
         "  --mito_file data/Homo_sapiens.GRCh38.103.mitogenes.txt"
@@ -33,4 +33,3 @@ rule filter_data:
         "  --umi_count_cutoff 500"
         "  --filtering_method miQC"
         "  --project_directory ."
-        

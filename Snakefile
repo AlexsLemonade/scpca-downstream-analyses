@@ -1,7 +1,9 @@
 import pandas as pd
 
+configfile: "config.yaml"
+
 # getting the samples information
-samples_information = pd.read_csv("project-metadata/gawad-library-metadata.tsv", sep='\t', index_col=False)
+samples_information = pd.read_csv(config["project_metadata"], sep='\t', index_col=False)
 
 # get a list of the sample and library ids
 SAMPLES = list(samples_information['sample_id'])
@@ -10,8 +12,8 @@ FILTERING_METHOD = list(samples_information['filtering_method'])
           
 rule target:
     input:
-        expand("data/Gawad_processed_data/results/{ids[0]}/{ids[1]}_filtered_{ids[2]}_sce.rds", ids = zip(SAMPLES, LIBRARY_ID, FILTERING_METHOD)),
-        expand("data/Gawad_processed_data/results/{ids[0]}/plots/{ids[1]}_{ids[2]}_cell_filtering.png", ids = zip(SAMPLES, LIBRARY_ID, FILTERING_METHOD))
+        expand(config["data_dir"] + "results/{ids[0]}/{ids[1]}_filtered_{ids[2]}_sce.rds", ids = zip(SAMPLES, LIBRARY_ID, FILTERING_METHOD)),
+        expand(config["data_dir"] + "results/{ids[0]}/plots/{ids[1]}_{ids[2]}_cell_filtering.png", ids = zip(SAMPLES, LIBRARY_ID, FILTERING_METHOD))
 
 rule filter_data:
     input:
@@ -23,7 +25,7 @@ rule filter_data:
         "Rscript --vanilla 01-filter-sce.R"
         "  --sample_sce_filepath {input}"
         "  --sample_name {wildcards.library_id}"
-        "  --mito_file data/Homo_sapiens.GRCh38.103.mitogenes.txt"
+        "  --mito_file {config[mito_file]}"
         "  --output_plots_directory $(dirname {output.plot})"
         "  --output_filepath {output.filtered_rds}"
         "  --seed 2021"

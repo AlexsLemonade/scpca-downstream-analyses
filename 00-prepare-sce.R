@@ -12,9 +12,9 @@
 
 ## Load project
 
-# The `here::here()` function return the file path to the main top-level
-# directory, hence we are able to provide this to `renv::load()` to find
-# the project file
+# `here::here()` looks at a number of criteria to identify the root 
+# directory, including whether or not there is a .Rproj file present,
+# so we can pass this to `renv::load()` to load the project file
 renv::load(here::here())
 
 # Check that R version us at least 4.1

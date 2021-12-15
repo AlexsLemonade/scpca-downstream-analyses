@@ -12,8 +12,8 @@ FILTERING_METHOD = list(samples_information['filtering_method'])
           
 rule target:
     input:
-        expand(os.path.join(config["data_dir"], "results/{ids[0]}/{ids[1]}_filtered_miQC_sce.rds"), ids = zip(SAMPLES, LIBRARY_ID, FILTERING_METHOD)),
-        expand(os.path.join(config["data_dir"], "results/{ids[0]}/plots/{ids[1]}_{ids[2]}_cell_filtering.png"), ids = zip(SAMPLES, LIBRARY_ID, FILTERING_METHOD))
+        expand(os.path.join(config["data_dir"], "results/{sample}/{library}_filtered_{filtering_method}_sce.rds"), zip, sample = SAMPLES, library = LIBRARY_ID, filtering_method = FILTERING_METHOD),
+        expand(os.path.join(config["data_dir"], "results/{sample}/plots/{library}_{filtering_method}_cell_filtering.png"), zip, sample = SAMPLES, library = LIBRARY_ID, filtering_method = FILTERING_METHOD)
 
 rule filter_data:
     input:

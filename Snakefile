@@ -43,4 +43,3 @@ rule filter_data:
         "  --detected_gene_cutoff 500"
         "  --umi_count_cutoff 500"
         "  --filtering_method {wildcards.filtering_method}"
-        "  --project_directory ."

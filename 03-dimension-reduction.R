@@ -45,12 +45,6 @@ option_list <- list(
     action = "store_true",
     help = "specifies whether or not to overwrite any existing dimension reduction
             results"
-  ),
-  optparse::make_option(
-    c("--project_directory"),
-    type = "character",
-    default = NULL,
-    help = "path to the main project directory",
   )
 )
 
@@ -59,7 +53,11 @@ opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
 ## Load project
-renv::load(opt$project_directory)
+
+# `here::here()` looks at a number of criteria to identify the root 
+# directory, including whether or not there is a .Rproj file present,
+# so we can pass this to `renv::load()` to load the project file
+renv::load(here::here())
 
 # Check that R version us at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){

@@ -1,0 +1,3 @@
+data_dir: "data/Gawad_processed_data"
+mito_file: "data/Homo_sapiens.GRCh38.103.mitogenes.txt"
+project_metadata: "project-metadata/gawad-library-metadata.tsv"

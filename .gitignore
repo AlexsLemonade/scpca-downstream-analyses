@@ -4,3 +4,6 @@
 # ignore hidden `DS_Store`
 .DS_Store
 .Rproj.user
+
+# ignore hidden snakemake logs
+.snakemake

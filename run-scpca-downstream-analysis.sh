@@ -30,7 +30,6 @@ SEED=${SEED:-2021}
 TOP_N=${TOP_N:-2000}
 output_dir="data/Gawad_processed_data/results"
 sample_metadata="project-metadata/gawad-library-metadata.tsv"
-project_dir="."
 
 # grab variables from command line
 while [ $# -gt 0 ]; do
@@ -53,16 +52,14 @@ while read -r sample_id library_id filtering_method; do
     --gene_detected_row_cutoff 5 \
     --gene_means_cutoff 0.1 \
     --prob_compromised_cutoff 0.75 \
-    --filtering_method ${filtering_method} \
-    --project_directory ${project_dir}
+    --filtering_method ${filtering_method}
   
   if [[ -f "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" ]]; then
     # Run the normalization script on filtered SingleCellExperiment object
     Rscript --vanilla 02-normalize-sce.R \
       --sce "${output_dir}/${sample_id}/${library_id}_filtered_${filtering_method}_sce.rds" \
       --output_filepath "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
-      --seed ${SEED} \
-      --project_directory ${project_dir}
+      --seed ${SEED}
   fi
 
   if [[ -f "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" ]]; then
@@ -72,7 +69,6 @@ while read -r sample_id library_id filtering_method; do
       --sce "${output_dir}/${sample_id}/${library_id}_normalized_sce.rds" \
       --seed ${SEED} \
       --top_n ${TOP_N} \
-      --overwrite \
-      --project_directory ${project_dir}
+      --overwrite
   fi
 done < "$sample_metadata"

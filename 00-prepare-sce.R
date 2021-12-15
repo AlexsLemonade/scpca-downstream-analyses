@@ -10,6 +10,23 @@
 
 #### Set up --------------------------------------------------------------------
 
+## Load project
+
+# The `here::here()` function return the file path to the main top-level
+# directory, hence we are able to provide this to `renv::load()` to find
+# the project file
+renv::load(here::here())
+
+# Check that R version us at least 4.1
+if (! (R.version$major == 4 && R.version$minor >= 1)){
+  stop("R version must be at least 4.1")
+}
+
+# Check that Bioconductor version is 3.14
+if (packageVersion("BiocVersion") < 3.14){
+  stop("Bioconductor version is less than 3.14")
+}
+
 ## Load libraries
 library(magrittr)
 library(scpcaTools)

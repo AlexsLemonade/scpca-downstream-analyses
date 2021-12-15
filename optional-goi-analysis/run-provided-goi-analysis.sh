@@ -49,7 +49,6 @@ SEED=${SEED:-2021}
 TOP_N=${TOP_N:-2000}
 plotting_identifier_type=${plotting_identifier_type:-symbol}
 ensembl_id_column_name=${ensembl_id_column_name:-ensembl}
-project_dir="."
 
 # grab variables from command line
 while [ $# -gt 0 ]; do
@@ -94,15 +93,13 @@ Rscript --vanilla 01-filter-sce.R \
   --seed ${SEED} \
   --gene_detected_row_cutoff 5 \
   --gene_means_cutoff 0.1 \
-  --filtering_method ${filtering_method} \
-  --project_directory ${project_dir}
+  --filtering_method ${filtering_method}
 
 # Run the normalization script on filtered SingleCellExperiment object
 Rscript --vanilla 02-normalize-sce.R \
   --sce "${output_dir}/${sample_name}/${sample_name}_filtered_${filtering_method}_sce.rds" \
   --output_filepath "${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds" \
-  --seed ${SEED} \
-  --project_directory ${project_dir}
+  --seed ${SEED}
 
 # Run the dimension reduction script on the normalized SingleCellExperiment
 # object
@@ -110,8 +107,7 @@ Rscript --vanilla 03-dimension-reduction.R \
   --sce "${output_dir}/${sample_name}/${sample_name}_normalized_sce.rds" \
   --seed ${SEED} \
   --top_n ${TOP_N} \
-  --overwrite \
-  --project_directory ${project_dir}
+  --overwrite
 
 # Generate a html report displaying a hierarchical clustering heatmap and
 # provided genes of interest expression plots

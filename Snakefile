@@ -21,6 +21,11 @@ rule target:
                zip, 
                sample = SAMPLES, 
                library = LIBRARY_ID, 
+               filtering_method = FILTERING_METHOD),
+        expand(os.path.join(config["data_dir"], "results/{sample}/{library}_{filtering_method}_normalized_sce.rds"), 
+               zip, 
+               sample = SAMPLES, 
+               library = LIBRARY_ID, 
                filtering_method = FILTERING_METHOD)
 
 rule filter_data:
@@ -43,3 +48,15 @@ rule filter_data:
         "  --detected_gene_cutoff 500"
         "  --umi_count_cutoff 500"
         "  --filtering_method {wildcards.filtering_method}"
+
+if ("{base_dir}/results/{sample_id}/{library_id}_filtered_{filtering_method}_sce.rds"):
+    rule normalize_data:
+        input:
+            "{base_dir}/results/{sample_id}/{library_id}_filtered_{filtering_method}_sce.rds"
+        output:
+            normalized_rds = "{base_dir}/results/{sample_id}/{library_id}_{filtering_method}_normalized_sce.rds"
+        shell:
+            "Rscript --vanilla 02-normalize-sce.R"
+            "  --sce {input}"
+            "  --seed 2021"
+            "  --output_filepath {output.normalized_rds}"

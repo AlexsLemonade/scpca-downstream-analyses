@@ -97,6 +97,8 @@ tryCatch(
   },
   warning = function(w){
     print(paste0("Clustering similar cells failed. Skipping normalization and dimension reduction for filtered sample ", opt$sce))
+    # Save input filtered file in this case to satisfy Snakemake
+    readr::write_rds(filtered_sce, output_file)
   }
   
 )

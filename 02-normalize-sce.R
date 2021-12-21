@@ -107,12 +107,12 @@ if (exists("qclust")) {
     scran::computeSumFactors(filtered_sce, clusters = qclust)
   
   # Include note in metadata re: clustering
-  metadata(filtered_sce)$normalization = "scater::logNormCounts clustered"
+  metadata(filtered_sce)$normalization <- "scater::logNormCounts clustered"
   
 } else if (!exists("qclust")) {
   
   # Include note in metadata re: failed clustering
-  metadata(filtered_sce)$normalization = "scater::logNormCounts unclustered" 
+  metadata(filtered_sce)$normalization <- "scater::logNormCounts unclustered" 
   
   # Keep positive counts for `logNormCounts()`
   filtered_sce <- filtered_sce[, colSums(counts(filtered_sce)) > 0]

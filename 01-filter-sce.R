@@ -221,9 +221,10 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
     geom_hline(yintercept = opt$detected_gene_cutoff) +
     geom_vline(xintercept = opt$umi_count_cutoff)
   
+  # Include note in metadata re: filtering
+  metadata(filtered_sce)$filtering <- "manually filtered"
   
 } else if (opt$filtering_method == "miQC") {
-  
   # Rename columns for `mixtureModel()`
   names(colData(sce_qc)) <-
     stringr::str_replace(names(colData(sce_qc)),
@@ -239,22 +240,6 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
       print(
         paste0(
           "miQC filtering failed. Skipping filtering for sample ",
-          opt$sample_sce_filepath,
-          ". Try `manual` filtering instead."
-        )
-      )
-      
-      # Include note in metadata re: failed filtering
-      metadata(sce_qc)$filtering = "miQC filtering failed" 
-      
-      # Save input sce file with all cells as output
-      readr::write_rds(sce_qc, output_file)
-      
-    },
-    warning = function(w) {
-      print(
-        paste0(
-          "miQC filtering failed. Skipping processing for sample ",
           opt$sample_sce_filepath,
           ". Try `manual` filtering instead."
         )
@@ -279,9 +264,15 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
                 filtered_cell_plot,
                 ncol = 1,
                 nrow = 2)
+    # Include note in metadata re: filtering
+    metadata(filtered_sce)$filtering <- "miQC filtered"
+    
   } else {
+    filtered_sce <- sce_qc
+    # Include note in metadata re: failed filtering
+    metadata(filtered_sce)$filtering <- "miQC filtering failed"
     # Implement `plotMetrics` when a model cannot be generated
-    filtered_cell_plot <- miQC::plotMetrics(sce_qc)
+    filtered_cell_plot <- miQC::plotMetrics(filtered_sce)
   }
   
   # Save plot
@@ -289,27 +280,16 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
   
 }
 
-if (exists("filtered_sce")) {
-  # Remove old gene-level rowData statistics and recalculate
-  drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
-  rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
-  filtered_sce <- scater::addPerFeatureQC(filtered_sce)
-  
-  # Filter the genes (rows)
-  detected <-
-    rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
-  expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
-  filtered_sce <- filtered_sce[detected & expressed,]
-  
-  # Include note in metadata re: filtering
-  metadata(filtered_sce)$filtering = "miQC filtered"
-  if (opt$filtering_method == "miQC") {
-    metadata(filtered_sce)$filtering = "miQC filtered"
-  } else if (opt$filtering_method == "manual") {
-    metadata(filtered_sce)$filtering = "manually filtered"
-  }
-  
-  # Save output filtered sce
-  readr::write_rds(filtered_sce, output_file)
-  
-}
+# Remove old gene-level rowData statistics and recalculate
+drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
+rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
+filtered_sce <- scater::addPerFeatureQC(filtered_sce)
+
+# Filter the genes (rows)
+detected <-
+  rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
+expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
+filtered_sce <- filtered_sce[detected & expressed, ]
+
+# Save output filtered sce
+readr::write_rds(filtered_sce, output_file)

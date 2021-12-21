@@ -245,7 +245,7 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
       )
       
       # Include note in metadata re: failed filtering
-      metadata(sce_qc)$filtering = "not successfully filtered" 
+      metadata(sce_qc)$filtering = "miQC filtering failed" 
       
       # Save input sce file with all cells as output
       readr::write_rds(sce_qc, output_file)

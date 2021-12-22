@@ -28,7 +28,7 @@ rule filter_data:
     input:
         "{base_dir}/{sample_id}/{library_id}_filtered.rds"
     output:
-        downstream_filtered_rds = "{base_dir}/results/{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds",
+        downstream_filtered_rds = temp("{base_dir}/results/{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"),
         plot = "{base_dir}/results/{sample_id}/plots/{library_id}_{filtering_method}_cell_filtering.png"
     shell:
         "Rscript --vanilla 01-filter-sce.R"
@@ -47,11 +47,11 @@ rule filter_data:
 
 rule normalize_data:
     input:
-        downstream_filtered_rs = "{base_dir}/results/{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"
+        "{basename}_downstream_processed_sce.rds"
     output:
-        downstream_normalized_rds = "{base_dir}/results/{sample_id}/{library_id}_{filtering_method}_normalized_downstream_processed_sce.rds"
+        "{basename}_normalized_downstream_processed_sce.rds"
     shell:
         "Rscript --vanilla 02-normalize-sce.R"
         "  --sce {input}"
         "  --seed 2021"
-        "  --output_filepath {output.downstream_normalized_rds}"
+        "  --output_filepath {output}"

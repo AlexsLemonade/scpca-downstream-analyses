@@ -12,7 +12,7 @@ FILTERING_METHOD = list(samples_information['filtering_method'])
           
 rule target:
     input:
-        expand(os.path.join(config["data_dir"], "results/{sample}/{library}_filtered_{filtering_method}_sce.rds"), 
+        expand(os.path.join(config["data_dir"], "results/{sample}/{library}_{filtering_method}_normalized_downstream_processed_sce.rds"), 
                zip, 
                sample = SAMPLES, 
                library = LIBRARY_ID, 
@@ -20,14 +20,15 @@ rule target:
         expand(os.path.join(config["data_dir"], "results/{sample}/plots/{library}_{filtering_method}_cell_filtering.png"), 
                zip, 
                sample = SAMPLES, 
-               library = LIBRARY_ID, 
+               library = LIBRARY_ID,
                filtering_method = FILTERING_METHOD)
+               
 
 rule filter_data:
     input:
         "{base_dir}/{sample_id}/{library_id}_filtered.rds"
     output:
-        filtered_rds = "{base_dir}/results/{sample_id}/{library_id}_filtered_{filtering_method}_sce.rds",
+        downstream_filtered_rds = temp("{base_dir}/results/{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"),
         plot = "{base_dir}/results/{sample_id}/plots/{library_id}_{filtering_method}_cell_filtering.png"
     shell:
         "Rscript --vanilla 01-filter-sce.R"
@@ -35,7 +36,7 @@ rule filter_data:
         "  --sample_name {wildcards.library_id}"
         "  --mito_file {config[mito_file]}"
         "  --output_plots_directory $(dirname {output.plot})"
-        "  --output_filepath {output.filtered_rds}"
+        "  --output_filepath {output.downstream_filtered_rds}"
         "  --seed 2021"
         "  --gene_detected_row_cutoff 5"
         "  --gene_means_cutoff 0.1"
@@ -43,3 +44,14 @@ rule filter_data:
         "  --detected_gene_cutoff 500"
         "  --umi_count_cutoff 500"
         "  --filtering_method {wildcards.filtering_method}"
+
+rule normalize_data:
+    input:
+        "{basename}_downstream_processed_sce.rds"
+    output:
+        "{basename}_normalized_downstream_processed_sce.rds"
+    shell:
+        "Rscript --vanilla 02-normalize-sce.R"
+        "  --sce {input}"
+        "  --seed 2021"
+        "  --output_filepath {output}"

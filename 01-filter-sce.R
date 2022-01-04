@@ -16,6 +16,23 @@
 
 ## Set up -------------------------------------------------------------
 
+## Load project
+
+# `here::here()` looks at a number of criteria to identify the root 
+# directory, including whether or not there is a .Rproj file present,
+# so we can pass this to `renv::load()` to load the project file
+renv::load(here::here())
+
+# Check that R version is at least 4.1
+if (! (R.version$major == 4 && R.version$minor >= 1)){
+  stop("R version must be at least 4.1")
+}
+
+# Check that Bioconductor version is 3.14
+if (packageVersion("BiocVersion") < 3.14){
+  stop("Bioconductor version is less than 3.14")
+}
+
 ## Command line arguments/options
 
 # Library needed to declare command line options
@@ -116,23 +133,6 @@ option_list <- list(
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
-## Load project
-
-# `here::here()` looks at a number of criteria to identify the root 
-# directory, including whether or not there is a .Rproj file present,
-# so we can pass this to `renv::load()` to load the project file
-renv::load(here::here())
-
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
-
 ## Load libraries
 library(scater)
 library(scran)
@@ -144,13 +144,6 @@ library(SingleCellExperiment)
 library(cowplot)
 library(scuttle)
 library(tryCatchLog)
-
-if (!("miQC" %in% installed.packages())) {
-  if (!requireNamespace("BiocManager")) {
-    install.packages("BiocManager")
-  }
-  BiocManager::install("miQC")
-}
 
 ## Set the seed
 set.seed(opt$seed)
@@ -221,9 +214,10 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
     geom_hline(yintercept = opt$detected_gene_cutoff) +
     geom_vline(xintercept = opt$umi_count_cutoff)
   
+  # Include note in metadata re: filtering
+  metadata(filtered_sce)$filtering <- "manually filtered"
   
 } else if (opt$filtering_method == "miQC") {
-  
   # Rename columns for `mixtureModel()`
   names(colData(sce_qc)) <-
     stringr::str_replace(names(colData(sce_qc)),
@@ -239,14 +233,6 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
       print(
         paste0(
           "miQC filtering failed. Skipping filtering for sample ",
-          opt$sample_sce_filepath
-        )
-      )
-    },
-    warning = function(w) {
-      print(
-        paste0(
-          "miQC filtering failed. Skipping processing for sample ",
           opt$sample_sce_filepath,
           ". Try `manual` filtering instead."
         )
@@ -271,25 +257,32 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
                 filtered_cell_plot,
                 ncol = 1,
                 nrow = 2)
+    # Include note in metadata re: filtering
+    metadata(filtered_sce)$filtering <- "miQC filtered"
     
-    ggsave(output_filtered_cell_plot, filtered_cell_plot)
+  } else {
+    filtered_sce <- sce_qc
+    # Include note in metadata re: failed filtering
+    metadata(filtered_sce)$filtering <- "miQC filtering failed"
+    # Implement `plotMetrics` when a model cannot be generated
+    filtered_cell_plot <- miQC::plotMetrics(filtered_sce)
   }
+  
 }
 
-if (exists("filtered_sce")) {
-  
-  # Remove old gene-level rowData statistics and recalculate
-  drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
-  rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
-  filtered_sce <- scater::addPerFeatureQC(filtered_sce)
-  
-  # Filter the genes (rows)
-  detected <-
-    rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
-  expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
-  filtered_sce <- filtered_sce[detected & expressed, ]
-  
-  # Save output filtered sce
-  readr::write_rds(filtered_sce, output_file)
-  
-}
+# Save plot
+ggsave(output_filtered_cell_plot, filtered_cell_plot)
+
+# Remove old gene-level rowData statistics and recalculate
+drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
+rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
+filtered_sce <- scater::addPerFeatureQC(filtered_sce)
+
+# Filter the genes (rows)
+detected <-
+  rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
+expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
+filtered_sce <- filtered_sce[detected & expressed, ]
+
+# Save output filtered sce
+readr::write_rds(filtered_sce, output_file)

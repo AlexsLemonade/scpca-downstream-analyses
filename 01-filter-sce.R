@@ -133,6 +133,11 @@ option_list <- list(
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
+# Check that input arguments are valid
+if (!opt$filtering_method %in% c("manual", "miQC")) {
+  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
+}
+
 ## Load libraries
 library(scater)
 library(scran)
@@ -189,11 +194,7 @@ if (!is.null(sce_qc$prob_compromised)) {
 }
 
 # Perform filtering based on specified method
-if (!opt$filtering_method %in% c("manual", "miQC")) {
-  
-  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
-  
-} else if (opt$filtering_method == "manual") {
+if (opt$filtering_method == "manual") {
   
   # Filter the cells
   mito_filter <-

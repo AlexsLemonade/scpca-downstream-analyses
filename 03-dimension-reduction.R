@@ -52,6 +52,11 @@ option_list <- list(
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
+# Check that the input file exists
+if (!file.exists(opt$sce)){
+  stop(paste(opt$sce, "does not exist."))
+}
+
 ## Load project
 
 # `here::here()` looks at a number of criteria to identify the root 
@@ -78,11 +83,6 @@ library(magrittr)
 set.seed(opt$seed)
 
 #### Read in data --------------------------------------------------------------
-
-# Check that the file exists
-if (!file.exists(opt$sce)){
-  stop(paste(opt$sce, "does not exist."))
-}
 
 # Read in normalized sce object
 normalized_sce <- readr::read_rds(opt$sce)

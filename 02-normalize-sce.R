@@ -83,14 +83,14 @@ if (!dir.exists(output_dir)) {
 #### Read in data --------------------------------------------------------------
 
 # Read in filtered sce object
-sce <- readr::read_rds(opt$sce)
+filtered_sce <- readr::read_rds(opt$sce)
 
 #### Normalize the data --------------------------------------------------------
 
 tryCatch(
   expr = {
     # Cluster similar cells
-    qclust <- scran::quickCluster(sce)
+    qclust <- scran::quickCluster(filtered_sce)
   },
   error = function(e){ 
     print("Clustering similar cells failed. Skipping this sample.")
@@ -103,23 +103,23 @@ tryCatch(
 
 if (exists("qclust")) {
   # Compute sum factors for each cell cluster grouping
-  sce <-
-    scran::computeSumFactors(sce, clusters = qclust)
+  filtered_sce <-
+    scran::computeSumFactors(filtered_sce, clusters = qclust)
   
   # Include note in metadata re: clustering
-  metadata(sce)$normalization <- "scater::logNormCounts clustered"
+  metadata(filtered_sce)$normalization <- "scater::logNormCounts clustered"
   
 } else if (!exists("qclust")) {
   
   # Include note in metadata re: failed clustering
-  metadata(sce)$normalization <- "scater::logNormCounts unclustered" 
+  metadata(filtered_sce)$normalization <- "scater::logNormCounts unclustered" 
   
   # Keep positive counts for `logNormCounts()`
-  sce <- sce[, colSums(counts(sce)) > 0]
+  filtered_sce <- filtered_sce[, colSums(counts(filtered_sce)) > 0]
 }
   
 # Normalize and log transform
-normalized_sce <- scater::logNormCounts(sce)
+normalized_sce <- scater::logNormCounts(filtered_sce)
 
 # Save output normalized file
 readr::write_rds(normalized_sce, output_file)

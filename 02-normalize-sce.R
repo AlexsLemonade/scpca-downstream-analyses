@@ -13,6 +13,23 @@
 
 ## Set up -------------------------------------------------------------
 
+## Load project
+
+# `here::here()` looks at a number of criteria to identify the root 
+# directory, including whether or not there is a .Rproj file present,
+# so we can pass this to `renv::load()` to load the project file
+renv::load(here::here())
+
+# Check that R version us at least 4.1
+if (! (R.version$major == 4 && R.version$minor >= 1)){
+  stop("R version must be at least 4.1")
+}
+
+# Check that Bioconductor version is 3.14
+if (packageVersion("BiocVersion") < 3.14){
+  stop("Bioconductor version is less than 3.14")
+}
+
 ## Command line arguments/options
 
 # Library needed to declare command line options
@@ -44,23 +61,6 @@ option_list <- list(
 # Read the arguments passed
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
-
-## Load project
-
-# `here::here()` looks at a number of criteria to identify the root 
-# directory, including whether or not there is a .Rproj file present,
-# so we can pass this to `renv::load()` to load the project file
-renv::load(here::here())
-
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
 
 ## Load libraries
 library(scater)

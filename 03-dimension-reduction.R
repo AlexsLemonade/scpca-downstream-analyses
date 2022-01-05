@@ -13,6 +13,23 @@
 
 ## Set up -------------------------------------------------------------
 
+## Load project
+
+# `here::here()` looks at a number of criteria to identify the root 
+# directory, including whether or not there is a .Rproj file present,
+# so we can pass this to `renv::load()` to load the project file
+renv::load(here::here())
+
+# Check that R version us at least 4.1
+if (! (R.version$major == 4 && R.version$minor >= 1)){
+  stop("R version must be at least 4.1")
+}
+
+# Check that Bioconductor version is 3.14
+if (packageVersion("BiocVersion") < 3.14){
+  stop("Bioconductor version is less than 3.14")
+}
+
 ## Command line arguments/options
 
 # Library needed to declare command line options
@@ -52,21 +69,14 @@ option_list <- list(
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
-## Load project
-
-# `here::here()` looks at a number of criteria to identify the root 
-# directory, including whether or not there is a .Rproj file present,
-# so we can pass this to `renv::load()` to load the project file
-renv::load(here::here())
-
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
+# Check that the input file exists
+if (!file.exists(opt$sce)){
+  stop(paste(opt$sce, "does not exist."))
 }
 
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
+# Check that `top_n` is an integer
+if (opt$top_n %% 1 != 0){
+  stop("The --top_n (-n) argument value must be an integer.")
 }
 
 ## Load libraries
@@ -79,20 +89,10 @@ set.seed(opt$seed)
 
 #### Read in data --------------------------------------------------------------
 
-# Check that the file exists
-if (!file.exists(opt$sce)){
-  stop(paste(opt$sce, "does not exist."))
-}
-
 # Read in normalized sce object
 normalized_sce <- readr::read_rds(opt$sce)
 
 #### Add PCA and UMAP results --------------------------------------------------
-
-# Check that `top_n` is an integer
-if (!(opt$top_n %% 1 == 0)){
-  stop(paste(opt$top_n, "must be an integer."))
-}
 
 # model gene variance using `scran:modelGeneVar()`
 gene_variance <- scran::modelGeneVar(normalized_sce)

@@ -74,6 +74,11 @@ if (!file.exists(opt$sce)){
   stop(paste(opt$sce, "does not exist."))
 }
 
+# Check that `top_n` is an integer
+if (opt$top_n %% 1 != 0){
+  stop("The --top_n (-n) argument value must be an integer.")
+}
+
 ## Load libraries
 library(scater)
 library(scran)
@@ -88,11 +93,6 @@ set.seed(opt$seed)
 normalized_sce <- readr::read_rds(opt$sce)
 
 #### Add PCA and UMAP results --------------------------------------------------
-
-# Check that `top_n` is an integer
-if (!(opt$top_n %% 1 == 0)){
-  stop(paste(opt$top_n, "must be an integer."))
-}
 
 # model gene variance using `scran:modelGeneVar()`
 gene_variance <- scran::modelGeneVar(normalized_sce)

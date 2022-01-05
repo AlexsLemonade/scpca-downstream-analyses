@@ -12,7 +12,7 @@ FILTERING_METHOD = list(samples_information['filtering_method'])
           
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_normalized_downstream_processed_sce.rds"), 
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_downstream_processed_normalized_sce.rds"), 
                zip, 
                sample = SAMPLES, 
                library = LIBRARY_ID, 
@@ -26,10 +26,10 @@ rule target:
 
 rule filter_data:
     input:
-        "{config[data_dir]}/{sample_id}/{library_id}_filtered.rds"
+        os.path.join(config["data_dir"], "{sample_id}/{library_id}_filtered.rds")
     output:
-        downstream_filtered_rds = temp("{config[results_dir]}/{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"),
-        plot = "{config[results_dir]}/{sample_id}/plots/{library_id}_{filtering_method}_cell_filtering.png"
+        downstream_filtered_rds = temp(os.path.join(config["results_dir"], "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds")),
+        plot = os.path.join(config["results_dir"], "{sample_id}/plots/{library_id}_{filtering_method}_cell_filtering.png")
     shell:
         "Rscript --vanilla 01-filter-sce.R"
         "  --sample_sce_filepath {input}"
@@ -49,7 +49,7 @@ rule normalize_data:
     input:
         "{basename}_downstream_processed_sce.rds"
     output:
-        "{basename}_normalized_downstream_processed_sce.rds"
+        "{basename}_downstream_processed_normalized_sce.rds"
     shell:
         "Rscript --vanilla 02-normalize-sce.R"
         "  --sce {input}"

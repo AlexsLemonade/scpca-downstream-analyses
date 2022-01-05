@@ -13,6 +13,23 @@
 
 ## Set up -------------------------------------------------------------
 
+## Load project
+
+# `here::here()` looks at a number of criteria to identify the root 
+# directory, including whether or not there is a .Rproj file present,
+# so we can pass this to `renv::load()` to load the project file
+renv::load(here::here())
+
+# Check that R version us at least 4.1
+if (! (R.version$major == 4 && R.version$minor >= 1)){
+  stop("R version must be at least 4.1")
+}
+
+# Check that Bioconductor version is 3.14
+if (packageVersion("BiocVersion") < 3.14){
+  stop("Bioconductor version is less than 3.14")
+}
+
 ## Command line arguments/options
 
 # Library needed to declare command line options
@@ -45,23 +62,6 @@ option_list <- list(
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
-## Load project
-
-# `here::here()` looks at a number of criteria to identify the root 
-# directory, including whether or not there is a .Rproj file present,
-# so we can pass this to `renv::load()` to load the project file
-renv::load(here::here())
-
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
-
 ## Load libraries
 library(scater)
 library(scran)
@@ -83,14 +83,14 @@ if (!dir.exists(output_dir)) {
 #### Read in data --------------------------------------------------------------
 
 # Read in filtered sce object
-filtered_sce <- readr::read_rds(opt$sce)
+sce <- readr::read_rds(opt$sce)
 
 #### Normalize the data --------------------------------------------------------
 
 tryCatch(
   expr = {
     # Cluster similar cells
-    qclust <- scran::quickCluster(filtered_sce)
+    qclust <- scran::quickCluster(sce)
   },
   error = function(e){ 
     print("Clustering similar cells failed. Skipping this sample.")
@@ -103,23 +103,23 @@ tryCatch(
 
 if (exists("qclust")) {
   # Compute sum factors for each cell cluster grouping
-  filtered_sce <-
-    scran::computeSumFactors(filtered_sce, clusters = qclust)
+  sce <-
+    scran::computeSumFactors(sce, clusters = qclust)
   
   # Include note in metadata re: clustering
-  metadata(filtered_sce)$normalization <- "scater::logNormCounts clustered"
+  metadata(sce)$normalization <- "scater::logNormCounts clustered"
   
 } else if (!exists("qclust")) {
   
   # Include note in metadata re: failed clustering
-  metadata(filtered_sce)$normalization <- "scater::logNormCounts unclustered" 
+  metadata(sce)$normalization <- "scater::logNormCounts unclustered" 
   
   # Keep positive counts for `logNormCounts()`
-  filtered_sce <- filtered_sce[, colSums(counts(filtered_sce)) > 0]
+  sce <- sce[, colSums(counts(sce)) > 0]
 }
   
 # Normalize and log transform
-normalized_sce <- scater::logNormCounts(filtered_sce)
+normalized_sce <- scater::logNormCounts(sce)
 
 # Save output normalized file
 readr::write_rds(normalized_sce, output_file)

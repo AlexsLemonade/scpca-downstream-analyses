@@ -12,7 +12,7 @@ FILTERING_METHOD = list(samples_information['filtering_method'])
           
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_downstream_processed_normalized_sce.rds"), 
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_downstream_processed_normalized_reduced_sce.rds"), 
                zip, 
                sample = SAMPLES, 
                library = LIBRARY_ID, 
@@ -49,9 +49,22 @@ rule normalize_data:
     input:
         "{basename}_downstream_processed_sce.rds"
     output:
-        "{basename}_downstream_processed_normalized_sce.rds"
+        temp("{basename}_downstream_processed_normalized_sce.rds")
     shell:
         "Rscript --vanilla 02-normalize-sce.R"
         "  --sce {input}"
         "  --seed 2021"
         "  --output_filepath {output}"
+        
+rule dimensionality_reduction:
+    input:
+        "{basename}_downstream_processed_normalized_sce.rds"
+    output:
+        "{basename}_downstream_processed_normalized_reduced_sce.rds"
+    shell:
+        "Rscript --vanilla 03-dimension-reduction.R"
+        "  --sce {input}"
+        "  --seed 2021"
+        "  --top_n {config[n_genes_pca]}"
+        "  --output_filepath {output}"
+        "  --overwrite"

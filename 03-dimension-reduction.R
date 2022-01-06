@@ -62,6 +62,12 @@ option_list <- list(
     action = "store_true",
     help = "specifies whether or not to overwrite any existing dimension reduction
             results"
+  ),
+  optparse::make_option(
+    c("--output_filepath"),
+    type = "character",
+    default = NULL,
+    help = "path to output dimensionality reduced RDS file"
   )
 )
 
@@ -131,4 +137,4 @@ if (!is.null(reducedDims(normalized_sce))) {
 
 #### Save normalized file with dimensionality results --------------------------
 
-readr::write_rds(normalized_sce, opt$sce)
+readr::write_rds(normalized_sce, opt$output_filepath)

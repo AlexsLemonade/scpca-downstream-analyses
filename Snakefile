@@ -65,6 +65,6 @@ rule dimensionality_reduction:
         "Rscript --vanilla 03-dimension-reduction.R"
         "  --sce {input}"
         "  --seed 2021"
-        "  --top_n {config[top_n]}"
+        "  --top_n {config[n_genes_pca]}"
         "  --output_filepath {output}"
         "  --overwrite"

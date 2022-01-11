@@ -1,0 +1,169 @@
+---
+title: "Clustering"
+author: Data Lab for ALSF
+date: 2021
+output:
+  html_notebook: 
+    toc: true
+    toc_float: true
+---
+
+This notebook will begin looking at clustering methods on the expression of the genes in a single sample of the dataset of interest, from an unbiased approach.
+
+## Set Up 
+
+```{r}
+# Load libraries
+library(magrittr)
+library(scater)
+library(readr)
+library(bluster)
+library(ggpubr)
+library(pheatmap)
+
+# Set file paths
+data_dir <- file.path("results", "Gawad_processed_data")
+
+# Source custom functions
+source(file.path("utils", "clustering-functions.R"))
+```
+
+## Read in data
+
+```{r}
+sample_290_normalized <- read_rds(
+  file.path(data_dir, "SCPCS000216", "SCPCL000290_miQC_downstream_processed_normalized_reduced_sce.rds"))
+```
+
+## Perform clustering
+
+### k-means
+
+```{r}
+# Perform k-means clustering
+for (i in 2:5) {
+  cluster_name <- paste("kcluster", i, sep = "")
+  sample_290_normalized <- perform_clustering(sample_290_normalized,
+                     k = i,
+                     cluster_name = cluster_name,
+                     check_stability = TRUE)
+}
+kmeans_cluster_names <- c("kcluster2", "kcluster3", "kcluster4", "kcluster5")
+
+# Plot k-means
+kmeans_cluster_names %>%
+   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "PCA", colour_by = .x))
+```
+
+### graph-based, walktrap
+
+```{r}
+# Perform graph-based walktrap clustering
+for (i in 12:14) {
+  cluster_name <- paste("walktrap_cluster", i, sep = "")
+  sample_290_normalized <- perform_clustering(sample_290_normalized,
+                     k = i,
+                     cluster_name = cluster_name,
+                     check_stability = TRUE)
+}
+walktrap_cluster_names <- c("walktrap_cluster12", "walktrap_cluster13", "walktrap_cluster14")
+
+# Plot
+walktrap_cluster_names %>%
+   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "PCA", colour_by = .x))
+```
+
+### graph-based, louvain
+
+```{r}
+# Perform graph-based louvain clustering
+for (i in 12:14) {
+  cluster_name <- paste("louvain_cluster", i, sep = "")
+  sample_290_normalized <- perform_clustering(sample_290_normalized,
+                     k = i,
+                     cluster_name = cluster_name,
+                     check_stability = TRUE)
+}
+louvain_cluster_names <- c("louvain_cluster12", "louvain_cluster13", "louvain_cluster14")
+
+# Plot
+louvain_cluster_names %>%
+   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "PCA", colour_by = .x))
+```
+
+## Check cluster validity stats
+
+### k-means
+
+```{r}
+# Check the k-means cluster validity stats
+kmeans_cluster_validity_df_list <- kmeans_cluster_names %>%
+  purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))
+names(kmeans_cluster_validity_df_list) <- kmeans_cluster_names
+kmeans_cluster_validity_df <- dplyr::bind_rows(kmeans_cluster_validity_df_list,
+                                       .id = "kmeans_n")
+# Plot the k-means cluster purity
+plot_clustering_validity(kmeans_cluster_validity_df, "purity", "maximum", "kmeans_n")
+# Plot k-means cluster silhouette
+plot_clustering_validity(kmeans_cluster_validity_df, "width", "closest", "kmeans_n")
+```
+### graph-based, walktrap
+
+```{r}
+# Check the walktrap cluster validity stats
+walktrap_cluster_validity_df_list <- walktrap_cluster_names %>%
+  purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))
+names(walktrap_cluster_validity_df_list) <- walktrap_cluster_names
+walktrap_cluster_validity_df <- dplyr::bind_rows(walktrap_cluster_validity_df_list,
+                                       .id = "walktrap_n")
+
+# Plot the graph-based walktrap cluster purity
+plot_clustering_validity(walktrap_cluster_validity_df, "purity", "maximum", "walktrap_n")
+# Plot graph-based walktrap cluster silhouette
+plot_clustering_validity(walktrap_cluster_validity_df, "width", "closest", "walktrap_n")
+```
+### graph-based, louvain
+
+```{r}
+# Check the louvain cluster validity stats
+louvain_cluster_validity_df_list <- louvain_cluster_names %>%
+  purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))
+names(louvain_cluster_validity_df_list) <- louvain_cluster_names
+louvain_cluster_validity_df <- dplyr::bind_rows(louvain_cluster_validity_df_list,
+                                       .id = "louvain_n")
+
+# Plot the graph-based louvain cluster purity
+plot_clustering_validity(louvain_cluster_validity_df, "purity", "maximum", "louvain_n")
+# Plot graph-based louvain cluster silhouette
+plot_clustering_validity(louvain_cluster_validity_df, "width", "closest", "louvain_n")
+```
+
+## Check cluster stability
+
+### k-means
+
+```{r}
+# Check and plot cluster stability
+kmeans_cluster_names %>%
+  purrr::walk(~ plot_cluster_stability(sample_290_normalized, .x))
+```
+
+### graph-based, walktrap
+
+```{r}
+walktrap_cluster_names %>%
+  purrr::walk(~ plot_cluster_stability(sample_290_normalized, .x))
+```
+
+### graph-based, louvain
+
+```{r}
+louvain_cluster_names %>%
+  purrr::walk(~ plot_cluster_stability(sample_290_normalized, .x))
+```
+
+## Session info
+
+```{r}
+sessionInfo()
+```

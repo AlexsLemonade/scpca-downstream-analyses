@@ -28,14 +28,18 @@ data_dir <- file.path("results", "Gawad_processed_data")
 ## Custom functions
 
 ```{r}
-kmeans_clustering <- function(normalized_sce, k, cluster_name, check_stability = FALSE, seed = 2021) {
-  # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment object
+kmeans_clustering <- function(normalized_sce, k, cluster_name,
+                              check_stability = FALSE, seed = 2021) {
+  # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment
+  # object
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
   #   k: the desired number of centers
-  #   cluster_name: name for storing the cluster results in the SingleCellExperiment object
-  #   check_stability: if 'TRUE', the stability of the clusters will be calculated; the default is 'FALSE'
+  #   cluster_name: name for storing the cluster results in the
+  #                 SingleCellExperiment object
+  #   check_stability: if 'TRUE', the stability of the clusters will be
+  #                    calculated; the default is 'FALSE'
   #   seed: an integer to set the seed as for reproducibility
   
   # set the seed for reproducible results
@@ -68,17 +72,21 @@ kmeans_clustering <- function(normalized_sce, k, cluster_name, check_stability =
   
 }
 
-graph_clustering <- function(normalized_sce, k, cluster_name, type, cluster_function, check_stability = FALSE, seed = 2021) {
-  # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment object
+graph_clustering <- function(normalized_sce, k, cluster_name, type,
+                             cluster_function, check_stability = FALSE, seed = 2021) {
+  # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment
+  # object
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
   #   k: the desired number of centers
-  #   cluster_name: name for storing the cluster results in the SingleCellExperiment object
+  #   cluster_name: name for storing the cluster results in the
+  #                 SingleCellExperiment object
   #   type: the type of weighting scheme -- can by "jaccard" or "rank"
   #   cluster_function: the name of the community detection algorithm that is
   #                     being tested -- can be "walktrap" or "louvain"
-  #   check_stability: if 'TRUE', the stability of the clusters will be calculated; the default is 'FALSE'
+  #   check_stability: if 'TRUE', the stability of the clusters will be
+  #                    calculated; the default is 'FALSE'
   #   seed: an integer to set the seed as for reproducibility
   
   
@@ -121,14 +129,16 @@ graph_clustering <- function(normalized_sce, k, cluster_name, type, cluster_func
   
 }
 
-check_cluster_stability <- function(normalized_sce, pca_matrix, bootstrapping_name, cluster_name, k) {
+check_cluster_stability <- function(normalized_sce, pca_matrix,
+                                    bootstrapping_name, cluster_name, k) {
   # Purpose: To use bootstrapping to check the stability of given clusters
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
   #   pca_matrix: the matrix object that contains the PCA results that were
   #               extracted from the noramlized SingleCellExperiment object
-  #   bootstrapping_name: name for storing the bootstrapping results in the SingleCellExperiment object
+  #   bootstrapping_name: name for storing the bootstrapping results in the
+  #                       SingleCellExperiment object
   #   cluster_name: name associated with where the cluster results in the
   #                 SingleCellExperiment object are stored
   #   k: the desired number of centers
@@ -163,7 +173,8 @@ check_cluster_stability <- function(normalized_sce, pca_matrix, bootstrapping_na
 }
 
 cluster_validity_stats <- function(clustered_sce, cluster_name) {
-  # Purpose: Check the cluster purity of the clusters in the clustered SingleCellExperiment object
+  # Purpose: Check the cluster purity of the clusters in the clustered
+  # SingleCellExperiment object
   
   # Args:
   #   clustered_sce: SingleCellExperiment object with clustered results
@@ -197,7 +208,8 @@ cluster_validity_stats <- function(clustered_sce, cluster_name) {
   return(cluster_stats_df)
 }
 
-plot_clustering_validity <- function(cluster_validity_df, measure, colour_var, facet_var) {
+plot_clustering_validity <- function(cluster_validity_df, measure, colour_var,
+                                     facet_var) {
   # Purpose: Plot the provided clustering data frame
   
   # Args:

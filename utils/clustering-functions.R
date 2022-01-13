@@ -5,8 +5,11 @@
 #
 # source(file.path("utils", "clustering-functions.R"))
 
-kmeans_clustering <- function(normalized_sce, k, cluster_name,
-                              check_stability = FALSE, seed = 2021) {
+kmeans_clustering <- function(normalized_sce,
+                              k,
+                              cluster_name,
+                              check_stability = FALSE,
+                              seed = 2021) {
   # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment
   # object
   
@@ -37,20 +40,25 @@ kmeans_clustering <- function(normalized_sce, k, cluster_name,
     bootstrapping_name <-
       paste("bootstrapping_results", cluster_name, sep = "_")
     
-    metadata(normalized_sce)[[bootstrapping_name]] <-
-      check_cluster_stability(normalized_sce,
-                              pca_matrix,
-                              bootstrapping_name,
-                              cluster_name,
-                              k)
+    normalized_sce <- check_cluster_stability(normalized_sce,
+                                              pca_matrix,
+                                              bootstrapping_name,
+                                              cluster_type = "kmeans",
+                                              cluster_name,
+                                              k)
   }
   
   return(normalized_sce)
   
 }
 
-graph_clustering <- function(normalized_sce, k, cluster_name, type,
-                             cluster_function, check_stability = FALSE, seed = 2021) {
+graph_clustering <- function(normalized_sce,
+                             k,
+                             cluster_name,
+                             weighting_type,
+                             cluster_function,
+                             check_stability = FALSE,
+                             seed = 2021) {
   # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment
   # object
   
@@ -59,7 +67,7 @@ graph_clustering <- function(normalized_sce, k, cluster_name, type,
   #   k: the desired number of centers
   #   cluster_name: name for storing the cluster results in the
   #                 SingleCellExperiment object
-  #   type: the type of weighting scheme -- can by "jaccard" or "rank"
+  #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank"
   #   cluster_function: the name of the community detection algorithm that is
   #                     being tested -- can be "walktrap" or "louvain"
   #   check_stability: if 'TRUE', the stability of the clusters will be
@@ -70,10 +78,6 @@ graph_clustering <- function(normalized_sce, k, cluster_name, type,
   # set the seed for reproducible results
   set.seed(seed)
   
-  # turn arguments into symbols
-  type_sym <- rlang::sym(type)
-  cluster_function_sym <- rlang::sym(cluster_function)
-  
   # extract the principal components matrix
   pca_matrix <- reducedDim(normalized_sce, "PCA")
   
@@ -81,7 +85,7 @@ graph_clustering <- function(normalized_sce, k, cluster_name, type,
   clusters <- clusterRows(pca_matrix,
                           NNGraphParam(
                             k = k,
-                            type = type,
+                            type = weighting_type,
                             cluster.fun = cluster_function
                           ))
   
@@ -94,20 +98,28 @@ graph_clustering <- function(normalized_sce, k, cluster_name, type,
     bootstrapping_name <-
       paste("bootstrapping_results", cluster_name, sep = "_")
     
-    metadata(normalized_sce)[[bootstrapping_name]] <-
-      check_cluster_stability(normalized_sce,
-                              pca_matrix,
-                              bootstrapping_name,
-                              cluster_name,
-                              k)
+    normalized_sce <- check_cluster_stability(normalized_sce,
+                                              pca_matrix,
+                                              bootstrapping_name,
+                                              cluster_type = "graph",
+                                              cluster_name,
+                                              k,
+                                              weighting_type,
+                                              cluster_function)
   }
   
   return(normalized_sce)
   
 }
 
-check_cluster_stability <- function(normalized_sce, pca_matrix,
-                                    bootstrapping_name, cluster_name, k) {
+check_cluster_stability <- function(normalized_sce,
+                                    pca_matrix,
+                                    bootstrapping_name,
+                                    cluster_type,
+                                    cluster_name,
+                                    k,
+                                    weighting_type = "rank",
+                                    cluster_function = "walktrap") {
   # Purpose: To use bootstrapping to check the stability of given clusters
   
   # Args:
@@ -116,29 +128,34 @@ check_cluster_stability <- function(normalized_sce, pca_matrix,
   #               extracted from the noramlized SingleCellExperiment object
   #   bootstrapping_name: name for storing the bootstrapping results in the
   #                       SingleCellExperiment object
+  #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
   #   cluster_name: name associated with where the cluster results in the
   #                 SingleCellExperiment object are stored
   #   k: the desired number of centers
+  #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank";
+  #                   "rank" being the default
+  #   cluster_function: the name of the community detection algorithm that is
+  #                     being tested -- can be "walktrap" or "louvain";
+  #                     "walktrap" being the default
+  
   
   # check cluster stability if the `check_stability == TRUE`
-  if (startsWith(cluster_name, "kcluster")) {
+  if (cluster_type == "kmeans") {
     # Create subfunctions for `bootstrapStability()`
     cluster_stability_subfunction <- function(x) {
       clusterRows(x, KmeansParam(centers = k))
     }
-  } else if (startsWith(cluster_name, "walktrap_cluster")) {
-    cluster_stability_subfunction <- function(x) {
-      clusterRows(x, NNGraphParam(k = k, cluster.fun = "walktrap"))
-    }
-  } else if (startsWith(cluster_name, "louvain_cluster")) {
+  } else if (cluster_type == "graph") {
     cluster_stability_subfunction <- function(x) {
       clusterRows(x,
                   NNGraphParam(
                     k = k,
-                    type = "jaccard",
-                    cluster.fun = "louvain"
+                    type = weighting_type,
+                    cluster.fun = cluster_function
                   ))
     }
+  } else {
+    stop("Clustering type is not valid. Please use --cluster_type to specify 'kmeans' or 'graph' clustering.")
   }
   
   # run the `bootstapStability()` function
@@ -146,6 +163,8 @@ check_cluster_stability <- function(normalized_sce, pca_matrix,
     bootstrapStability(pca_matrix,
                        FUN = cluster_stability_subfunction,
                        clusters = normalized_sce[[cluster_name]])
+  
+  return(normalized_sce)
   
 }
 

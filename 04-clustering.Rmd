@@ -155,9 +155,11 @@ check_cluster_stability <- function(normalized_sce,
   #   cluster_name: name associated with where the cluster results in the
   #                 SingleCellExperiment object are stored
   #   k: the desired number of centers
-  #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank"
+  #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank";
+  #                   "rank" being the default
   #   cluster_function: the name of the community detection algorithm that is
-  #                     being tested -- can be "walktrap" or "louvain"
+  #                     being tested -- can be "walktrap" or "louvain";
+  #                     "walktrap" being the default
   
   
   # check cluster stability if the `check_stability == TRUE`

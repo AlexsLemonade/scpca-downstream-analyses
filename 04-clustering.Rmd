@@ -141,8 +141,8 @@ check_cluster_stability <- function(normalized_sce,
                                     cluster_type,
                                     cluster_name,
                                     k,
-                                    weighting_type = NULL,
-                                    cluster_function = NULL) {
+                                    weighting_type = "rank",
+                                    cluster_function = "walktrap") {
   # Purpose: To use bootstrapping to check the stability of given clusters
   
   # Args:

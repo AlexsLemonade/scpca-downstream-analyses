@@ -22,6 +22,11 @@ kmeans_clustering <- function(normalized_sce,
   #                    calculated; the default is 'FALSE'
   #   seed: an integer to set the seed as for reproducibility
   
+  # first check that the normalized object is a SingleCellExperiment object
+  if(!is(normalized_sce,"SingleCellExperiment")){
+    stop("normalized_sce must be a SingleCellExperiment object.")
+  }
+  
   # set the seed for reproducible results
   set.seed(seed)
   
@@ -69,6 +74,10 @@ graph_clustering <- function(normalized_sce,
   #                    calculated; the default is 'FALSE'
   #   seed: an integer to set the seed as for reproducibility
   
+  # first check that the normalized object is a SingleCellExperiment object
+  if(!is(normalized_sce,"SingleCellExperiment")){
+    stop("normalized_sce must be a SingleCellExperiment object.")
+  }
   
   # set the seed for reproducible results
   set.seed(seed)

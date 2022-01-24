@@ -51,18 +51,20 @@ for (i in 2:5) {
 kmeans_cluster_names <- c("kcluster2", "kcluster3", "kcluster4", "kcluster5")
 
 # Plot k-means
-kmeans_cluster_names %>%
-   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
+kmeans_plot_list <- kmeans_cluster_names %>%
+  purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
+
+cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 2)
 ```
 
 ### graph-based, walktrap
 
-```{r}
+```{r fig.height = 7.5}
 # Perform graph-based walktrap clustering
 for (i in 12:15) {
   cluster_name <- paste("walktrap_cluster", i, sep = "")
   sample_290_normalized <- graph_clustering(sample_290_normalized,
-                     k = i,
+                     nearest_neighbors = i,
                      cluster_name = cluster_name,
                      weighting_type = "rank",
                      cluster_function = "walktrap",
@@ -71,18 +73,20 @@ for (i in 12:15) {
 walktrap_cluster_names <- c("walktrap_cluster12", "walktrap_cluster13", "walktrap_cluster14", "walktrap_cluster15")
 
 # Plot
-walktrap_cluster_names %>%
+walktrap_plot_list <- walktrap_cluster_names %>%
    purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
+
+cowplot::plot_grid(plotlist = walktrap_plot_list, ncol = 2)
 ```
 
 ### graph-based, louvain
 
-```{r}
+```{r fig.height = 4.5}
 # Perform graph-based louvain clustering
 for (i in 12:15) {
   cluster_name <- paste("louvain_cluster", i, sep = "")
   sample_290_normalized <- graph_clustering(sample_290_normalized,
-                     k = i,
+                     nearest_neighbors = i,
                      cluster_name = cluster_name,
                      weighting_type = "jaccard",
                      cluster_function = "louvain",
@@ -91,8 +95,11 @@ for (i in 12:15) {
 louvain_cluster_names <- c("louvain_cluster12", "louvain_cluster13", "louvain_cluster14", "louvain_cluster15")
 
 # Plot
-louvain_cluster_names %>%
+louvain_plot_list <- louvain_cluster_names %>%
    purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
+
+
+cowplot::plot_grid(plotlist = louvain_plot_list, ncol = 2)
 ```
 
 ## Check cluster validity stats

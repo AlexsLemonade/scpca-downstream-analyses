@@ -40,73 +40,86 @@ sample_290_normalized <- read_rds(
 ### k-means
 
 ```{r}
+# Define empty cluster name object
+kmeans_cluster_names <- c()
+
 # Perform k-means clustering
-for (i in 2:5) {
-  cluster_name <- paste("kcluster", i, sep = "")
-  sample_290_normalized <- kmeans_clustering(sample_290_normalized,
-                     k = i,
-                     cluster_name = cluster_name,
-                     check_stability = TRUE)
+for (i in 2:10) {
+  kmeans_cluster_names <- c(kmeans_cluster_names, paste0("kcluster", i))
 }
-kmeans_cluster_names <- c("kcluster2", "kcluster3", "kcluster4", "kcluster5")
+
+sample_290_normalized <- kmeans_clustering(
+  sample_290_normalized,
+  k_range = c(2:10),
+  check_stability = TRUE
+)
 
 # Plot k-means
 kmeans_plot_list <- kmeans_cluster_names %>%
   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
 
-cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 2)
+cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 3)
 ```
 
 ### graph-based, walktrap
 
 ```{r fig.height = 7.5}
+# Define empty cluster name object
+walktrap_cluster_names <- c()
+
 # Perform graph-based walktrap clustering
-for (i in 12:15) {
-  cluster_name <- paste("walktrap_cluster", i, sep = "")
-  sample_290_normalized <- graph_clustering(sample_290_normalized,
-                     nearest_neighbors = i,
-                     cluster_name = cluster_name,
-                     weighting_type = "rank",
-                     cluster_function = "walktrap",
-                     check_stability = TRUE)
+for (i in c(5, 10, 15, 20, 25, 50)) {
+  walktrap_cluster_names <-c(walktrap_cluster_names, paste0("walktrap_cluster", i))
 }
-walktrap_cluster_names <- c("walktrap_cluster12", "walktrap_cluster13", "walktrap_cluster14", "walktrap_cluster15")
+
+sample_290_normalized <- graph_clustering(
+  sample_290_normalized,
+  nn_range = c(5, 10, 15, 20, 25, 50),
+  weighting_type = "rank",
+  cluster_function = "walktrap",
+  check_stability = TRUE
+)
 
 # Plot
 walktrap_plot_list <- walktrap_cluster_names %>%
    purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
 
-cowplot::plot_grid(plotlist = walktrap_plot_list, ncol = 2)
+cowplot::plot_grid(plotlist = walktrap_plot_list, ncol = 3)
 ```
 
 ### graph-based, louvain
 
-```{r fig.height = 4.5}
+```{r fig.height = 6.5}
+# Define empty cluster name object
+louvain_cluster_names <- c()
+
 # Perform graph-based louvain clustering
-for (i in 12:15) {
+for (i in c(5, 10, 15, 20, 25, 50)) {
   cluster_name <- paste("louvain_cluster", i, sep = "")
-  sample_290_normalized <- graph_clustering(sample_290_normalized,
-                     nearest_neighbors = i,
-                     cluster_name = cluster_name,
-                     weighting_type = "jaccard",
-                     cluster_function = "louvain",
-                     check_stability = TRUE)
+  louvain_cluster_names <- c(louvain_cluster_names, paste0("louvain_cluster", i))
 }
-louvain_cluster_names <- c("louvain_cluster12", "louvain_cluster13", "louvain_cluster14", "louvain_cluster15")
+
+sample_290_normalized <- graph_clustering(
+  sample_290_normalized,
+  nn_range = c(5, 10, 15, 20, 25, 50),
+  weighting_type = "jaccard",
+  cluster_function = "louvain",
+  check_stability = TRUE
+)
 
 # Plot
 louvain_plot_list <- louvain_cluster_names %>%
    purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
 
 
-cowplot::plot_grid(plotlist = louvain_plot_list, ncol = 2)
+cowplot::plot_grid(plotlist = louvain_plot_list, ncol = 3)
 ```
 
 ## Check cluster validity stats
 
 ### k-means
 
-```{r}
+```{r fig.height = 7.5}
 # Check the k-means cluster validity stats
 kmeans_cluster_validity_df_list <- kmeans_cluster_names %>%
   purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))
@@ -120,7 +133,7 @@ plot_clustering_validity(kmeans_cluster_validity_df, "width", "closest", "kmeans
 ```
 ### graph-based, walktrap
 
-```{r}
+```{r fig.height = 7.5}
 # Check the walktrap cluster validity stats
 walktrap_cluster_validity_df_list <- walktrap_cluster_names %>%
   purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))
@@ -135,7 +148,7 @@ plot_clustering_validity(walktrap_cluster_validity_df, "width", "closest", "walk
 ```
 ### graph-based, louvain
 
-```{r}
+```{r fig.height = 7.5}
 # Check the louvain cluster validity stats
 louvain_cluster_validity_df_list <- louvain_cluster_names %>%
   purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))

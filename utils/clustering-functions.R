@@ -6,8 +6,7 @@
 # source(file.path("utils", "clustering-functions.R"))
 
 kmeans_clustering <- function(normalized_sce,
-                              k,
-                              cluster_name,
+                              k_range,
                               check_stability = FALSE,
                               seed = 2021) {
   # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment
@@ -15,9 +14,7 @@ kmeans_clustering <- function(normalized_sce,
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   k: the desired number of centers
-  #   cluster_name: name for storing the cluster results in the
-  #                 SingleCellExperiment object
+  #   k_range: the range of the desired number of centers
   #   check_stability: if 'TRUE', the stability of the clusters will be
   #                    calculated; the default is 'FALSE'
   #   seed: an integer to set the seed as for reproducibility
@@ -27,25 +24,32 @@ kmeans_clustering <- function(normalized_sce,
     stop("normalized_sce must be a SingleCellExperiment object.")
   }
   
-  # set the seed for reproducible results
-  set.seed(seed)
-  
-  # extract the principal components matrix
-  pca_matrix <- reducedDim(normalized_sce, "PCA")
-  
-  # perform k-means clustering
-  clusters <- clusterRows(pca_matrix, KmeansParam(centers = k))
-  
-  # store cluster results in the SCE object
-  normalized_sce[[cluster_name]] <- factor(clusters)
-  
-  # check cluster stability if the `check_stability == TRUE`
-  if (check_stability) {
-    normalized_sce <- check_cluster_stability(normalized_sce,
-                                              pca_matrix,
-                                              cluster_type = "kmeans",
-                                              cluster_name,
-                                              k)
+  # Perform k-means clustering
+  for (k in k_range) {
+    cluster_name <- paste("kcluster", k, sep = "")
+    
+    # set the seed for reproducible results
+    set.seed(seed)
+    
+    # extract the principal components matrix
+    pca_matrix <- reducedDim(normalized_sce, "PCA")
+    
+    # perform k-means clustering
+    clusters <- clusterRows(pca_matrix, KmeansParam(centers = k))
+    
+    # store cluster results in the SCE object
+    normalized_sce[[cluster_name]] <- factor(clusters)
+    
+    # check cluster stability if the `check_stability == TRUE`
+    if (check_stability) {
+      normalized_sce <- check_cluster_stability(normalized_sce,
+                                                pca_matrix,
+                                                cluster_type = "kmeans",
+                                                cluster_name,
+                                                k)
+    }
+    
+    
   }
   
   return(normalized_sce)
@@ -53,8 +57,7 @@ kmeans_clustering <- function(normalized_sce,
 }
 
 graph_clustering <- function(normalized_sce,
-                             nearest_neighbors,
-                             cluster_name,
+                             nn_range,
                              weighting_type = "rank",
                              cluster_function = "walktrap",
                              check_stability = FALSE,
@@ -64,9 +67,8 @@ graph_clustering <- function(normalized_sce,
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   nearest_neighbors: the number of nearest neighbors to consider during graph construction
-  #   cluster_name: name for storing the cluster results in the
-  #                 SingleCellExperiment object
+  #   nn_range: the range of the number of nearest neighbors to consider during
+  #             graph construction
   #   weighting_type: the type of weighting scheme -- can be "rank", "number", or "jaccard"
   #   cluster_function: the name of the community detection algorithm that is
   #                     being tested -- can be "walktrap" or "louvain"
@@ -79,32 +81,43 @@ graph_clustering <- function(normalized_sce,
     stop("normalized_sce must be a SingleCellExperiment object.")
   }
   
-  # set the seed for reproducible results
-  set.seed(seed)
-  
-  # extract the principal components matrix
-  pca_matrix <- reducedDim(normalized_sce, "PCA")
-  
-  # perform graph-based clustering
-  clusters <- clusterRows(pca_matrix,
-                          NNGraphParam(
-                            k = nearest_neighbors,
-                            type = weighting_type,
-                            cluster.fun = cluster_function
-                          ))
-  
-  # store cluster results in the SCE object
-  normalized_sce[[cluster_name]] <- factor(clusters)
-  
-  # check cluster stability if the `check_stability == TRUE`
-  if (check_stability) {
-    normalized_sce <- check_cluster_stability(normalized_sce,
-                                              pca_matrix,
-                                              cluster_type = "graph",
-                                              cluster_name,
-                                              nearest_neighbors,
-                                              weighting_type,
-                                              cluster_function)
+  # perform the graph-based clustering
+  for (nearest_neighbors in nn_range) {
+    # set cluster name
+    cluster_name <- paste(cluster_function,"_cluster", nearest_neighbors, sep = "")
+    
+    # set the seed for reproducible results
+    set.seed(seed)
+    
+    # extract the principal components matrix
+    pca_matrix <- reducedDim(normalized_sce, "PCA")
+    
+    # perform graph-based clustering
+    clusters <- clusterRows(
+      pca_matrix,
+      NNGraphParam(
+        k = nearest_neighbors,
+        type = weighting_type,
+        cluster.fun = cluster_function
+      )
+    )
+    
+    # store cluster results in the SCE object
+    normalized_sce[[cluster_name]] <- factor(clusters)
+    
+    # check cluster stability if the `check_stability == TRUE`
+    if (check_stability) {
+      normalized_sce <- check_cluster_stability(
+        normalized_sce,
+        pca_matrix,
+        cluster_type = "graph",
+        cluster_name,
+        nearest_neighbors,
+        weighting_type,
+        cluster_function
+      )
+    }
+    
   }
   
   return(normalized_sce)

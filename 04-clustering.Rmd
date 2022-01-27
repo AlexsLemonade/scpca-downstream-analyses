@@ -109,7 +109,7 @@ cowplot::plot_grid(plotlist = louvain_plot_list, ncol = 3)
 sample_290_normalized <- cluster_validity_stats(sample_290_normalized, kmeans_cluster_names, "kmeans")
 
 # Preview the saved results
-head(sample_290_normalized$kmeans_cluster_validity_summary_stats)
+head(metadata(sample_290_normalized)$summary_stats$kmeans)
 ```
 ### graph-based, walktrap
 
@@ -119,7 +119,7 @@ head(sample_290_normalized$kmeans_cluster_validity_summary_stats)
 sample_290_normalized <- cluster_validity_stats(sample_290_normalized, walktrap_cluster_names, "walktrap")
 
 # Preview the saved results
-head(sample_290_normalized$walktrap_cluster_validity_summary_stats)
+head(metadata(sample_290_normalized)$summary_stats$walktrap)
 ```
 ### graph-based, louvain
 
@@ -129,7 +129,7 @@ head(sample_290_normalized$walktrap_cluster_validity_summary_stats)
 sample_290_normalized <- cluster_validity_stats(sample_290_normalized, louvain_cluster_names, "louvain")
 
 # Preview the saved results
-head(sample_290_normalized$louvain_cluster_validity_summary_stats)
+head(metadata(sample_290_normalized)$summary_stats$louvain)
 ```
 
 ## Check cluster stability

@@ -223,20 +223,19 @@ cluster_validity_stats <- function(clustered_sce, cluster_names, cluster_type) {
   
   # now bind the rows of all the cluster validity data.frames in the list
   cluster_validity_df <- dplyr::bind_rows(cluster_validity_df_list,
-                                          .id = "cluster_names_column")
+                                          .id = "cluster_names")
   
   # create a summary data.frame of the results across the individual clusters
   validity_summary_df <- cluster_validity_df %>%
-    dplyr::group_by(cluster_names_column) %>%
-    dplyr::mutate(avg_purity = median(purity),
-                  avg_maximum = median(as.numeric(maximum)),
-                  avg_width = median(width),
-                  avg_closest = median(as.numeric(closest))) %>%
-    dplyr::select(cluster_names_column, avg_purity, avg_maximum, avg_width, avg_closest) %>%
-    dplyr::distinct()
+    dplyr::group_by(cluster_names) %>%
+    dplyr::summarize(avg_purity = median(purity),
+                     avg_maximum = median(as.numeric(maximum)),
+                     avg_width = median(width),
+                     avg_closest = median(as.numeric(closest))) %>%
+    dplyr::select(cluster_names, avg_purity, avg_maximum, avg_width, avg_closest)
   
-  clustered_sce_column_name <- paste0(cluster_type, "_cluster_validity_summary_stats")
-  clustered_sce[[clustered_sce_column_name]] <- validity_summary_df
+  metadata(clustered_sce)$all_stats[[cluster_type]] <- cluster_validity_df
+  metadata(clustered_sce)$summary_stats[[cluster_type]]  <- validity_summary_df
   
   return(clustered_sce)
 }

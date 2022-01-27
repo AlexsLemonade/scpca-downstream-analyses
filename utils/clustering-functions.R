@@ -179,40 +179,62 @@ check_cluster_stability <- function(normalized_sce,
   
 }
 
-cluster_validity_stats <- function(clustered_sce, cluster_name) {
+cluster_validity_stats <- function(clustered_sce, cluster_names, cluster_type) {
   # Purpose: Check the cluster purity of the clusters in the clustered
-  # SingleCellExperiment object
+  # SingleCellExperiment object and store results within the object
   
   # Args:
   #   clustered_sce: SingleCellExperiment object with clustered results
-  #   cluster_name: name associated with where the cluster results in the
+  #   cluster_names: vector of names associated with where the cluster results in the
   #                 SingleCellExperiment object are stored
+  #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
   
-  # isolate the clusters stored in the `cluster_name` slot of the SCE object
-  clusters <- clustered_sce[[(cluster_name)]]
+  cluster_validity_df_list <- list()
   
-  # use `neighborPurity` to check the purity of clusters
-  purity_df <-
-    neighborPurity(reducedDim(clustered_sce, "PCA"), clusters = clusters) %>% 
-    as.data.frame() %>%
-    tibble::rownames_to_column("cell_barcode")
-  purity_df$maximum <- factor(purity_df$maximum)
+  for (cluster_name in cluster_names) {
+    # isolate the clusters stored in the `cluster_name` slot of the SCE object
+    clusters <- clustered_sce[[(cluster_name)]]
+    
+    # use `neighborPurity` to check the purity of clusters
+    purity_df <-
+      neighborPurity(reducedDim(clustered_sce, "PCA"), clusters = clusters) %>%
+      as.data.frame() %>%
+      tibble::rownames_to_column("cell_barcode")
+    purity_df$maximum <- factor(purity_df$maximum)
+    
+    # use `approxSilhouette()` to approximate silhouettes
+    sil_df <- approxSilhouette(reducedDim(clustered_sce, "PCA"),
+                               clusters = clusters) %>%
+      as.data.frame() %>%
+      tibble::rownames_to_column("cell_barcode")
+    
+    # account for negative widths
+    sil_df$closest <-
+      factor(ifelse(sil_df$width > 0, clusters, sil_df$other))
+    
+    cluster_stats_df <- purity_df %>%
+      dplyr::left_join(sil_df) %>%
+      dplyr::mutate(cluster = factor(clusters))
+    
+    cluster_validity_df_list[[cluster_name]] <- cluster_stats_df
+  }
   
-  # use `approxSilhouette()` to approximate silhouettes
-  sil_df <- approxSilhouette(reducedDim(clustered_sce, "PCA"),
-                             clusters = clusters) %>%
-    as.data.frame() %>%
-    tibble::rownames_to_column("cell_barcode")
+  cluster_validity_df <- dplyr::bind_rows(cluster_validity_df_list,
+                                          .id = "cluster_names_column")
   
-  # account for negative widths
-  sil_df$closest <-
-    factor(ifelse(sil_df$width > 0, clusters, sil_df$other))
+  validity_summary_df <- cluster_validity_df %>%
+    dplyr::group_by(cluster_names_column) %>%
+    dplyr::mutate(avg_purity = median(purity),
+                  avg_maximum = median(as.numeric(maximum)),
+                  avg_width = median(width),
+                  avg_closest = median(as.numeric(closest))) %>%
+    dplyr::select(cluster_names_column, avg_purity, avg_maximum, avg_width, avg_closest) %>%
+    dplyr::distinct()
   
-  cluster_stats_df <- purity_df %>%
-    dplyr::left_join(sil_df) %>%
-    dplyr::mutate(cluster = factor(clusters))
+  clustered_sce_column_name <- paste0(cluster_type, "_cluster_validity_summary_stats")
+  clustered_sce[[clustered_sce_column_name]] <- validity_summary_df
   
-  return(cluster_stats_df)
+  return(clustered_sce)
 }
 
 plot_clustering_validity <- function(cluster_validity_df, measure, colour_var,

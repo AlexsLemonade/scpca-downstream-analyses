@@ -104,46 +104,32 @@ cowplot::plot_grid(plotlist = louvain_plot_list, ncol = 3)
 ### k-means
 
 ```{r fig.height = 20.5}
-# Check the k-means cluster validity stats
-kmeans_cluster_validity_df_list <- kmeans_cluster_names %>%
-  purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))
-names(kmeans_cluster_validity_df_list) <- kmeans_cluster_names
-kmeans_cluster_validity_df <- dplyr::bind_rows(kmeans_cluster_validity_df_list,
-                                       .id = "kmeans_n")
-# Plot the k-means cluster purity
-plot_clustering_validity(kmeans_cluster_validity_df, "purity", "maximum", "kmeans_n")
-# Plot k-means cluster silhouette
-plot_clustering_validity(kmeans_cluster_validity_df, "width", "closest", "kmeans_n")
+# Check the k-means cluster validity stats for each of the clusters and produce
+# a summary data frame of these stats to be stored within the SCE object
+sample_290_normalized <- cluster_validity_stats(sample_290_normalized, kmeans_cluster_names, "kmeans")
+
+# Preview the saved results
+head(sample_290_normalized$kmeans_cluster_validity_summary_stats)
 ```
 ### graph-based, walktrap
 
 ```{r fig.height = 15.5}
-# Check the walktrap cluster validity stats
-walktrap_cluster_validity_df_list <- walktrap_cluster_names %>%
-  purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))
-names(walktrap_cluster_validity_df_list) <- walktrap_cluster_names
-walktrap_cluster_validity_df <- dplyr::bind_rows(walktrap_cluster_validity_df_list,
-                                       .id = "walktrap_n")
+# Check the walktrap cluster validity stats for each of the clusters and produce
+# a summary data frame of these stats to be stored within the SCE object
+sample_290_normalized <- cluster_validity_stats(sample_290_normalized, walktrap_cluster_names, "walktrap")
 
-# Plot the graph-based walktrap cluster purity
-plot_clustering_validity(walktrap_cluster_validity_df, "purity", "maximum", "walktrap_n")
-# Plot graph-based walktrap cluster silhouette
-plot_clustering_validity(walktrap_cluster_validity_df, "width", "closest", "walktrap_n")
+# Preview the saved results
+head(sample_290_normalized$walktrap_cluster_validity_summary_stats)
 ```
 ### graph-based, louvain
 
 ```{r fig.height = 9.5}
-# Check the louvain cluster validity stats
-louvain_cluster_validity_df_list <- louvain_cluster_names %>%
-  purrr::map(~ cluster_validity_stats(sample_290_normalized, .x))
-names(louvain_cluster_validity_df_list) <- louvain_cluster_names
-louvain_cluster_validity_df <- dplyr::bind_rows(louvain_cluster_validity_df_list,
-                                       .id = "louvain_n")
+# Check the louvain cluster validity stats for each of the clusters and produce
+# a summary data frame of these stats to be stored within the SCE object
+sample_290_normalized <- cluster_validity_stats(sample_290_normalized, louvain_cluster_names, "louvain")
 
-# Plot the graph-based louvain cluster purity
-plot_clustering_validity(louvain_cluster_validity_df, "purity", "maximum", "louvain_n")
-# Plot graph-based louvain cluster silhouette
-plot_clustering_validity(louvain_cluster_validity_df, "width", "closest", "louvain_n")
+# Preview the saved results
+head(sample_290_normalized$louvain_cluster_validity_summary_stats)
 ```
 
 ## Check cluster stability

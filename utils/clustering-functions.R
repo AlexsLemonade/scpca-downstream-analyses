@@ -212,16 +212,20 @@ cluster_validity_stats <- function(clustered_sce, cluster_names, cluster_type) {
     sil_df$closest <-
       factor(ifelse(sil_df$width > 0, clusters, sil_df$other))
     
+    # join purity and silhoette info in one data.frame
     cluster_stats_df <- purity_df %>%
       dplyr::left_join(sil_df) %>%
       dplyr::mutate(cluster = factor(clusters))
     
+    # save data.frame to the cluster validity list of data.frames
     cluster_validity_df_list[[cluster_name]] <- cluster_stats_df
   }
   
+  # now bind the rows of all the cluster validity data.frames in the list
   cluster_validity_df <- dplyr::bind_rows(cluster_validity_df_list,
                                           .id = "cluster_names_column")
   
+  # create a summary data.frame of the results across the individual clusters
   validity_summary_df <- cluster_validity_df %>%
     dplyr::group_by(cluster_names_column) %>%
     dplyr::mutate(avg_purity = median(purity),

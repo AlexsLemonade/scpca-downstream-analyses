@@ -114,6 +114,26 @@ head(metadata(sample_290_normalized)$all_stats$kmeans)
 # Preview the saved summary results
 head(metadata(sample_290_normalized)$summary_stats$kmeans)
 ```
+#### purity plots
+
+```{r fig.height=10}
+# Plot individual cluster and summary stats
+kmeans_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$kmeans,
+                         metadata(sample_290_normalized)$summary_stats$kmeans,
+                         "purity", "maximum", "cluster_names")
+kmeans_plots
+```
+
+#### silhouette width plots
+
+```{r fig.height=10}
+# Plot individual cluster and summary stats
+kmeans_silhouette_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$kmeans,
+                         metadata(sample_290_normalized)$summary_stats$kmeans,
+                         "width", "closest", "cluster_names")
+kmeans_silhouette_plots
+```
+
 ### graph-based, walktrap
 
 ```{r fig.height = 15.5}
@@ -126,6 +146,25 @@ head(metadata(sample_290_normalized)$all_stats$walktrap)
 
 # Preview the saved summary results
 head(metadata(sample_290_normalized)$summary_stats$walktrap)
+```
+#### purity plots
+
+```{r fig.height=10}
+# Plot individual cluster and summary stats
+walktrap_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$walktrap,
+                         metadata(sample_290_normalized)$summary_stats$walktrap,
+                         "purity", "maximum", "cluster_names")
+walktrap_plots
+```
+
+#### silhouette width plots
+
+```{r fig.height=10}
+# Plot individual cluster and summary stats
+walktrap_silhouette_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$walktrap,
+                         metadata(sample_290_normalized)$summary_stats$walktrap,
+                         "width", "closest", "cluster_names")
+walktrap_silhouette_plots
 ```
 
 ### graph-based, louvain
@@ -140,6 +179,25 @@ head(metadata(sample_290_normalized)$all_stats$louvain)
 
 # Preview the saved summary results
 head(metadata(sample_290_normalized)$summary_stats$louvain)
+```
+#### purity plots
+
+```{r fig.height=10}
+# Plot individual cluster and summary stats
+louvain_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$louvain,
+                         metadata(sample_290_normalized)$summary_stats$louvain,
+                         "purity", "maximum", "cluster_names")
+louvain_plots
+```
+
+#### silhouette width plots
+
+```{r fig.height=10}
+# Plot individual cluster and summary stats
+louvain_silhouette_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$louvain,
+                         metadata(sample_290_normalized)$summary_stats$louvain,
+                         "width", "closest", "cluster_names")
+louvain_silhouette_plots
 ```
 
 ## Check cluster stability

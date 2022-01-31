@@ -242,12 +242,16 @@ add_metadata_clustering_stats <- function(clustered_sce, cluster_names, cluster_
   return(clustered_sce)
 }
 
-plot_clustering_validity <- function(cluster_validity_df, measure, colour_var,
+plot_clustering_validity <- function(cluster_validity_all_stats_df,
+                                     cluster_validity_summary_df,
+                                     measure,
+                                     colour_var,
                                      facet_var) {
   # Purpose: Plot the provided clustering data frame
   
   # Args:
-  #   clustered_validity_df: data frame with cluster validity stats
+  #   clustered_validity_all_stats_df: data frame with all cluster validity stats
+  #   clustered_validity_summary_df: data frame with the summary validity stats
   #   measure: string associated with the column whose values should be on the 
   #            y-axis
   #   colour_var: string associated with the column whose values should be used
@@ -260,10 +264,39 @@ plot_clustering_validity <- function(cluster_validity_df, measure, colour_var,
   colour_var <- rlang::sym(colour_var)
   facet_var <- rlang::sym(facet_var)
   
+  # prepare data frame for plotting
+  metatdata <- cluster_validity_all_stats_df %>%
+    dplyr::mutate(belongs_to_cluster = dplyr::case_when(!!colour_var == cluster ~ "yes",
+                                                        TRUE ~ "no"))
+  
+  colors = c("gray", "red")
+  names(colors) = levels(metatdata$belongs_to_cluster)
+  
   # plot the cluster validity data frames
-  ggplot(cluster_validity_df, aes(x = cluster, y = !!measure, colour = !!colour_var)) +
+  individual_plots <- ggplot(metatdata, aes(x = cluster, y = !!measure, colour = belongs_to_cluster)) +
     ggbeeswarm::geom_quasirandom(method = "smiley") +
-    facet_wrap(facet_var, ncol = 1)
+    facet_wrap(facet_var, ncol = 1) +
+    scale_color_manual(values = c("yes" = "gray",
+                                  "no" = "red"))
+  
+  # convert summary symbols for plotting
+  summary_y <- rlang::sym(paste0("avg_", measure))
+  summary_color <- rlang::sym(paste0("avg_", colour_var))
+  
+  # plot the summary stats
+  summary_plot <- ggplot(
+    cluster_validity_summary_df,
+    aes(
+      x = !!facet_var,
+      y = !!summary_y,
+      color = !!summary_color)) +
+    geom_point(size = 5) +
+    theme(axis.text.x = element_text(angle = 90, size = 16)) +
+    geom_rug()
+  
+  plot_list <- list(individual_plots, summary_plot)
+  
+  return(plot_list)
 }
 
 plot_cluster_stability <- function(normalized_sce, cluster_name) {

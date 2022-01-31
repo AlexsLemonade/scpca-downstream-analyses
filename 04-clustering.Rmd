@@ -114,6 +114,7 @@ head(metadata(sample_290_normalized)$all_stats$kmeans)
 # Preview the saved summary results
 head(metadata(sample_290_normalized)$summary_stats$kmeans)
 ```
+
 ### graph-based, walktrap
 
 ```{r fig.height = 15.5}

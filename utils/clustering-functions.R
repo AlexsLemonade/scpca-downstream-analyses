@@ -179,7 +179,7 @@ check_cluster_stability <- function(normalized_sce,
   
 }
 
-cluster_validity_stats <- function(clustered_sce, cluster_names, cluster_type) {
+add_metadata_clustering_stats <- function(clustered_sce, cluster_names, cluster_type) {
   # Purpose: Check the cluster purity of the clusters in the clustered
   # SingleCellExperiment object and store results within the object
   
@@ -189,11 +189,12 @@ cluster_validity_stats <- function(clustered_sce, cluster_names, cluster_type) {
   #                 SingleCellExperiment object are stored
   #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
   
-  cluster_validity_df_list <- list()
-  
-  for (cluster_name in cluster_names) {
-    # isolate the clusters stored in the `cluster_name` slot of the SCE object
-    clusters <- clustered_sce[[(cluster_name)]]
+  get_cluster_stats <- function(clustered_sce, cluster_names) {
+    
+    for (cluster_name in cluster_names) {
+      # isolate the clusters stored in the `cluster_name` slot of the SCE object
+      clusters <- clustered_sce[[(cluster_name)]]
+    }
     
     # use `neighborPurity` to check the purity of clusters
     purity_df <-
@@ -216,10 +217,11 @@ cluster_validity_stats <- function(clustered_sce, cluster_names, cluster_type) {
     cluster_stats_df <- purity_df %>%
       dplyr::left_join(sil_df) %>%
       dplyr::mutate(cluster = factor(clusters))
-    
-    # save data.frame to the cluster validity list of data.frames
-    cluster_validity_df_list[[cluster_name]] <- cluster_stats_df
   }
+  
+  # save data.frame to the cluster validity list of data.frames
+  cluster_validity_df_list <- cluster_names %>% 
+    purrr::map(~ get_cluster_stats(clustered_sce = clustered_sce, .x))
   
   # now bind the rows of all the cluster validity data.frames in the list
   cluster_validity_df <- dplyr::bind_rows(cluster_validity_df_list,

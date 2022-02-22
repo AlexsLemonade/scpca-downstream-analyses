@@ -11,7 +11,7 @@ assignees: ''
 <!--Include a clear and concise description of the unmet need that the proposed feature will solve.-->
 
 **What is the feature you would like to add?**
-<!--Describe the additional feature and any additions that need to be made to solve the problem.--> 
+<!--Describe the additional feature and any other changes that need to be made to solve the problem.--> 
 
 **Please describe the proposed solution.**
 <!--Describe the approach you plan on using to add the proposed feature, be as detailed as possible.-->

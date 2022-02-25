@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-_Please label your issue as either `new feature`, `visualization`, `bug fix`, or `docs`._
+_Please label your issue as either `enhancement`, `visualization`, `bug`, or `documentation`._
 
 **Please provide some background on the proposed additions or changes.**
 <!--Include a clear and concise description of why the changes are needed. 

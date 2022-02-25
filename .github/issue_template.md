@@ -1,12 +1,3 @@
----
-name: Main issue
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
----
-
 _Please label your issue as either `enhancement`, `visualization`, `bug`, or `documentation`._
 
 **Please provide some background on the proposed additions or changes.**

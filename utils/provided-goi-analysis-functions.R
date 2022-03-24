@@ -86,16 +86,15 @@ prepare_heatmap_annotation <- function(normalized_sce_matrix,
     # get colors for the annotation object
     annotation_colors <-
       palette.colors(palette = "Okabe-Ito")[2:(length(gene_set_names) + 1)]
-    
+
     gene_set_colors = annotation_colors[1:length(gene_set_names)]
     names(gene_set_colors) = gene_set_names
-    gene_set_colors <- as.list(gene_set_colors)
-    
+
     # create the column annotation for the ComplexHeatmap
     column_annotation <- HeatmapAnnotation(
       df = annotation_df,
-      col = gene_set_colors,
-      annotation_label = c("Gene Set")
+      col = list(gene_set = gene_set_colors),
+      annotation_label = "Gene Set"
     )
   }
 }

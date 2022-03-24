@@ -179,9 +179,43 @@ check_cluster_stability <- function(normalized_sce,
   
 }
 
+get_cluster_stats <- function(clustered_sce, cluster_column_name) {
+  # Purpose: Check the validity stats of the clusters in the clustered
+  # SingleCellExperiment object
+  
+  # Args:
+  #   clustered_sce: SingleCellExperiment object with clustered results
+  #   cluster_column_name: name of the column with the associated cluster names
+  
+  # isolate the clusters stored in the `cluster_name` slot of the SCE object
+  clusters <- clustered_sce[[(cluster_column_name)]]
+  
+  # use `neighborPurity` to check the purity of clusters
+  purity_df <-
+    neighborPurity(reducedDim(clustered_sce, "PCA"), clusters = clusters) %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column("cell_barcode")
+  purity_df$maximum <- factor(purity_df$maximum)
+  
+  # use `approxSilhouette()` to approximate silhouettes
+  sil_df <- approxSilhouette(reducedDim(clustered_sce, "PCA"),
+                             clusters = clusters) %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column("cell_barcode")
+  
+  # account for negative widths
+  sil_df$closest <-
+    factor(ifelse(sil_df$width > 0, clusters, sil_df$other))
+  
+  # join purity and silhoette info in one data.frame
+  cluster_stats_df <- purity_df %>%
+    dplyr::left_join(sil_df) %>%
+    dplyr::mutate(cluster = factor(clusters))
+}
+
 add_metadata_clustering_stats <- function(clustered_sce, cluster_names, cluster_type) {
-  # Purpose: Check the cluster purity of the clusters in the clustered
-  # SingleCellExperiment object and store results within the object
+  # Purpose: Add the validity stats of the clusters to the
+  # SingleCellExperiment object
   
   # Args:
   #   clustered_sce: SingleCellExperiment object with clustered results
@@ -189,39 +223,10 @@ add_metadata_clustering_stats <- function(clustered_sce, cluster_names, cluster_
   #                 SingleCellExperiment object are stored
   #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
   
-  get_cluster_stats <- function(clustered_sce, cluster_names) {
-    
-    for (cluster_name in cluster_names) {
-      # isolate the clusters stored in the `cluster_name` slot of the SCE object
-      clusters <- clustered_sce[[(cluster_name)]]
-    }
-    
-    # use `neighborPurity` to check the purity of clusters
-    purity_df <-
-      neighborPurity(reducedDim(clustered_sce, "PCA"), clusters = clusters) %>%
-      as.data.frame() %>%
-      tibble::rownames_to_column("cell_barcode")
-    purity_df$maximum <- factor(purity_df$maximum)
-    
-    # use `approxSilhouette()` to approximate silhouettes
-    sil_df <- approxSilhouette(reducedDim(clustered_sce, "PCA"),
-                               clusters = clusters) %>%
-      as.data.frame() %>%
-      tibble::rownames_to_column("cell_barcode")
-    
-    # account for negative widths
-    sil_df$closest <-
-      factor(ifelse(sil_df$width > 0, clusters, sil_df$other))
-    
-    # join purity and silhoette info in one data.frame
-    cluster_stats_df <- purity_df %>%
-      dplyr::left_join(sil_df) %>%
-      dplyr::mutate(cluster = factor(clusters))
-  }
-  
   # save data.frame to the cluster validity list of data.frames
   cluster_validity_df_list <- cluster_names %>% 
     purrr::map(~ get_cluster_stats(clustered_sce = clustered_sce, .x))
+  names(cluster_validity_df_list) <- cluster_names
   
   # now bind the rows of all the cluster validity data.frames in the list
   cluster_validity_df <- dplyr::bind_rows(cluster_validity_df_list,

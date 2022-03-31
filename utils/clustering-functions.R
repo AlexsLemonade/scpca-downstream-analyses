@@ -251,7 +251,8 @@ plot_clustering_validity <- function(cluster_validity_all_stats_df,
                                      cluster_validity_summary_df,
                                      measure,
                                      colour_var,
-                                     x_var) {
+                                     x_var,
+                                     label_order) {
   # Purpose: Plot the provided clustering data frame
   
   # Args:
@@ -263,6 +264,8 @@ plot_clustering_validity <- function(cluster_validity_all_stats_df,
   #               color the points on the plot
   #   x_var: string associated with the column whose values should be on the
   #          x-axis
+  #   label_order: character vector with the plot labels in the order in which
+  #                they should be displayed
   
   # convert into symbols for plotting
   measure <- rlang::sym(measure)
@@ -272,35 +275,38 @@ plot_clustering_validity <- function(cluster_validity_all_stats_df,
   # prepare data frame for plotting
   metadata <- cluster_validity_all_stats_df %>%
     dplyr::mutate(belongs_to_cluster = dplyr::case_when(!!colour_var == cluster ~ "yes",
-                                                        TRUE ~ "no"))
+                                                        TRUE ~ "no"),
+                  cluster_names = gsub("[a-zA-Z_ ]", "", !!x_var))
+  
+  metadata$cluster_names <- forcats::fct_relevel(.f = as.character(metadata$cluster_names), levels = as.character(label_order))
   
   colors = c("gray", "red")
   names(colors) = levels(metadata$belongs_to_cluster)
   
   # plot the cluster validity data frames
-  individual_plots <- ggplot(metadata, aes(x = !!x_var, y = !!measure, colour = belongs_to_cluster)) +
-    ggbeeswarm::geom_quasirandom(method = "smiley") +
+  plot <- ggplot(metadata, aes(x = cluster_names, y = !!measure, colour = belongs_to_cluster)) +
+    ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.2) +
     scale_color_manual(values = c("yes" = "gray",
-                                  "no" = "red"))
+                                  "no" = "red")) +
+    stat_summary(
+      aes(group = !!x_var),
+      color = "black",
+      # median and quartiles for point range
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      },
+      geom = "pointrange",
+      position = position_dodge(width = 0.9),
+      size = 0.2
+    ) +
+    theme(text = element_text(size=18)) +
+    xlab(paste0(gsub("[0-9 ]", "", cluster_validity_summary_df[[x_var]][1]), "_param"))
   
-  # convert summary symbols for plotting
-  summary_measure <- rlang::sym(paste0("avg_", measure))
-  summary_color <- rlang::sym(paste0("avg_", colour_var))
-  
-  # plot the summary stats
-  summary_plot <- ggplot(
-    cluster_validity_summary_df,
-    aes(
-      x = !!x_var,
-      y = !!summary_measure,
-      colour = !!summary_color)) +
-    geom_point(size = 5) +
-    theme(axis.text.x = element_text(angle = 90, size = 16)) +
-    geom_rug()
-  
-  plot_list <- list(individual_plots, summary_plot)
-  
-  return(plot_list)
+  return(plot)
 }
 
 plot_cluster_stability <- function(normalized_sce, cluster_name) {

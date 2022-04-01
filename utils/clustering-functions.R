@@ -309,9 +309,9 @@ plot_clustering_validity <- function(cluster_validity_all_stats_df,
   return(plot)
 }
 
-plot_cluster_stability <- function(normalized_sce, cluster_name) {
-  # Purpose: Plot the cluster bootstrapping stability values of the clusters
-  # stored in the SingleCellExperiment object
+prepare_plot_cluster_stability <- function(normalized_sce, cluster_name) {
+  # Purpose: Prepare the cluster bootstrapping stability values of the clusters
+  # stored in the SingleCellExperiment object for plotting
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
@@ -321,13 +321,10 @@ plot_cluster_stability <- function(normalized_sce, cluster_name) {
   # set the name from which the bootstrapping results can be retrieved from the SCE object
   bootstrapping_name <- paste("bootstrapping_results", cluster_name, sep = "_")
   
-  # plot cluster stability
-  stability_pheatmap <- pheatmap(
-    metadata(normalized_sce)[[bootstrapping_name]],
-    cluster_row = FALSE,
-    cluster_col = FALSE,
-    color = viridis::magma(100),
-    breaks = seq(-1, 1, length.out = 101),
-    main = cluster_name
+  # calculate CDF
+  stability_df <- ecdf(
+    metadata(normalized_sce)[[bootstrapping_name]]
   )
+  
+  return(stability_df)
 }

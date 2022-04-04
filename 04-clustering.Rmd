@@ -41,7 +41,7 @@ sample_290_normalized <- read_rds(
 
 ```{r fig.height = 10.5}
 # Perform k-means clustering
-kmeans_cluster_names <- paste0("kcluster", c(2:15))
+kmeans_cluster_names <- paste("kcluster", c(2:15), sep = "_")
 
 sample_290_normalized <- kmeans_clustering(
   sample_290_normalized,
@@ -60,7 +60,7 @@ cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 4)
 
 ```{r fig.height = 9.5}
 # Perform graph-based walktrap clustering
-walktrap_cluster_names <-paste0("walktrap_cluster", c(5, 10, 15, 20, 25, 50, 100))
+walktrap_cluster_names <-paste("walktrap_cluster", c(5, 10, 15, 20, 25, 50, 100), sep = "_")
 
 sample_290_normalized <- graph_clustering(
   sample_290_normalized,
@@ -81,7 +81,7 @@ cowplot::plot_grid(plotlist = walktrap_plot_list, ncol = 3)
 
 ```{r fig.height = 8.5}
 # Perform graph-based louvain clustering
-louvain_cluster_names <- paste0("louvain_cluster", c(5, 10, 15, 20, 25, 50, 100))
+louvain_cluster_names <- paste("louvain_cluster", c(5, 10, 15, 20, 25, 50, 100), sep = "_")
 
 sample_290_normalized <- graph_clustering(
   sample_290_normalized,
@@ -119,8 +119,7 @@ head(metadata(sample_290_normalized)$summary_stats$kmeans)
 ```{r fig.height=10, fig.width=15}
 # Plot individual cluster and summary stats
 kmeans_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$kmeans,
-                         metadata(sample_290_normalized)$summary_stats$kmeans,
-                         "purity", "maximum", "cluster_names", c(2:15))
+                         "purity", "maximum", "cluster_names", "purity")
 kmeans_plots
 ```
 
@@ -129,8 +128,7 @@ kmeans_plots
 ```{r fig.height=10, fig.width=15}
 # Plot individual cluster and summary stats
 kmeans_silhouette_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$kmeans,
-                         metadata(sample_290_normalized)$summary_stats$kmeans,
-                         "width", "closest", "cluster_names", c(2:15))
+                         "width", "closest", "cluster_names", "silhouette")
 kmeans_silhouette_plots
 ```
 
@@ -147,13 +145,13 @@ head(metadata(sample_290_normalized)$all_stats$walktrap)
 # Preview the saved summary results
 head(metadata(sample_290_normalized)$summary_stats$walktrap)
 ```
+
 #### purity plots
 
 ```{r fig.height=10, fig.width=15}
 # Plot individual cluster and summary stats
 walktrap_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$walktrap,
-                         metadata(sample_290_normalized)$summary_stats$walktrap,
-                         "purity", "maximum", "cluster_names", c(5, 10, 15, 20, 25, 50, 100))
+                         "purity", "maximum", "cluster_names", "purity")
 walktrap_plots
 ```
 
@@ -162,8 +160,8 @@ walktrap_plots
 ```{r fig.height=10, fig.width=15}
 # Plot individual cluster and summary stats
 walktrap_silhouette_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$walktrap,
-                         metadata(sample_290_normalized)$summary_stats$walktrap,
-                         "width", "closest", "cluster_names", c(5, 10, 15, 20, 25, 50, 100))
+                         "width", "closest", "cluster_names", "silhouette")
+
 walktrap_silhouette_plots
 ```
 
@@ -180,13 +178,13 @@ head(metadata(sample_290_normalized)$all_stats$louvain)
 # Preview the saved summary results
 head(metadata(sample_290_normalized)$summary_stats$louvain)
 ```
+
 #### purity plots
 
 ```{r fig.height=10}
 # Plot individual cluster and summary stats
 louvain_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$louvain,
-                         metadata(sample_290_normalized)$summary_stats$louvain,
-                         "purity", "maximum", "cluster_names", c(5, 10, 15, 20, 25, 50, 100))
+                         "purity", "maximum", "cluster_names", "purity")
 louvain_plots
 ```
 
@@ -195,8 +193,7 @@ louvain_plots
 ```{r fig.height=10}
 # Plot individual cluster and summary stats
 louvain_silhouette_plots <- plot_clustering_validity(metadata(sample_290_normalized)$all_stats$louvain,
-                         metadata(sample_290_normalized)$summary_stats$louvain,
-                         "width", "closest", "cluster_names", c(5, 10, 15, 20, 25, 50, 100))
+                         "width", "closest", "cluster_names", "silhouette")
 louvain_silhouette_plots
 ```
 

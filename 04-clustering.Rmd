@@ -120,6 +120,7 @@ kmeans_summary_stats_df <- summarize_clustering_stats(kmeans_stats_df)
 # Preview the summary results
 head(kmeans_summary_stats_df)
 ```
+#### purity plots
 
 #### purity plots
 

@@ -26,7 +26,7 @@ kmeans_clustering <- function(normalized_sce,
   
   # Perform k-means clustering
   for (k in k_range) {
-    cluster_name <- paste("kcluster", k, sep = "")
+    cluster_name <- paste("kmeans", k, sep = "_")
     
     # set the seed for reproducible results
     set.seed(seed)
@@ -84,7 +84,7 @@ graph_clustering <- function(normalized_sce,
   # perform the graph-based clustering
   for (nearest_neighbors in nn_range) {
     # set cluster name
-    cluster_name <- paste(cluster_function,"_cluster", nearest_neighbors, sep = "")
+    cluster_name <- paste(cluster_function, nearest_neighbors, sep = "_")
     
     # set the seed for reproducible results
     set.seed(seed)
@@ -213,15 +213,24 @@ get_cluster_stats <- function(clustered_sce, cluster_column_name) {
     dplyr::mutate(cluster = factor(clusters))
 }
 
-add_metadata_clustering_stats <- function(clustered_sce, cluster_names, cluster_type) {
-  # Purpose: Add the validity stats of the clusters to the
-  # SingleCellExperiment object
+add_metadata_clustering_stats <- function(clustered_sce, range_of_params, cluster_type) {
+  # Purpose: Calculate and return a data frame with the validity stats of the
+  # clusters in the SingleCellExperiment object
   
   # Args:
   #   clustered_sce: SingleCellExperiment object with clustered results
-  #   cluster_names: vector of names associated with where the cluster results in the
-  #                 SingleCellExperiment object are stored
+  #   range_of_params: the range of numeric parameters to test for clustering
   #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
+  
+  # define empty vector for cluster names
+  cluster_names <- c()
+  n <- 1
+  
+  # use range_of_params to grab cluster names
+  for (i in range_of_params) {
+    cluster_names[[n]] <- paste(cluster_type, i, sep = "_")
+    n <- n+1
+  }
   
   # save data.frame to the cluster validity list of data.frames
   cluster_validity_df_list <- cluster_names %>% 
@@ -232,6 +241,18 @@ add_metadata_clustering_stats <- function(clustered_sce, cluster_names, cluster_
   cluster_validity_df <- dplyr::bind_rows(cluster_validity_df_list,
                                           .id = "cluster_names")
   
+  return(cluster_validity_df)
+}
+
+
+summarize_clustering_stats <- function(cluster_validity_df) {
+  # Purpose: Calculate and return a summary data frame of the provided cluster
+  # validity stats
+  
+  # Args:
+  #   clustered_validity_df: data.frame with cluster validity stats associated
+  #                          with their relevant cluster names
+  
   # create a summary data.frame of the results across the individual clusters
   validity_summary_df <- cluster_validity_df %>%
     dplyr::group_by(cluster_names) %>%
@@ -241,34 +262,76 @@ add_metadata_clustering_stats <- function(clustered_sce, cluster_names, cluster_
                      avg_closest = median(as.numeric(closest))) %>%
     dplyr::select(cluster_names, avg_purity, avg_maximum, avg_width, avg_closest)
   
-  metadata(clustered_sce)$all_stats[[cluster_type]] <- cluster_validity_df
-  metadata(clustered_sce)$summary_stats[[cluster_type]]  <- validity_summary_df
-  
-  return(clustered_sce)
+  return(validity_summary_df)
 }
 
-plot_clustering_validity <- function(cluster_validity_df, measure, colour_var,
-                                     facet_var) {
+plot_clustering_validity <- function(cluster_validity_all_stats_df,
+                                     measure,
+                                     colour_var,
+                                     cluster_names_column,
+                                     plot_type) {
   # Purpose: Plot the provided clustering data frame
   
   # Args:
-  #   clustered_validity_df: data frame with cluster validity stats
+  #   clustered_validity_all_stats_df: data frame with all cluster validity stats
   #   measure: string associated with the column whose values should be on the 
   #            y-axis
   #   colour_var: string associated with the column whose values should be used
   #               color the points on the plot
-  #   facet_var: string associated with the column whose values should be used
-  #              to facet on, to create individual plots
+  #   cluster_names_column: string associated with the column whose values should be on the
+  #          x-axis
+  #   plot_type: string for the type of plot to generate - can be "purity" or
+  #              "silhouette"
   
   # convert into symbols for plotting
   measure <- rlang::sym(measure)
   colour_var <- rlang::sym(colour_var)
-  facet_var <- rlang::sym(facet_var)
+  cluster_names_column_var <- rlang::sym(cluster_names_column)
+  
+  # prepare data frame for plotting
+  metadata <- cluster_validity_all_stats_df %>%
+    tidyr::separate(cluster_names_column, 
+                    c("cluster_type", "param_value"),
+                    remove = FALSE) %>% # keep original column for grouping later
+    # create a column for the color scale to make things easier to control the color later
+    # for cluster purity, do the majority of neighboring cells come from the assigned cluster (yes) or a different cluster (no) 
+    # for silhouette width if the cluster matches, then the silhouette width is positive, if not it's negative
+    dplyr::mutate(color_scale = ifelse(!!colour_var == cluster,  "yes",  "no"),
+                  param_value = as.numeric(param_value))
+  
+  colors = c("gray", "red")
+  names(colors) = levels(metadata$color_scale)
+  if(plot_type == "silhouette"){
+    legend_title = "Positive Silhouette Width"
+  } else if (plot_type == "purity"){
+    legend_title = "Neighboring cells \nbelong to assigned cluster"
+  }
   
   # plot the cluster validity data frames
-  ggplot(cluster_validity_df, aes(x = cluster, y = !!measure, colour = !!colour_var)) +
-    ggbeeswarm::geom_quasirandom(method = "smiley") +
-    facet_wrap(facet_var, ncol = 1)
+  plot <- ggplot(metadata, aes(x = param_value, y = !!measure, colour = color_scale)) +
+    ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.2) +
+    scale_color_manual(values = c("yes" = "gray",
+                                  "no" = "red")) +
+    stat_summary(
+      aes(group = !!cluster_names_column),
+      color = "black",
+      # median and quartiles for point range
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      },
+      geom = "pointrange",
+      position = position_dodge(width = 0.9),
+      size = 0.2
+    ) +
+    theme(text = element_text(size=18)) +
+    labs(x = paste0(unique(metadata$cluster_type), "Parameters"),
+         color = legend_title)
+  
+  return(plot)
 }
 
 plot_cluster_stability <- function(normalized_sce, cluster_name) {

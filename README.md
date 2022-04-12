@@ -10,16 +10,16 @@ Also note that this analysis is meant to be performed on single cell gene expres
 
 # Running the analysis workflows
 
-## Running the core ScPCA downstream analysis pipeline
-
-The core downstream scPCA analysis pipeline, which includes filtering, normalization, and dimension reduction, is implemented using a Snakemake workflow.
-Therefore, you will first need to install Snakemake and some package dependencies before running the pipeline.
-
-#### 1) Restore `renv.lock` and install package dependencies
+## Before running the workflows
 
 Packages that are required for the pipeline are included in the `renv.lock` file as they are installed and used. 
 
 When checking out a branch or implementing things in your local enviroment for the first time, you will first want to open R and install any package dependencies. `renv::restore()` can be used to sync local package installations with those required to run the pipeline. To keep this file up to date, `renv::snapshot()` should be run periodically during development, as to add any packages that are used in added/modified scripts and notebooks to the `renv.lock` file.
+
+## Running the core ScPCA downstream analysis pipeline
+
+The core downstream scPCA analysis pipeline, which includes filtering, normalization, and dimension reduction, is implemented using a Snakemake workflow.
+Therefore, you will first need to install Snakemake before running the pipeline.
 
 #### 2) Install Snakemake
 

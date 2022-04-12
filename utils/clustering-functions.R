@@ -26,7 +26,7 @@ kmeans_clustering <- function(normalized_sce,
   
   # Perform k-means clustering
   for (k in k_range) {
-    cluster_name <- paste("kcluster", k, sep = "_")
+    cluster_name <- paste("kmeans", k, sep = "_")
     
     # set the seed for reproducible results
     set.seed(seed)
@@ -84,7 +84,7 @@ graph_clustering <- function(normalized_sce,
   # perform the graph-based clustering
   for (nearest_neighbors in nn_range) {
     # set cluster name
-    cluster_name <- paste(cluster_function, "cluster", nearest_neighbors, sep = "_")
+    cluster_name <- paste(cluster_function, nearest_neighbors, sep = "_")
     
     # set the seed for reproducible results
     set.seed(seed)
@@ -213,38 +213,56 @@ get_cluster_stats <- function(clustered_sce, cluster_column_name) {
     dplyr::mutate(cluster = factor(clusters))
 }
 
-add_metadata_clustering_stats <- function(clustered_sce, cluster_names, cluster_type) {
-  # Purpose: Add the validity stats of the clusters to the
-  # SingleCellExperiment object
+create_metadata_stats_df <- function(clustered_sce, params_range, increments, cluster_type) {
+  # Purpose: Calculate and return a data frame with the validity stats of the
+  # clusters in the SingleCellExperiment object
   
   # Args:
   #   clustered_sce: SingleCellExperiment object with clustered results
-  #   cluster_names: vector of names associated with where the cluster results in the
-  #                 SingleCellExperiment object are stored
+  #   params_range: the range of numeric parameters to test for clustering
+  #   increments: a numeric value representing the increments by which to explore
+  #               the params range of values
   #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
   
+  # define cluster names
+  param_values <- seq(min(params_range), max(params_range),increments)
+  cluster_names_column <- paste(cluster_type, param_values, sep = "_")
+  
   # save data.frame to the cluster validity list of data.frames
-  cluster_validity_df_list <- cluster_names %>% 
+  cluster_validity_df_list <- cluster_names_column %>% 
     purrr::map(~ get_cluster_stats(clustered_sce = clustered_sce, .x))
-  names(cluster_validity_df_list) <- cluster_names
+  names(cluster_validity_df_list) <- cluster_names_column
   
   # now bind the rows of all the cluster validity data.frames in the list
   cluster_validity_df <- dplyr::bind_rows(cluster_validity_df_list,
-                                          .id = "cluster_names")
+                                          .id = "cluster_names_column") %>%
+    tidyr::separate(cluster_names_column, 
+                    c("cluster_type", "param_value"),
+                    remove = FALSE) # keep original column for grouping later
+    
+  
+  return(cluster_validity_df)
+}
+
+
+summarize_clustering_stats <- function(cluster_validity_df) {
+  # Purpose: Calculate and return a summary data frame of the provided cluster
+  # validity stats
+  
+  # Args:
+  #   clustered_validity_df: data.frame with cluster validity stats associated
+  #                          with their relevant cluster names
   
   # create a summary data.frame of the results across the individual clusters
   validity_summary_df <- cluster_validity_df %>%
-    dplyr::group_by(cluster_names) %>%
+    dplyr::group_by(cluster_names_column) %>%
     dplyr::summarize(avg_purity = median(purity),
                      avg_maximum = median(as.numeric(maximum)),
                      avg_width = median(width),
                      avg_closest = median(as.numeric(closest))) %>%
-    dplyr::select(cluster_names, avg_purity, avg_maximum, avg_width, avg_closest)
+    dplyr::select(cluster_names_column, avg_purity, avg_maximum, avg_width, avg_closest)
   
-  metadata(clustered_sce)$all_stats[[cluster_type]] <- cluster_validity_df
-  metadata(clustered_sce)$summary_stats[[cluster_type]]  <- validity_summary_df
-  
-  return(clustered_sce)
+  return(validity_summary_df)
 }
 
 plot_clustering_validity <- function(cluster_validity_all_stats_df,

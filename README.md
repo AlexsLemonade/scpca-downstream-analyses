@@ -44,7 +44,7 @@ The default `config.yaml` variables that are relevant to your project include:
 
 - `data_dir`: path to the main data directory that holds your samples' files (expected within this directory would be sample subdirectories that hold the `sample_filtered.rds` pre-processed files, as previously mentioned would be the input for this pipeline)
 - `results_dir`: path to a results directory to hold your project's output files
-- `project_metadata`: path to your specific project metadata TSV file with the columns `sample_id`, `library_id`, and `filtering_method`, where `filtering_method` can be "manual" or "miQC".
+- `project_metadata`: path to your specific project metadata TSV file with the columns `sample_id` (with the name of the sample subdirectory as values), `library_id` (with the prefix to the `_filtered.rds` file as values), and `filtering_method`, where `filtering_method` can be "manual" or "miQC".
 
 
 You can tell the config file to point to your specific project variables by running Snakemake using the `snakemake --cores 2` command and modifying the relevant parameters using the `--config` flag as in the following example:

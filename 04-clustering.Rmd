@@ -44,11 +44,11 @@ sample_290_normalized <- read_rds(
 
 ```{r fig.height = 10.5}
 # Perform k-means clustering
-kmeans_cluster_names <- paste("kmeans", c(2:5), sep = "_")
+kmeans_cluster_names <- paste("kmeans", c(4:10), sep = "_")
 
 sample_290_normalized <- kmeans_clustering(
   sample_290_normalized,
-  k_range = c(2:5),
+  k_range = c(4:10),
   check_stability = TRUE
 )
 
@@ -63,7 +63,7 @@ cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 4)
 
 ```{r fig.height = 9.5}
 # Perform graph-based walktrap clustering
-walktrap_cluster_names <-paste("walktrap", c(5, 10, 15, 20, 25), sep = "_")
+walktrap_cluster_names <- paste("walktrap", c(5, 10, 15, 20, 25), sep = "_")
 
 sample_290_normalized <- graph_clustering(
   sample_290_normalized,
@@ -109,7 +109,7 @@ cowplot::plot_grid(plotlist = louvain_plot_list, ncol = 3)
 ```{r fig.height = 20.5}
 # Check the k-means cluster validity stats for each of the clusters and return
 # stats in a data frame
-kmeans_stats_df <- add_metadata_clustering_stats(sample_290_normalized, c(2:5), "kmeans")
+kmeans_stats_df <- create_metadata_stats_df(sample_290_normalized, c(4:10), 1, "kmeans")
 
 # Preview the results
 head(kmeans_stats_df)
@@ -120,7 +120,6 @@ kmeans_summary_stats_df <- summarize_clustering_stats(kmeans_stats_df)
 # Preview the summary results
 head(kmeans_summary_stats_df)
 ```
-#### purity plots
 
 #### purity plots
 
@@ -145,7 +144,7 @@ kmeans_silhouette_plots
 ```{r fig.height = 15.5}
 # Check the walktrap cluster validity stats for each of the clusters and return
 # stats in a data frame
-walktrap_stats_df <- add_metadata_clustering_stats(sample_290_normalized, c(5, 10, 15, 20, 25), "walktrap")
+walktrap_stats_df <- create_metadata_stats_df(sample_290_normalized, c(5:25), 5, "walktrap")
   
 # Preview the all stats results
 head(walktrap_stats_df)
@@ -181,7 +180,7 @@ walktrap_silhouette_plots
 ```{r fig.height = 9.5}
 # Check the louvain cluster validity stats for each of the clusters and return
 # stats in a data frame
-louvain_stats_df <- add_metadata_clustering_stats(sample_290_normalized, c(5, 10, 15, 20, 25), "louvain")
+louvain_stats_df <- create_metadata_stats_df(sample_290_normalized, c(5:25), 5, "louvain")
 
 # Preview the results
 head(louvain_stats_df)

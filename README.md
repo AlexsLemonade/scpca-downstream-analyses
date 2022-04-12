@@ -6,17 +6,27 @@ This pipeline also includes an optional genes of interest analysis, when a genes
 
 Note that R 4.1 is required for running our pipeling, along with Bioconductor 3.14.
 
-## How to run the analysis
+Also note that this analysis is meant to be performed on single cell gene expression data. More specifically, the expected input for each sample is a RDS file that has been pre-processed using the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where the data is selectively aligned using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/). For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
 
-### How to run the main scPCA downstream analysis pipeline
+# Running the analysis workflows
+
+## Running the core ScPCA downstream analysis pipeline
 
 The core downstream scPCA analysis pipeline, which includes filtering, normalization, and dimension reduction, is implemented using a Snakemake workflow.
-Therefore, you will first need to install Snakemake before running the pipeline.
+Therefore, you will first need to install Snakemake and some package dependencies before running the pipeline.
 
-#### 1) Install Snakemake
+#### 1) Restore `renv.lock` and install package dependencies
+
+Packages that are required for the pipeline are included in the `renv.lock` file as they are installed and used. 
+
+When checking out a branch or implementing things in your local enviroment for the first time, you will first want to open R and install any package dependencies. `renv::restore()` can be used to sync local package installations with those required to run the pipeline. To keep this file up to date, `renv::snapshot()` should be run periodically during development, as to add any packages that are used in added/modified scripts and notebooks to the `renv.lock` file.
+
+#### 2) Install Snakemake
+
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
-To reiterate the instructions there, you will want to enter the following commands to install Snakemake via conda and activate Snakemake:
+The recommended way to install snakemake is through conda. 
+After installation of [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html), you can follow the below steps to install snakemake:
 
 ```
 conda install -n base -c conda-forge mamba
@@ -25,19 +35,14 @@ mamba create -c conda-forge -c bioconda -n snakemake snakemake
 conda activate snakemake
 ```
 
-#### 2) Restore `renv.lock` packages
-
-Packages that are required for the pipeline are included in the `renv.lock` file as they are installed and used. 
-
-When checking out a branch or implementing things in your local enviroment for the first time, `renv::restore()` can be used to sync local package installations with those required to run the pipeline. To keep this file up to date, `renv::snapshot()` should be run periodically during development, as to add any packages that are used in added/modified scripts and notebooks to the `renv.lock` file.
-
 #### 3) Run Snakemake
 
-Now the environment should be all set to implement the Snakemake workflow. Note that you will want to modify the `config.yaml` file to point to the files relevant to your project.
+Now the environment should be all set to implement the Snakemake workflow. 
+Note that we have also provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the default values for variables needed to run the workflow.
 
-The default `config.yaml` variables that will need to be relevant to your project include:
+The default `config.yaml` variables that are relevant to your project include:
 
-- `data_dir`: path to the main data directory that holds your samples' files
+- `data_dir`: path to the main data directory that holds your samples' files (expected within this directory would be sample subdirectories that hold the `sample_filtered.rds` pre-processed files, as previously mentioned would be the input for this pipeline)
 - `results_dir`: path to a results directory to hold your project's output files
 - `project_metadata`: path to your specific project metadata TSV file with the columns `sample_id`, `library_id`, and `filtering_method`, where `filtering_method` can be "manual" or "miQC".
 
@@ -50,7 +55,7 @@ results_dir="path/to/relevant/results/directory" \
 project_metadata="project-metadata/your-project-metadata.TSV"
 ```
 
-### How to run the optional genes of interest analysis pipeline
+## Running the optional genes of interest analysis pipeline
 
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.
 

@@ -1,6 +1,6 @@
-# scPCA downstream analyses
+# ScPCA downstream analyses
 
-This repository stores our pipeline for scPCA downstream analyses.
+This repository stores our pipeline for ScPCA downstream analyses.
 This pipeline has been created in a modular format with the intent for users to begin processing at the module or script that is most appropriate for their data.
 This pipeline also includes an optional genes of interest analysis, when a genes of interest list is provided.
 
@@ -11,7 +11,7 @@ More specifically, the expected input for each sample is a RDS file containing a
 
 ## Before running the workflows
 
-Packages that are required for the pipeline are included in the `renv.lock` file as they are installed and used. 
+Package dependencies for the analysis workflows in this repository are managed using `renv`. 
 
 When running the workflow in your local environment, you will first want to open the R project file, `scpca-downstream-analyses.Rproj` in R and if prompted, install any package dependencies using `renv::restore()`.
 `renv::restore()` can be used to sync local package installations with those required to run the pipeline. 
@@ -24,7 +24,7 @@ If you are making any changes to the workflow, `renv::snapshot()` should be run 
 The core downstream scPCA analysis pipeline, which includes filtering, normalization, and dimension reduction, is implemented using a Snakemake workflow.
 Therefore, you will first need to install Snakemake before running the pipeline.
 
-#### 2) Install Snakemake
+### 1) Install Snakemake
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
@@ -38,7 +38,7 @@ mamba create -c conda-forge -c bioconda -n snakemake snakemake
 conda activate snakemake
 ```
 
-#### 3) Run Snakemake
+### 2) Run Snakemake
 
 Now the environment should be all set to implement the Snakemake workflow. 
 Note that we have also provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the default values for variables needed to run the workflow.

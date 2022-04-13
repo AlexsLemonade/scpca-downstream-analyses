@@ -45,7 +45,8 @@ Note that we have also provided a [configuration file](https://snakemake.readthe
 
 The default `config.yaml` variables that are relevant to your project include the following:
 
-- `data_dir`: path to the main data directory that holds your samples' files (expected within this directory would be individual folders for each sample, with the folder name corresponding to the sample ID, that hold the pre-processed RDS files with the file name in the format, `<library_id>_filtered.rds`)
+- `data_dir`: path to the main data directory that holds your samples' files
+	- expected within this directory would be individual folders for each sample, with the folder name corresponding to the sample ID, that hold the pre-processed RDS files with the file name in the format, `<library_id>_filtered.rds`
 - `results_dir`: path to a results directory to hold your project's output files
 - `project_metadata`: path to your specific project metadata TSV file with the columns as follows:
     -  `sample_id`, whose values are the names of the sample folders

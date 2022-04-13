@@ -265,24 +265,14 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   return(validity_summary_df)
 }
 
-plot_cluster_purity <- function(cluster_validity_df,
-                                params_range,
-                                increments,
-                                cluster_type) {
-  # Purpose: Calculate and return a data frame with the validity stats of the
-  # clusters in the SingleCellExperiment object
+plot_cluster_purity <- function(cluster_validity_df) {
+  
+  # Purpose: Generate a plot displaying the cluster purity stats of the clusters
+  # in the SingleCellExperiment object
   
   # Args:
   #   clustered_validity_df: data.frame with cluster validity stats associated
   #                          with their relevant cluster names
-  #   params_range: the range of numeric parameters to test for clustering
-  #   increments: a numeric value representing the increments by which to explore
-  #               the params range of values
-  #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
-  
-  # define cluster names
-  param_values <- seq(min(params_range), max(params_range),increments)
-  cluster_names_column <- paste(cluster_type, param_values, sep = "_")
   
   # prepare data frame for plotting
   metadata <- cluster_validity_df %>%
@@ -291,7 +281,8 @@ plot_cluster_purity <- function(cluster_validity_df,
     # for silhouette width if the cluster matches, then the silhouette width is positive, if not it's negative
     dplyr::mutate(
       color_scale = ifelse(maximum == cluster,  "yes",  "no"),
-      param_value = as.numeric(param_value)
+      param_value = as.numeric(param_value),
+      cluster_param_assignment = paste(cluster_type, param_value, cluster, sep = "_")
     )
   
   # set colors and title for plotting
@@ -301,12 +292,12 @@ plot_cluster_purity <- function(cluster_validity_df,
   
   # plot the cluster validity data frames
   plot <-
-    ggplot(metadata, aes(x = param_value, y = purity, colour = color_scale)) +
+    ggplot(metadata, aes(x = cluster, y = purity, colour = color_scale)) +
     ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.2) +
     scale_color_manual(values = c("yes" = "gray",
                                   "no" = "red")) +
     stat_summary(
-      aes(group = cluster_names_column),
+      aes(group = cluster_param_assignment),
       color = "black",
       # median and quartiles for point range
       fun = "median",
@@ -323,7 +314,8 @@ plot_cluster_purity <- function(cluster_validity_df,
     theme(text = element_text(size = 18)) +
     labs(x = paste0(unique(metadata$cluster_type), "Parameters"),
          color = legend_title) +
-    facet_wrap( ~ cluster_names_column, scale="free")
+    facet_wrap( ~ param_value, scale="free") + 
+    theme_bw()
   
   return(plot)
 }

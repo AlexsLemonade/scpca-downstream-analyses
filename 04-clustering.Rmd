@@ -54,7 +54,7 @@ sample_290_normalized <- kmeans_clustering(
 
 # Plot k-means
 kmeans_plot_list <- kmeans_cluster_names %>%
-  purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
+  purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + theme_bw())
 
 cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 4)
 ```
@@ -75,7 +75,7 @@ sample_290_normalized <- graph_clustering(
 
 # Plot
 walktrap_plot_list <- walktrap_cluster_names %>%
-   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
+   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + theme_bw())
 
 cowplot::plot_grid(plotlist = walktrap_plot_list, ncol = 3)
 ```
@@ -96,7 +96,7 @@ sample_290_normalized <- graph_clustering(
 
 # Plot
 louvain_plot_list <- louvain_cluster_names %>%
-   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x))
+   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + theme_bw())
 
 
 cowplot::plot_grid(plotlist = louvain_plot_list, ncol = 3)
@@ -124,8 +124,8 @@ head(kmeans_summary_stats_df)
 #### purity plots
 
 ```{r fig.height=10, fig.width=15}
-# Plot individual cluster and summary stats
-kmeans_purity_plots <- plot_cluster_purity(kmeans_stats_df, c(4:10), 1, "kmeans")
+# Plot individual cluster purity stats
+kmeans_purity_plots <- plot_cluster_purity(kmeans_stats_df)
 
 kmeans_purity_plots
 ```
@@ -159,8 +159,8 @@ head(walktrap_summary_stats_df)
 #### purity plots
 
 ```{r fig.height=10, fig.width=15}
-# Plot individual cluster and summary stats
-walktrap_purity_plots <- plot_cluster_purity(walktrap_stats_df, c(5:25), 5, "walktrap")
+# Plot individual cluster purity stats
+walktrap_purity_plots <- plot_cluster_purity(walktrap_stats_df)
 
 walktrap_purity_plots
 ```
@@ -195,8 +195,8 @@ head(louvain_summary_stats_df)
 #### purity plots
 
 ```{r fig.height=10}
-# Plot individual cluster and summary stats
-louvain_purity_plots <- plot_cluster_purity(louvain_stats_df, c(5:25), 5, "louvain")
+# Plot individual cluster purity stats
+louvain_purity_plots <- plot_cluster_purity(louvain_stats_df)
 
 louvain_purity_plots
 ```

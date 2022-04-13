@@ -265,6 +265,69 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   return(validity_summary_df)
 }
 
+plot_cluster_purity <- function(cluster_validity_df,
+                                params_range,
+                                increments,
+                                cluster_type) {
+  # Purpose: Calculate and return a data frame with the validity stats of the
+  # clusters in the SingleCellExperiment object
+  
+  # Args:
+  #   clustered_validity_df: data.frame with cluster validity stats associated
+  #                          with their relevant cluster names
+  #   params_range: the range of numeric parameters to test for clustering
+  #   increments: a numeric value representing the increments by which to explore
+  #               the params range of values
+  #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
+  
+  # define cluster names
+  param_values <- seq(min(params_range), max(params_range),increments)
+  cluster_names_column <- paste(cluster_type, param_values, sep = "_")
+  
+  # prepare data frame for plotting
+  metadata <- cluster_validity_df %>%
+    # create a column for the color scale to make things easier to control the color later
+    # for cluster purity, do the majority of neighboring cells come from the assigned cluster (yes) or a different cluster (no)
+    # for silhouette width if the cluster matches, then the silhouette width is positive, if not it's negative
+    dplyr::mutate(
+      color_scale = ifelse(maximum == cluster,  "yes",  "no"),
+      param_value = as.numeric(param_value)
+    )
+  
+  # set colors and title for plotting
+  colors = c("gray", "red")
+  names(colors) = levels(metadata$color_scale)
+  legend_title = "Neighboring cells \nbelong to assigned cluster"
+  
+  # plot the cluster validity data frames
+  plot <-
+    ggplot(metadata, aes(x = param_value, y = purity, colour = color_scale)) +
+    ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.2) +
+    scale_color_manual(values = c("yes" = "gray",
+                                  "no" = "red")) +
+    stat_summary(
+      aes(group = cluster_names_column),
+      color = "black",
+      # median and quartiles for point range
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      },
+      geom = "pointrange",
+      position = position_dodge(width = 0.9),
+      size = 0.2
+    ) +
+    theme(text = element_text(size = 18)) +
+    labs(x = paste0(unique(metadata$cluster_type), "Parameters"),
+         color = legend_title) +
+    facet_wrap( ~ cluster_names_column, scale="free")
+  
+  return(plot)
+}
+                                
 plot_clustering_validity <- function(cluster_validity_all_stats_df,
                                      measure,
                                      colour_var,

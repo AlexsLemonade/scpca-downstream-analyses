@@ -125,7 +125,7 @@ head(kmeans_summary_stats_df)
 
 ```{r fig.height=10, fig.width=15}
 # Plot individual cluster and summary stats
-kmeans_purity_plots <- plot_clustering_validity(kmeans_stats_df, "purity", "maximum", "cluster_names", "purity")
+kmeans_purity_plots <- plot_cluster_purity(kmeans_stats_df, c(4:10), 1, "kmeans")
 
 kmeans_purity_plots
 ```
@@ -160,8 +160,8 @@ head(walktrap_summary_stats_df)
 
 ```{r fig.height=10, fig.width=15}
 # Plot individual cluster and summary stats
-walktrap_purity_plots <- plot_clustering_validity(walktrap_stats_df,
-                         "purity", "maximum", "cluster_names", "purity")
+walktrap_purity_plots <- plot_cluster_purity(walktrap_stats_df, c(5:25), 5, "walktrap")
+
 walktrap_purity_plots
 ```
 
@@ -196,8 +196,8 @@ head(louvain_summary_stats_df)
 
 ```{r fig.height=10}
 # Plot individual cluster and summary stats
-louvain_purity_plots <- plot_clustering_validity(louvain_stats_df,
-                         "purity", "maximum", "cluster_names", "purity")
+louvain_purity_plots <- plot_cluster_purity(louvain_stats_df, c(5:25), 5, "louvain")
+
 louvain_purity_plots
 ```
 

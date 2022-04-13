@@ -58,6 +58,8 @@ results_dir="path/to/relevant/results/directory" \
 project_metadata="project-metadata/your-project-metadata.TSV"
 ```
 
+You can also use `snakemake --cores 1` to run the workflow as is, using the default values for the variables.
+
 ## Running the optional genes of interest analysis pipeline
 
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.

@@ -330,16 +330,11 @@ plot_cluster_silhouette_width <- function(cluster_validity_df) {
   
   # prepare data frame for plotting
   metadata <- cluster_validity_df %>%
-    # create a column for the color scale to make things easier to control the color later
-    # for cluster purity, do the majority of neighboring cells come from the assigned cluster (yes) or a different cluster (no)
     # for silhouette width if the cluster matches, then the silhouette width is positive, if not it's negative
     dplyr::mutate(
       param_value = as.numeric(param_value),
       cluster_param_assignment = paste(cluster_type, param_value, cluster, sep = "_")
     )
-  
-  # set title for plotting
-  legend_title = "Positive Silhouette Width"
   
   # plot the cluster validity data frames
   plot <-
@@ -347,8 +342,8 @@ plot_cluster_silhouette_width <- function(cluster_validity_df) {
     ggbeeswarm::geom_quasirandom(method = "pseudorandom", size = 0.2) +
     geom_hline(yintercept = 0, linetype = 'dotted') +
     theme(text = element_text(size = 22)) +
-    labs(x = paste0(unique(metadata$cluster_type), "Parameters"),
-         color = legend_title) +
+    labs(title = unique(metadata$cluster_type),
+         x = "Cluster Assignment") +
     facet_wrap( ~ param_value, scale="free_x") +
     stat_summary(
       aes(group = cluster_param_assignment),
@@ -363,9 +358,10 @@ plot_cluster_silhouette_width <- function(cluster_validity_df) {
       },
       geom = "pointrange",
       position = position_dodge(width = 0.9),
-      size = 0.5
+      size = 1
     ) +
-    theme_bw()
+    theme_bw() +
+    theme(text = element_text(size = 22))
   
   return(plot)
 }                                

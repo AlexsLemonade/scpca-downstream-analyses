@@ -265,6 +265,61 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   return(validity_summary_df)
 }
 
+plot_cluster_purity <- function(cluster_validity_df) {
+  
+  # Purpose: Generate a plot displaying the cluster purity stats of the clusters
+  # in the SingleCellExperiment object
+  
+  # Args:
+  #   clustered_validity_df: data.frame with cluster validity stats associated
+  #                          with their relevant cluster names
+  
+  # prepare data frame for plotting
+  metadata <- cluster_validity_df %>%
+    # create a column for the color scale to make things easier to control the color later
+    # for cluster purity, do the majority of neighboring cells come from the assigned cluster (yes) or a different cluster (no)
+    dplyr::mutate(
+      color_scale = ifelse(maximum == cluster,  "yes",  "no"),
+      param_value = as.numeric(param_value),
+      cluster_param_assignment = paste(cluster_type, param_value, cluster, sep = "_")
+    )
+  
+  # set colors and title for plotting
+  colors = c("gray", "red")
+  names(colors) = levels(metadata$color_scale)
+  legend_title = "Neighboring cells \nbelong to assigned cluster"
+  
+  # plot the cluster validity data frames
+  plot <-
+    ggplot(metadata, aes(x = cluster, y = purity, colour = color_scale)) +
+    ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.2) +
+    scale_color_manual(values = c("yes" = "gray",
+                                  "no" = "red")) +
+    stat_summary(
+      aes(group = cluster_param_assignment),
+      color = "black",
+      # median and quartiles for point range
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      },
+      geom = "pointrange",
+      position = position_dodge(width = 0.9),
+      size = 0.2
+    ) +
+    labs(title = unique(metadata$cluster_type),
+         x = "Cluster Assignment",
+         color = legend_title) +
+    facet_wrap( ~ param_value, scale="free") + 
+    theme_bw() +
+    theme(text = element_text(size = 22))
+  
+  return(plot)
+}
+                                
 plot_clustering_validity <- function(cluster_validity_all_stats_df,
                                      measure,
                                      colour_var,

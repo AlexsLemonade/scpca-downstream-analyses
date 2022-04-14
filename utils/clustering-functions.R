@@ -319,57 +319,40 @@ plot_cluster_purity <- function(cluster_validity_df) {
   
   return(plot)
 }
-                                
-plot_clustering_validity <- function(cluster_validity_all_stats_df,
-                                     measure,
-                                     colour_var,
-                                     cluster_names_column,
-                                     plot_type) {
-  # Purpose: Plot the provided clustering data frame
+
+plot_cluster_silhouette_width <- function(cluster_validity_df) {
+  # Purpose: Calculate and return a data frame with the validity stats of the
+  # clusters in the SingleCellExperiment object
   
   # Args:
-  #   clustered_validity_all_stats_df: data frame with all cluster validity stats
-  #   measure: string associated with the column whose values should be on the 
-  #            y-axis
-  #   colour_var: string associated with the column whose values should be used
-  #               color the points on the plot
-  #   cluster_names_column: string associated with the column whose values should be on the
-  #          x-axis
-  #   plot_type: string for the type of plot to generate - can be "purity" or
-  #              "silhouette"
-  
-  # convert into symbols for plotting
-  measure <- rlang::sym(measure)
-  colour_var <- rlang::sym(colour_var)
-  cluster_names_column_var <- rlang::sym(cluster_names_column)
+  #   clustered_validity_df: data.frame with cluster validity stats associated
+  #                          with their relevant cluster names
   
   # prepare data frame for plotting
-  metadata <- cluster_validity_all_stats_df %>%
-    tidyr::separate(cluster_names_column, 
-                    c("cluster_type", "param_value"),
-                    remove = FALSE) %>% # keep original column for grouping later
+  metadata <- cluster_validity_df %>%
     # create a column for the color scale to make things easier to control the color later
-    # for cluster purity, do the majority of neighboring cells come from the assigned cluster (yes) or a different cluster (no) 
+    # for cluster purity, do the majority of neighboring cells come from the assigned cluster (yes) or a different cluster (no)
     # for silhouette width if the cluster matches, then the silhouette width is positive, if not it's negative
-    dplyr::mutate(color_scale = ifelse(!!colour_var == cluster,  "yes",  "no"),
-                  param_value = as.numeric(param_value))
+    dplyr::mutate(
+      param_value = as.numeric(param_value),
+      cluster_param_assignment = paste(cluster_type, param_value, cluster, sep = "_")
+    )
   
-  colors = c("gray", "red")
-  names(colors) = levels(metadata$color_scale)
-  if(plot_type == "silhouette"){
-    legend_title = "Positive Silhouette Width"
-  } else if (plot_type == "purity"){
-    legend_title = "Neighboring cells \nbelong to assigned cluster"
-  }
+  # set title for plotting
+  legend_title = "Positive Silhouette Width"
   
   # plot the cluster validity data frames
-  plot <- ggplot(metadata, aes(x = param_value, y = !!measure, colour = color_scale)) +
-    ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.2) +
-    scale_color_manual(values = c("yes" = "gray",
-                                  "no" = "red")) +
+  plot <-
+    ggplot(metadata, aes(x = cluster, y = width)) +
+    ggbeeswarm::geom_quasirandom(method = "pseudorandom", size = 0.2) +
+    geom_hline(yintercept = 0) +
+    theme(text = element_text(size = 18)) +
+    labs(x = paste0(unique(metadata$cluster_type), "Parameters"),
+         color = legend_title) +
+    facet_wrap( ~ param_value, scale="free_x") +
     stat_summary(
-      aes(group = !!cluster_names_column),
-      color = "black",
+      aes(group = cluster_param_assignment),
+      color = "red",
       # median and quartiles for point range
       fun = "median",
       fun.min = function(x) {
@@ -380,14 +363,12 @@ plot_clustering_validity <- function(cluster_validity_all_stats_df,
       },
       geom = "pointrange",
       position = position_dodge(width = 0.9),
-      size = 0.2
+      size = 0.5
     ) +
-    theme(text = element_text(size=18)) +
-    labs(x = paste0(unique(metadata$cluster_type), "Parameters"),
-         color = legend_title)
+    theme_bw()
   
   return(plot)
-}
+}                                
 
 plot_cluster_stability <- function(normalized_sce, cluster_name) {
   # Purpose: Plot the cluster bootstrapping stability values of the clusters

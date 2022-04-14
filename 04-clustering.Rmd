@@ -133,9 +133,9 @@ kmeans_purity_plots
 #### silhouette width plots
 
 ```{r fig.height=10, fig.width=15}
-# Plot individual cluster and summary stats
-kmeans_silhouette_plots <- plot_clustering_validity(kmeans_stats_df, "width",
-                                                    "closest", "cluster_names", "silhouette")
+# Plot individual cluster silhouette width stats
+kmeans_silhouette_plots <- plot_cluster_silhouette_width(kmeans_stats_df)
+
 kmeans_silhouette_plots
 ```
 
@@ -168,9 +168,8 @@ walktrap_purity_plots
 #### silhouette width plots
 
 ```{r fig.height=10, fig.width=15}
-# Plot individual cluster and summary stats
-walktrap_silhouette_plots <- plot_clustering_validity(walktrap_stats_df,
-                         "width", "closest", "cluster_names", "silhouette")
+# Plot individual cluster silhouette width stats
+walktrap_silhouette_plots <- plot_cluster_silhouette_width(walktrap_stats_df)
 
 walktrap_silhouette_plots
 ```
@@ -204,9 +203,9 @@ louvain_purity_plots
 #### silhouette width plots
 
 ```{r fig.height=10}
-# Plot individual cluster and summary stats
-louvain_silhouette_plots <- plot_clustering_validity(louvain_stats_df,
-                         "width", "closest", "cluster_names", "silhouette")
+# Plot individual cluster silhouette width stats
+louvain_silhouette_plots <- plot_cluster_silhouette_width(louvain_stats_df)
+
 louvain_silhouette_plots
 ```
 

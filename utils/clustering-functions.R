@@ -345,8 +345,8 @@ plot_cluster_silhouette_width <- function(cluster_validity_df) {
   plot <-
     ggplot(metadata, aes(x = cluster, y = width)) +
     ggbeeswarm::geom_quasirandom(method = "pseudorandom", size = 0.2) +
-    geom_hline(yintercept = 0) +
-    theme(text = element_text(size = 18)) +
+    geom_hline(yintercept = 0, linetype = 'dotted') +
+    theme(text = element_text(size = 22)) +
     labs(x = paste0(unique(metadata$cluster_type), "Parameters"),
          color = legend_title) +
     facet_wrap( ~ param_value, scale="free_x") +

@@ -278,7 +278,6 @@ plot_cluster_purity <- function(cluster_validity_df) {
   metadata <- cluster_validity_df %>%
     # create a column for the color scale to make things easier to control the color later
     # for cluster purity, do the majority of neighboring cells come from the assigned cluster (yes) or a different cluster (no)
-    # for silhouette width if the cluster matches, then the silhouette width is positive, if not it's negative
     dplyr::mutate(
       color_scale = ifelse(maximum == cluster,  "yes",  "no"),
       param_value = as.numeric(param_value),
@@ -311,11 +310,12 @@ plot_cluster_purity <- function(cluster_validity_df) {
       position = position_dodge(width = 0.9),
       size = 0.2
     ) +
-    theme(text = element_text(size = 18)) +
-    labs(x = paste0(unique(metadata$cluster_type), "Parameters"),
+    labs(title = unique(metadata$cluster_type),
+         x = "Cluster Assignment",
          color = legend_title) +
     facet_wrap( ~ param_value, scale="free") + 
-    theme_bw()
+    theme_bw() +
+    theme(text = element_text(size = 22))
   
   return(plot)
 }

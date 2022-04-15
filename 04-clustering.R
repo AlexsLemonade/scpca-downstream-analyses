@@ -65,7 +65,7 @@ option_list <- list(
   optparse::make_option(
     c("-n", "--nearest_neighbors"),
     type = "integer",
-    default = 15,
+    default = 10,
     help = "Number of nearest neighbors to include during graph construction."
   ),
   optparse::make_option(

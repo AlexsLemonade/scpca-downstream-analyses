@@ -6,7 +6,8 @@
 # source(file.path("utils", "clustering-functions.R"))
 
 kmeans_clustering <- function(normalized_sce,
-                              k_range,
+                              params_range,
+                              increments = NULL,
                               check_stability = FALSE,
                               seed = 2021) {
   # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment
@@ -14,7 +15,10 @@ kmeans_clustering <- function(normalized_sce,
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   k_range: the range of the desired number of centers
+  #   params_range: the range of numeric parameters to test for clustering, 
+  #     can be a range of values, e.g. c(1:10), or a single value
+  #   increments: if a range of values is provided to `params_range`, 
+  #     a numeric value representing the increments to use within the params range of values
   #   check_stability: if 'TRUE', the stability of the clusters will be
   #                    calculated; the default is 'FALSE'
   #   seed: an integer to set the seed as for reproducibility
@@ -22,6 +26,12 @@ kmeans_clustering <- function(normalized_sce,
   # first check that the normalized object is a SingleCellExperiment object
   if(!is(normalized_sce,"SingleCellExperiment")){
     stop("normalized_sce must be a SingleCellExperiment object.")
+  }
+  
+  if(!is.null(increments)){
+    k_range <- seq(min(params_range), max(params_range), increments)
+  } else {
+    k_range <- params_range
   }
   
   # Perform k-means clustering
@@ -57,7 +67,8 @@ kmeans_clustering <- function(normalized_sce,
 }
 
 graph_clustering <- function(normalized_sce,
-                             nn_range,
+                             params_range,
+                             increments = NULL,
                              weighting_type = "rank",
                              cluster_function = "walktrap",
                              check_stability = FALSE,
@@ -67,8 +78,10 @@ graph_clustering <- function(normalized_sce,
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   nn_range: the range of the number of nearest neighbors to consider during
-  #             graph construction
+  #   params_range: the range of numeric parameters to test for clustering, 
+  #     can be a range of values, e.g. c(1:10), or a single value
+  #   increments: if a range of values is provided to `params_range`, 
+  #     a numeric value representing the increments to use within the params range of values
   #   weighting_type: the type of weighting scheme -- can be "rank", "number", or "jaccard"
   #   cluster_function: the name of the community detection algorithm that is
   #                     being tested -- can be "walktrap" or "louvain"
@@ -79,6 +92,12 @@ graph_clustering <- function(normalized_sce,
   # first check that the normalized object is a SingleCellExperiment object
   if(!is(normalized_sce,"SingleCellExperiment")){
     stop("normalized_sce must be a SingleCellExperiment object.")
+  }
+  
+  if(!is.null(increments)){
+    nn_range <- seq(min(params_range), max(params_range), increments)
+  } else {
+    nn_range <- params_range
   }
   
   # perform the graph-based clustering

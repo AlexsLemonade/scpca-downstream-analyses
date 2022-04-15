@@ -8,7 +8,7 @@
 #   --sce "results/Gawad_processed_data/SCPCS000245/SCPCL000343_miQC_downstream_processed_normalized_reduced_sce.rds" \
 #   --seed 2021 \
 #   --cluster_type "louvain" \
-#   --nnparam 15
+#   --nearest_neighbors 10
 
 ## Set up -------------------------------------------------------------
 
@@ -46,7 +46,7 @@ option_list <- list(
   optparse::make_option(
     c("-i", "--sce"),
     type = "character",
-    default = "results/Gawad_processed_data/SCPCS000245/SCPCL000343_miQC_downstream_processed_normalized_reduced_sce.rds",
+    default = NULL,
     help = "path to normalized SCE",
   ),
   optparse::make_option(

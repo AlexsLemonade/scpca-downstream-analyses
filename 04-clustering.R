@@ -92,7 +92,7 @@ if (!opt$cluster_type %in% c("louvain", "walktrap")) {
   stop("--cluster_type (-c) must be either louvain or walktrap.")
 }
 
-# Check that `nnparam` is an integer
+# Check that `nearest_neighbors` is an integer
 if (opt$nearest_neighbors %% 1 != 0){
   stop("The --nearest_neighbors (-n) argument value must be an integer.")
 }

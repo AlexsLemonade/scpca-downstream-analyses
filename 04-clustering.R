@@ -129,7 +129,7 @@ weighting_type <- ifelse(opt$cluster_type == "louvain", "jaccard", "rank")
 
 # perform clustering
 sce <- graph_clustering(normalized_sce = sce,
-                        nn_range = opt$nearest_neighbors,
+                        params_range = opt$nearest_neighbors,
                         weighting_type = weighting_type,
                         cluster_function = opt$cluster_type)
 

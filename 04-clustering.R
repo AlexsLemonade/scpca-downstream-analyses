@@ -32,10 +32,12 @@ if (packageVersion("BiocVersion") < 3.14){
 ## Command line arguments/options
 
 ## Load libraries
-library(optparse)
-library(magrittr)
-library(bluster)
-library(SingleCellExperiment)
+suppressPackageStartupMessages({
+  library(optparse)
+  library(magrittr)
+  library(bluster)
+  library(SingleCellExperiment)
+})
 
 # source in clustering functions 
 source(file.path("utils", "clustering-functions.R"))
@@ -61,13 +63,13 @@ option_list <- list(
     help = "Method used for clustering. Can be either louvain or walktrap.",
   ),
   optparse::make_option(
-    c("-n", "--nnparam"),
+    c("-n", "--nearest_neighbors"),
     type = "integer",
     default = 15,
     help = "Number of nearest neighbors to include during graph construction."
   ),
   optparse::make_option(
-    c("--output_filepath"),
+    c("-o", "--output_filepath"),
     type = "character",
     default = NULL,
     help = "path to output RDS file containing SCE with cluster assignments added"
@@ -91,8 +93,17 @@ if (!opt$cluster_type %in% c("louvain", "walktrap")) {
 }
 
 # Check that `nnparam` is an integer
-if (opt$nnparam %% 1 != 0){
-  stop("The --nnparam (-n) argument value must be an integer.")
+if (opt$nearest_neighbors %% 1 != 0){
+  stop("The --nearest_neighbors (-n) argument value must be an integer.")
+}
+
+# make sure that output file is provided and ends in rds 
+if (!is.null(opt$output_filepath)){
+  if(!(stringr::str_ends(opt$output_filepath, ".rds"))){
+    stop("output file name must end in .rds")
+  }
+} else {
+  stop("--output_filepath (-o) must be provided.")
 }
 
 #### Read in data and check formatting -----------------------------------------
@@ -111,10 +122,6 @@ if(is(sce,"SingleCellExperiment")){
 
 #### Perform clustering --------------------------------------------------------
 
-# do we want to check to make sure we aren't overwriting existing clusters?
-# should weighting type be a parameter? 
-# if no output file provided, should we just write out to the input file or is that bad? 
-
 # determine weighting type to use based on graph detection algorith specified 
 # if louvain is used, use jaccard 
 # if walktrap is used, use rank 
@@ -122,7 +129,7 @@ weighting_type <- ifelse(opt$cluster_type == "louvain", "jaccard", "rank")
 
 # perform clustering
 sce <- graph_clustering(normalized_sce = sce,
-                        nn_range = opt$nnparam,
+                        nn_range = opt$nearest_neighbors,
                         weighting_type = weighting_type,
                         cluster_function = opt$cluster_type)
 

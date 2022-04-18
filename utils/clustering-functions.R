@@ -25,7 +25,12 @@ kmeans_clustering <- function(normalized_sce,
   
   # first check that the normalized object is a SingleCellExperiment object
   if(!is(normalized_sce,"SingleCellExperiment")){
-    stop("normalized_sce must be a SingleCellExperiment object.")
+    stop("`normalized_sce` must be a SingleCellExperiment object.")
+  }
+  
+  # check that params_range is an integer
+  if(!is.integer(params_range)){
+    stop("`params_range` must be an integer.")
   }
   
   if(!is.null(increments)){
@@ -94,8 +99,17 @@ graph_clustering <- function(normalized_sce,
     stop("normalized_sce must be a SingleCellExperiment object.")
   }
   
+  # check that params_range is an integer
+  if(!is.integer(params_range)){
+    stop("`params_range` must be an integer.")
+  }
+  
   if(!is.null(increments)){
-    nn_range <- seq(min(params_range), max(params_range), increments)
+    if(is.integer(increments)){
+      nn_range <- seq(min(params_range), max(params_range), increments) 
+    } else {
+      stop("`increments` must be an integer.")
+    }
   } else {
     nn_range <- params_range
   }

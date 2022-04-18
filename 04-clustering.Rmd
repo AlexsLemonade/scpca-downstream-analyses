@@ -47,7 +47,7 @@ sample_290_normalized <- read_rds(
 sample_290_normalized <- kmeans_clustering(
   sample_290_normalized,
   params_range = c(4:10),
-  increments = 1,
+  step_size = 1,
   check_stability = TRUE
 )
 
@@ -71,7 +71,7 @@ cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 4)
 sample_290_normalized <- graph_clustering(
   sample_290_normalized,
   params_range = c(5:25),
-  increments = 5,
+  step_size = 5,
   weighting_type = "rank",
   cluster_function = "walktrap",
   check_stability = TRUE
@@ -97,7 +97,7 @@ cowplot::plot_grid(plotlist = walktrap_plot_list, ncol = 3)
 sample_290_normalized <- graph_clustering(
   sample_290_normalized,
   params_range = c(5:25),
-  increments = 5,
+  step_size = 5,
   weighting_type = "jaccard",
   cluster_function = "louvain",
   check_stability = TRUE

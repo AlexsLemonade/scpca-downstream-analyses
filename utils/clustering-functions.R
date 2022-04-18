@@ -7,7 +7,7 @@
 
 kmeans_clustering <- function(normalized_sce,
                               params_range,
-                              increments = NULL,
+                              step_size = NULL,
                               check_stability = FALSE,
                               seed = 2021) {
   # Purpose: Perform the k-means clustering on a normalized SingleCellExperiment
@@ -17,8 +17,8 @@ kmeans_clustering <- function(normalized_sce,
   #   normalized_sce: normalized SingleCellExperiment object
   #   params_range: the range of numeric parameters to test for clustering, 
   #     can be a range of values, e.g. c(1:10), or a single value
-  #   increments: if a range of values is provided to `params_range`, 
-  #     a numeric value representing the increments to use within the params range of values
+  #   step_size: if a range of values is provided to `params_range`, 
+  #     a numeric value representing the step size to use within the params range of values
   #   check_stability: if 'TRUE', the stability of the clusters will be
   #                    calculated; the default is 'FALSE'
   #   seed: an integer to set the seed as for reproducibility
@@ -33,8 +33,8 @@ kmeans_clustering <- function(normalized_sce,
     stop("`params_range` must be an integer.")
   }
   
-  if(!is.null(increments)){
-    k_range <- seq(min(params_range), max(params_range), increments)
+  if(!is.null(step_size)){
+    k_range <- seq(min(params_range), max(params_range), step_size)
   } else {
     k_range <- params_range
   }
@@ -73,7 +73,7 @@ kmeans_clustering <- function(normalized_sce,
 
 graph_clustering <- function(normalized_sce,
                              params_range,
-                             increments = NULL,
+                             step_size = NULL,
                              weighting_type = "rank",
                              cluster_function = "walktrap",
                              check_stability = FALSE,
@@ -85,8 +85,8 @@ graph_clustering <- function(normalized_sce,
   #   normalized_sce: normalized SingleCellExperiment object
   #   params_range: the range of numeric parameters to test for clustering, 
   #     can be a range of values, e.g. c(1:10), or a single value
-  #   increments: if a range of values is provided to `params_range`, 
-  #     a numeric value representing the increments to use within the params range of values
+  #   step_size: if a range of values is provided to `params_range`, 
+  #     a numeric value representing the step size to use within the params range of values
   #   weighting_type: the type of weighting scheme -- can be "rank", "number", or "jaccard"
   #   cluster_function: the name of the community detection algorithm that is
   #                     being tested -- can be "walktrap" or "louvain"
@@ -104,11 +104,11 @@ graph_clustering <- function(normalized_sce,
     stop("`params_range` must be an integer.")
   }
   
-  if(!is.null(increments)){
-    if(is.integer(increments)){
-      nn_range <- seq(min(params_range), max(params_range), increments) 
+  if(!is.null(step_size)){
+    if(is.integer(step_size)){
+      nn_range <- seq(min(params_range), max(params_range), step_size) 
     } else {
-      stop("`increments` must be an integer.")
+      stop("`step_size` must be an integer.")
     }
   } else {
     nn_range <- params_range
@@ -246,19 +246,19 @@ get_cluster_stats <- function(clustered_sce, cluster_column_name) {
     dplyr::mutate(cluster = factor(clusters))
 }
 
-create_metadata_stats_df <- function(clustered_sce, params_range, increments, cluster_type) {
+create_metadata_stats_df <- function(clustered_sce, params_range, step_size, cluster_type) {
   # Purpose: Calculate and return a data frame with the validity stats of the
   # clusters in the SingleCellExperiment object
   
   # Args:
   #   clustered_sce: SingleCellExperiment object with clustered results
   #   params_range: the range of numeric parameters to test for clustering
-  #   increments: a numeric value representing the increments by which to explore
+  #   step_size: a numeric value representing the step_size by which to explore
   #               the params range of values
   #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
   
   # define cluster names
-  param_values <- seq(min(params_range), max(params_range),increments)
+  param_values <- seq(min(params_range), max(params_range),step_size)
   cluster_names_column <- paste(cluster_type, param_values, sep = "_")
   
   # save data.frame to the cluster validity list of data.frames

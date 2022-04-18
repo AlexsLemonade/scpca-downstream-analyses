@@ -33,11 +33,14 @@ kmeans_clustering <- function(normalized_sce,
     stop("`params_range` must be an integer.")
   }
   
+  # if a step size exists then create a sequence of params for clustering 
   if(!is.null(step_size)){
-    k_range <- seq(min(params_range), max(params_range), step_size)
+    k_range <- seq(min(params_range), max(params_range), step_size) 
+    # if no step size has been input then the params range is directly used for clustering 
   } else {
     k_range <- params_range
   }
+  
   
   # Perform k-means clustering
   for (k in k_range) {
@@ -104,12 +107,10 @@ graph_clustering <- function(normalized_sce,
     stop("`params_range` must be an integer.")
   }
   
+  # if a step size exists, then create a sequence of params for clustering 
   if(!is.null(step_size)){
-    if(is.integer(step_size)){
-      nn_range <- seq(min(params_range), max(params_range), step_size) 
-    } else {
-      stop("`step_size` must be an integer.")
-    }
+    nn_range <- seq(min(params_range), max(params_range), step_size) 
+    # if no step size has been input then the params range is directly used for clustering 
   } else {
     nn_range <- params_range
   }

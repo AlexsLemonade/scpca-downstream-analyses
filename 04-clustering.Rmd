@@ -3,12 +3,12 @@ title: "Clustering"
 author: "Data Lab for ALSF"
 date: "2022"
 output:
-  html_notebook:
-    toc: yes
-    toc_float: yes
   html_document:
     toc: yes
     df_print: paged
+  html_notebook:
+    toc: yes
+    toc_float: yes
 ---
 
 This notebook will begin looking at clustering methods on the expression of the genes in a single sample of the dataset of interest, from an unbiased approach.
@@ -56,7 +56,7 @@ kmeans_cols <- grep("kmeans", colnames(colData(sample_290_normalized)))
 kmeans_cluster_names <- colnames(colData(sample_290_normalized)[, kmeans_cols])
 
 # Plot k-means
-kmeans_plot_list <- kmeans_cols %>%
+kmeans_plot_list <- kmeans_cluster_names %>%
   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + 
                theme_bw()+
                theme(text = element_text(size = 22)))

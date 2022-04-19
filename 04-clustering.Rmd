@@ -224,6 +224,19 @@ louvain_silhouette_plots <- plot_cluster_silhouette_width(louvain_stats_df)
 louvain_silhouette_plots
 ```
 
+### Summary plots
+
+```{r}
+summary_stats_df_list <- list("walktrap" = walktrap_summary_stats_df,
+                              "louvain" = louvain_summary_stats_df)
+
+# purity summary plot
+plot_avg_validity_stats(summary_stats_df_list, "avg_purity")
+
+#silhouette width summary plot
+plot_avg_validity_stats(summary_stats_df_list, "avg_width")
+```
+
 ## Check cluster stability
 
 ### k-means

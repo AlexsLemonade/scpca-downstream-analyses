@@ -289,12 +289,11 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   
   # create a summary data.frame of the results across the individual clusters
   validity_summary_df <- cluster_validity_df %>%
-    dplyr::group_by(cluster_names_column) %>%
+    dplyr::group_by(cluster_names_column, param_value) %>%
     dplyr::summarize(avg_purity = median(purity),
-                     avg_maximum = median(as.numeric(maximum)),
+                     sd_purity = sd(purity),
                      avg_width = median(width),
-                     avg_closest = median(as.numeric(closest))) %>%
-    dplyr::select(cluster_names_column, avg_purity, avg_maximum, avg_width, avg_closest)
+                     sd_width = sd(width))
   
   return(validity_summary_df)
 }
@@ -398,6 +397,55 @@ plot_cluster_silhouette_width <- function(cluster_validity_df) {
   
   return(plot)
 }                                
+
+plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
+                                    measure){
+  # Purpose: Plot the summary stats for each clustering type using the list
+  #          of provided cluster validity summary data frames
+  
+  # Args:
+  #   cluster_validity_summary_df_list: list of data frames with cluster 
+  #                                     validity stats associated with their 
+  #                                     relevant cluster names
+  #   measure: the cluster validity measure to use for plotting, can be 
+  #            "avg_purity" or "avg_width"
+  
+  # prepare a data frame for plotting
+  cluster_validity_summary_df <- dplyr::bind_rows(cluster_validity_summary_df_list,
+                                                  .id = "cluster_type_names") %>%
+    dplyr::mutate(param_value = as.numeric(param_value))
+  
+  # convert summary symbols for plotting
+  summary_y <- rlang::sym(measure)
+  
+  # grab column with standard deviation info
+  if (measure == "avg_purity") {
+    sd_column <- "sd_purity"
+  } else if (measure == "avg_width") {
+    sd_column <- "sd_width"
+  } else {
+    stop("Please specify 'avg_purity' or 'avg_width' to the `measure` argument.")
+  }
+  
+  sd_column <- rlang::sym(sd_column)
+  
+  # plot the summary stats
+  summary_plot <- ggplot(
+    cluster_validity_summary_df,
+    aes(
+      x = param_value,
+      y = !!summary_y,
+      color = cluster_type_names)) +
+    geom_pointrange(aes(x = param_value, y = !!summary_y, 
+                        ymin = !!summary_y - !!sd_column,
+                        ymax = !!summary_y + !!sd_column),
+                    color = "black") +
+    geom_line() +
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle = 90, size = 16))
+  
+  return(summary_plot)
+}
 
 plot_cluster_stability <- function(normalized_sce, cluster_name) {
   # Purpose: Plot the cluster bootstrapping stability values of the clusters

@@ -3,12 +3,12 @@ title: "Clustering"
 author: "Data Lab for ALSF"
 date: "2022"
 output:
-  html_notebook:
-    toc: yes
-    toc_float: yes
   html_document:
     toc: yes
     df_print: paged
+  html_notebook:
+    toc: yes
+    toc_float: yes
 ---
 
 This notebook will begin looking at clustering methods on the expression of the genes in a single sample of the dataset of interest, from an unbiased approach.
@@ -44,17 +44,22 @@ sample_290_normalized <- read_rds(
 
 ```{r fig.height = 10.5}
 # Perform k-means clustering
-kmeans_cluster_names <- paste("kmeans", c(4:10), sep = "_")
-
 sample_290_normalized <- kmeans_clustering(
   sample_290_normalized,
-  k_range = c(4:10),
+  params_range = c(4:10),
+  step_size = 1,
   check_stability = TRUE
 )
 
+# grab column names with clustering results
+kmeans_cols <- grep("kmeans", colnames(colData(sample_290_normalized)))
+kmeans_cluster_names <- colnames(colData(sample_290_normalized)[, kmeans_cols])
+
 # Plot k-means
 kmeans_plot_list <- kmeans_cluster_names %>%
-  purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + theme_bw())
+  purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + 
+               theme_bw()+
+               theme(text = element_text(size = 22)))
 
 cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 4)
 ```
@@ -63,19 +68,24 @@ cowplot::plot_grid(plotlist = kmeans_plot_list, ncol = 4)
 
 ```{r fig.height = 9.5}
 # Perform graph-based walktrap clustering
-walktrap_cluster_names <- paste("walktrap", c(5, 10, 15, 20, 25), sep = "_")
-
 sample_290_normalized <- graph_clustering(
   sample_290_normalized,
-  nn_range = c(5, 10, 15, 20, 25),
+  params_range = c(5:25),
+  step_size = 5,
   weighting_type = "rank",
   cluster_function = "walktrap",
   check_stability = TRUE
 )
 
+# grab column names with clustering results
+walktrap_cols <- grep("walktrap", colnames(colData(sample_290_normalized)))
+walktrap_cluster_names <- colnames(colData(sample_290_normalized)[, walktrap_cols])
+
 # Plot
 walktrap_plot_list <- walktrap_cluster_names %>%
-   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + theme_bw())
+   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + 
+                theme_bw() +
+                theme(text = element_text(size = 22)))
 
 cowplot::plot_grid(plotlist = walktrap_plot_list, ncol = 3)
 ```
@@ -84,19 +94,24 @@ cowplot::plot_grid(plotlist = walktrap_plot_list, ncol = 3)
 
 ```{r fig.height = 8.5}
 # Perform graph-based louvain clustering
-louvain_cluster_names <- paste("louvain", c(5, 10, 15, 20, 25), sep = "_")
-
 sample_290_normalized <- graph_clustering(
   sample_290_normalized,
-  nn_range = c(5, 10, 15, 20, 25),
+  params_range = c(5:25),
+  step_size = 5,
   weighting_type = "jaccard",
   cluster_function = "louvain",
   check_stability = TRUE
 )
 
+# grab column names with clustering results
+louvain_cols <- grep("walktrap", colnames(colData(sample_290_normalized)))
+louvain_cluster_names <- colnames(colData(sample_290_normalized)[, louvain_cols])
+
 # Plot
 louvain_plot_list <- louvain_cluster_names %>%
-   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + theme_bw())
+   purrr::map(~ plotReducedDim(sample_290_normalized, dimred = "UMAP", colour_by = .x) + 
+                theme_bw() +
+                theme(text = element_text(size = 22)))
 
 
 cowplot::plot_grid(plotlist = louvain_plot_list, ncol = 3)

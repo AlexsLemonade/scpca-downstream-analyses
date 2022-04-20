@@ -289,11 +289,11 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   
   # create a summary data.frame of the results across the individual clusters
   validity_summary_df <- cluster_validity_df %>%
-    dplyr::group_by(cluster_names_column, param_value) %>%
+    dplyr::group_by(cluster_names_column, cluster_type, param_value) %>%
     dplyr::summarize(avg_purity = median(purity),
-                     sd_purity = sd(purity),
+                     mad_purity = mad(purity),
                      avg_width = median(width),
-                     sd_width = sd(width))
+                     mad_width = mad(width))
   
   return(validity_summary_df)
 }
@@ -411,23 +411,24 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
   #            "avg_purity" or "avg_width"
   
   # prepare a data frame for plotting
-  cluster_validity_summary_df <- dplyr::bind_rows(cluster_validity_summary_df_list,
-                                                  .id = "cluster_type_names") %>%
+  cluster_validity_summary_df <- dplyr::bind_rows(cluster_validity_summary_df_list) %>%
     dplyr::mutate(param_value = as.numeric(param_value))
   
   # convert summary symbols for plotting
   summary_y <- rlang::sym(measure)
   
-  # grab column with standard deviation info
+  # grab column with median absolute deviation info
   if (measure == "avg_purity") {
-    sd_column <- "sd_purity"
+    mad_column <- "mad_purity"
+    y_range <- c(0,1)
   } else if (measure == "avg_width") {
-    sd_column <- "sd_width"
+    mad_column <- "mad_width"
+    y_range <- c(-1,1)
   } else {
     stop("Please specify 'avg_purity' or 'avg_width' to the `measure` argument.")
   }
   
-  sd_column <- rlang::sym(sd_column)
+  mad_column <- rlang::sym(mad_column)
   
   # plot the summary stats
   summary_plot <- ggplot(
@@ -435,14 +436,15 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
     aes(
       x = param_value,
       y = !!summary_y,
-      color = cluster_type_names)) +
+      color = cluster_type)) +
     geom_pointrange(aes(x = param_value, y = !!summary_y, 
-                        ymin = !!summary_y - !!sd_column,
-                        ymax = !!summary_y + !!sd_column),
+                        ymin = !!summary_y - !!mad_column,
+                        ymax = !!summary_y + !!mad_column),
                     color = "black") +
     geom_line() +
+    ylim(y_range) + 
     theme_bw() + 
-    theme(axis.text.x = element_text(angle = 90, size = 16))
+    theme(text = element_text(size = 9))
   
   return(summary_plot)
 }

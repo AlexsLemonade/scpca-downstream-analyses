@@ -420,7 +420,9 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
   # grab column with median absolute deviation info
   if (measure == "avg_purity") {
     mad_column <- "mad_purity"
-    y_range <- c(0,1.2)
+    y_lower <- min(0, min(cluster_validity_summary_df$avg_purity - cluster_validity_summary_df$mad_purity))
+    y_upper <-  max(1, max(cluster_validity_summary_df$avg_purity + cluster_validity_summary_df$mad_purity))
+    y_range <- c(y_lower, y_upper)
   } else if (measure == "avg_width") {
     mad_column <- "mad_width"
     y_range <- c(-1,1)

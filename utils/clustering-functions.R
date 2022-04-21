@@ -420,12 +420,16 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
   # grab column with median absolute deviation info
   if (measure == "avg_purity") {
     mad_column <- "mad_purity"
+    # define y-axis range by finding the largest/smallest possible values of the median +/- mad 
+    # if those values are outside the possible range of the metric then use them to define the limits of the y-axis
     y_lower <- min(0, min(cluster_validity_summary_df$avg_purity - cluster_validity_summary_df$mad_purity))
     y_upper <-  max(1, max(cluster_validity_summary_df$avg_purity + cluster_validity_summary_df$mad_purity))
     y_range <- c(y_lower, y_upper)
   } else if (measure == "avg_width") {
     mad_column <- "mad_width"
-    y_range <- c(-1,1)
+    y_lower <- min(-1, min(cluster_validity_summary_df$avg_width - cluster_validity_summary_df$mad_width))
+    y_upper <- max(1, max(cluster_validity_summary_df$avg_width + cluster_validity_summary_df$mad_width))
+    y_range <- c(y_lower, y_upper)
   } else {
     stop("Please specify 'avg_purity' or 'avg_width' to the `measure` argument.")
   }

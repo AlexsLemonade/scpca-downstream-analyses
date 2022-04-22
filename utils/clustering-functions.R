@@ -290,6 +290,9 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   # create a summary data.frame of the results across the individual clusters
   validity_summary_df <- cluster_validity_df %>%
     dplyr::group_by(cluster_names_column, cluster_type, param_value) %>%
+    # here we calculate and store the median values of the cluster stats in
+    # columns beginning with `avg_`, while we calculate and store the median 
+    # absolute deviation (MAD) values in columns beginning with `mad_`
     dplyr::summarize(avg_purity = median(purity),
                      mad_purity = mad(purity),
                      avg_width = median(width),

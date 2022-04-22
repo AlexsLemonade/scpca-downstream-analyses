@@ -289,12 +289,14 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   
   # create a summary data.frame of the results across the individual clusters
   validity_summary_df <- cluster_validity_df %>%
-    dplyr::group_by(cluster_names_column) %>%
+    dplyr::group_by(cluster_names_column, cluster_type, param_value) %>%
+    # here we calculate and store the median values of the cluster stats in
+    # columns beginning with `avg_`, while we calculate and store the median 
+    # absolute deviation (MAD) values in columns beginning with `mad_`
     dplyr::summarize(avg_purity = median(purity),
-                     avg_maximum = median(as.numeric(maximum)),
+                     mad_purity = mad(purity),
                      avg_width = median(width),
-                     avg_closest = median(as.numeric(closest))) %>%
-    dplyr::select(cluster_names_column, avg_purity, avg_maximum, avg_width, avg_closest)
+                     mad_width = mad(width))
   
   return(validity_summary_df)
 }
@@ -398,6 +400,63 @@ plot_cluster_silhouette_width <- function(cluster_validity_df) {
   
   return(plot)
 }                                
+
+plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
+                                    measure){
+  # Purpose: Plot the summary stats for each clustering type using the list
+  #          of provided cluster validity summary data frames
+  
+  # Args:
+  #   cluster_validity_summary_df_list: list of data frames with cluster 
+  #                                     validity stats associated with their 
+  #                                     relevant cluster names
+  #   measure: the cluster validity measure to use for plotting, can be 
+  #            "avg_purity" or "avg_width"
+  
+  # prepare a data frame for plotting
+  cluster_validity_summary_df <- dplyr::bind_rows(cluster_validity_summary_df_list) %>%
+    dplyr::mutate(param_value = as.numeric(param_value))
+  
+  # convert summary symbols for plotting
+  summary_y <- rlang::sym(measure)
+  
+  # grab column with median absolute deviation info
+  if (measure == "avg_purity") {
+    mad_column <- "mad_purity"
+    # define y-axis range by finding the largest/smallest possible values of the median +/- mad 
+    # if those values are outside the possible range of the metric then use them to define the limits of the y-axis
+    y_lower <- min(0, min(cluster_validity_summary_df$avg_purity - cluster_validity_summary_df$mad_purity))
+    y_upper <-  max(1, max(cluster_validity_summary_df$avg_purity + cluster_validity_summary_df$mad_purity))
+    y_range <- c(y_lower, y_upper)
+  } else if (measure == "avg_width") {
+    mad_column <- "mad_width"
+    y_lower <- min(-1, min(cluster_validity_summary_df$avg_width - cluster_validity_summary_df$mad_width))
+    y_upper <- max(1, max(cluster_validity_summary_df$avg_width + cluster_validity_summary_df$mad_width))
+    y_range <- c(y_lower, y_upper)
+  } else {
+    stop("Please specify 'avg_purity' or 'avg_width' to the `measure` argument.")
+  }
+  
+  mad_column <- rlang::sym(mad_column)
+  
+  # plot the summary stats
+  summary_plot <- ggplot(
+    cluster_validity_summary_df,
+    aes(
+      x = param_value,
+      y = !!summary_y,
+      color = cluster_type)) +
+    geom_pointrange(aes(x = param_value, y = !!summary_y, 
+                        ymin = !!summary_y - !!mad_column,
+                        ymax = !!summary_y + !!mad_column),
+                    color = "black") +
+    geom_line() +
+    ylim(y_range) + 
+    theme_bw() + 
+    theme(text = element_text(size = 9))
+  
+  return(summary_plot)
+}
 
 plot_cluster_stability <- function(normalized_sce, cluster_name) {
   # Purpose: Plot the cluster bootstrapping stability values of the clusters

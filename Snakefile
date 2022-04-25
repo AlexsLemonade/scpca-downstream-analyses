@@ -60,7 +60,7 @@ rule dimensionality_reduction:
     input:
         "{basename}_downstream_processed_normalized_sce.rds"
     output:
-        "{basename}_downstream_processed_normalized_reduced_sce.rds"
+        temp("{basename}_downstream_processed_normalized_reduced_sce.rds")
     shell:
         "Rscript --vanilla 03-dimension-reduction.R"
         "  --sce {input}"
@@ -68,3 +68,16 @@ rule dimensionality_reduction:
         "  --top_n {config[n_genes_pca]}"
         "  --output_filepath {output}"
         "  --overwrite"
+
+rule clustering:
+    input:
+        "{basename}_downstream_processed_normalized_reduced_sce.rds"
+    output:
+        "{basename}_processed_sce.rds"
+    shell:
+        "Rscript --vanilla 04-clustering.R"
+        "  --sce {input}"
+        "  --seed 2021"
+        "  --cluster_type {cluster_type}"
+        "  --nearest_neighbors {nearest_neighbors}"
+        "  --output_filepath {output}"

@@ -12,7 +12,7 @@ FILTERING_METHOD = list(samples_information['filtering_method'])
           
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_downstream_processed_normalized_reduced_sce.rds"), 
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_processed_sce.rds"), 
                zip, 
                sample = SAMPLES, 
                library = LIBRARY_ID, 
@@ -74,10 +74,13 @@ rule clustering:
         "{basename}_downstream_processed_normalized_reduced_sce.rds"
     output:
         "{basename}_processed_sce.rds"
+    params:
+        cluster_type=config["cluster_type"],
+        nearest_neighbors=config["nearest_neighbors"]
     shell:
         "Rscript --vanilla 04-clustering.R"
         "  --sce {input}"
         "  --seed 2021"
-        "  --cluster_type {cluster_type}"
-        "  --nearest_neighbors {nearest_neighbors}"
+        "  --cluster_type {params.cluster_type}"
+        "  --nearest_neighbors {params.nearest_neighbors}"
         "  --output_filepath {output}"

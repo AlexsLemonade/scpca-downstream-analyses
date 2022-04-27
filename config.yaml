@@ -1,5 +1,12 @@
+# file paths
 data_dir: "data/Gawad_processed_data"
 results_dir: "results/Gawad_processed_data"
 mito_file: "data/Homo_sapiens.GRCh38.103.mitogenes.txt"
 project_metadata: "project-metadata/gawad-library-metadata.tsv"
+
+# dimensionality reduction parameters
 n_genes_pca: 2000 # The `n` number of highly variable genes to subset for PCA
+
+# clustering parameters
+cluster_type: "louvain"
+nearest_neighbors: 10

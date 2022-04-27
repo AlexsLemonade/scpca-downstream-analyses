@@ -153,9 +153,6 @@ check_cluster_stability <- function(normalized_sce,
   #                     being tested -- can be "walktrap" or "louvain";
   #                     "walktrap" being the default
   
-  # create name for the bootstrapping results to be stored in
-  bootstrapping_name <- paste("bootstrapping_results", cluster_name, sep = "_")
-  
   # check cluster stability if the `check_stability == TRUE`
   if (cluster_type == "kmeans") {
     # Create subfunctions for `bootstrapStability()`
@@ -176,13 +173,13 @@ check_cluster_stability <- function(normalized_sce,
   }
   
   # run the `bootstapStability()` function
-  bootstrapping_name <-
+  bootstrapping_results <-
     bootstrapStability(pca_matrix,
                        FUN = cluster_stability_subfunction,
                        clusters = normalized_sce[[cluster_name]],
                        mode = "index")
   
-  return(bootstrapping_name)
+  return(bootstrapping_results)
   
 }
 
@@ -442,8 +439,15 @@ plot_cluster_stability <- function(normalized_sce,
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   cluster_name: name associated with where the cluster results in the
-  #                 SingleCellExperiment object are stored
+  #   params_range: the range of numeric parameters to test for clustering
+  #   step_size: a numeric value representing the step_size by which to explore
+  #               the params range of values
+  #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
+  #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank";
+  #                   "rank" being the default
+  #   cluster_function: the name of the community detection algorithm that is
+  #                     being tested -- can be "walktrap" or "louvain";
+  #                     "walktrap" being the default
   
   # extract the principal components matrix
   pca_matrix <- reducedDim(normalized_sce, "PCA")
@@ -460,23 +464,15 @@ plot_cluster_stability <- function(normalized_sce,
       paste("bootstrapping_results", name, sep = "_")
     k <- as.numeric(sub('.+_(.+)', '\\1', name))
     
-    if (cluster_type == "kmeans") {
-      bootstrapping_df_list[[bootstrapping_name]] <- check_cluster_stability(normalized_sce,
-                                                    pca_matrix,
-                                                    cluster_type = "kmeans",
-                                                    name,
-                                                    k)
-    } else if (cluster_type %in% c("walktrap", "louvain")) {
-      bootstrapping_df_list[[bootstrapping_name]] <- check_cluster_stability(
-        normalized_sce,
-        pca_matrix,
-        cluster_type = "graph",
-        name,
-        k,
-        weighting_type,
-        cluster_function
-      )
-    }
+    bootstrapping_df_list[[bootstrapping_name]] <- check_cluster_stability(
+      normalized_sce,
+      pca_matrix,
+      cluster_type,
+      name,
+      k,
+      weighting_type,
+      cluster_function
+    )
   }
   
   return(bootstrapping_df_list)

@@ -47,8 +47,7 @@ sample_290_normalized <- read_rds(
 sample_290_normalized <- kmeans_clustering(
   sample_290_normalized,
   params_range = c(4:10),
-  step_size = 1,
-  check_stability = TRUE
+  step_size = 1
 )
 
 # grab column names with clustering results
@@ -73,8 +72,7 @@ sample_290_normalized <- graph_clustering(
   params_range = c(5:25),
   step_size = 5,
   weighting_type = "rank",
-  cluster_function = "walktrap",
-  check_stability = TRUE
+  cluster_function = "walktrap"
 )
 
 # grab column names with clustering results
@@ -99,8 +97,7 @@ sample_290_normalized <- graph_clustering(
   params_range = c(5:25),
   step_size = 5,
   weighting_type = "jaccard",
-  cluster_function = "louvain",
-  check_stability = TRUE
+  cluster_function = "louvain"
 )
 
 # grab column names with clustering results
@@ -250,14 +247,14 @@ kmeans_bootstrapping_df
 ### graph-based, walktrap
 
 ```{r}
-walktrap_bootstrapping_df <- plot_cluster_stability(sample_290_normalized, c(5:25), 5, "walktrap")
+walktrap_bootstrapping_df <- plot_cluster_stability(sample_290_normalized, c(5:25), 5, "graph", cluster_function = "walktrap")
 walktrap_bootstrapping_df
 ```
 
 ### graph-based, louvain
 
 ```{r}
-louvain_bootstrapping_df <- plot_cluster_stability(sample_290_normalized, c(5:25), 5, "louvain")
+louvain_bootstrapping_df <- plot_cluster_stability(sample_290_normalized, c(5:25), 5, "graph", cluster_function = "louvain")
 louvain_bootstrapping_df
 ```
 

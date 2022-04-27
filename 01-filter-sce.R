@@ -198,7 +198,7 @@ if (opt$filtering_method == "manual") {
   
   # Filter the cells
   mito_filter <-
-    colData(sce_qc)$mito_percent < opt$mito_percent_cutoff
+    colData(sce_qc)$subsets_mito_percent < opt$mito_percent_cutoff
   gene_filter <-
     colData(sce_qc)$detected > opt$detected_gene_cutoff
   sum_filter <- colData(sce_qc)$sum > opt$umi_count_cutoff
@@ -207,7 +207,7 @@ if (opt$filtering_method == "manual") {
   
   coldata_qc <- data.frame(colData(sce_qc))
   filtered_cell_plot <-
-    ggplot(coldata_qc, aes(x = sum, y = detected, color = mito_percent)) +
+    ggplot(coldata_qc, aes(x = sum, y = detected, color = subsets_mito_percent)) +
     geom_point(alpha = 0.5) +
     scale_color_viridis_c() +
     labs(x = "Total Count", y = "Number of Genes Expressed", color = "Mitochondrial \nFraction") +
@@ -219,11 +219,6 @@ if (opt$filtering_method == "manual") {
   metadata(filtered_sce)$filtering <- "manually filtered"
   
 } else if (opt$filtering_method == "miQC") {
-  # Rename columns for `mixtureModel()`
-  names(colData(sce_qc)) <-
-    stringr::str_replace(names(colData(sce_qc)),
-                         "^mito_",
-                         "subsets_mito_")
   tryCatch(
     expr = {
       # Generate miQC model

@@ -130,28 +130,27 @@ graph_clustering <- function(normalized_sce,
   
 }
 
-check_cluster_stability <- function(normalized_sce,
-                                    pca_matrix,
+check_cluster_stability <- function(pca_matrix,
+                                    cluster_assignments,
                                     cluster_type,
-                                    cluster_name,
                                     k,
                                     weighting_type = "rank",
-                                    cluster_function = "walktrap") {
+                                    cluster_function = "walktrap",
+                                    iterations = 20) {
   # Purpose: To use bootstrapping to check the stability of given clusters
   
   # Args:
-  #   normalized_sce: normalized SingleCellExperiment object
   #   pca_matrix: the matrix object that contains the PCA results that were
-  #               extracted from the noramlized SingleCellExperiment object
+  #               extracted from a normalized SingleCellExperiment object
+  #   cluster_assignments: original cluster assignments from the SingleCellExperiment
   #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
-  #   cluster_name: name associated with where the cluster results in the
-  #                 SingleCellExperiment object are stored
   #   k: the desired number of centers
   #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank";
   #                   "rank" being the default
   #   cluster_function: the name of the community detection algorithm that is
   #                     being tested -- can be "walktrap" or "louvain";
   #                     "walktrap" being the default
+  #   iterations: The number of iterations to perform for bootstrapping, default is 20.
   
   # check cluster stability if the `check_stability == TRUE`
   if (cluster_type == "kmeans") {
@@ -172,15 +171,20 @@ check_cluster_stability <- function(normalized_sce,
     stop("Clustering type is not valid. Please use --cluster_type to specify 'kmeans' or 'graph' clustering.")
   }
   
-  # run the `bootstapStability()` function
-  bootstrapping_results <-
-    bootstrapStability(pca_matrix,
-                       FUN = cluster_stability_subfunction,
-                       clusters = normalized_sce[[cluster_name]],
-                       mode = "index")
-  
-  return(bootstrapping_results)
-  
+  # perform bootstrapping across a given number of iterations
+  ari <- c()
+  for (iter in 1:iterations){
+      # sample cells with replacement 
+      sample_cells <- sample(nrow(pca_matrix), nrow(pca_matrix), replace=TRUE)
+      resampled_pca <- pca_matrix[sample_cells,,drop=FALSE]
+      
+      # perform clustering on sampled cells 
+      resampled_clusters <- cluster_stability_subfunction(resampled_pca)
+      
+      # calculate ARI between new clustering and original clustering 
+      ari[iter] <- pdfCluster::adj.rand.index(resampled_clusters, cluster_assignments)
+    }
+  return(ari)
 }
 
 get_cluster_stats <- function(clustered_sce, cluster_column_name) {

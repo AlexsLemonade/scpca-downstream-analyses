@@ -240,22 +240,22 @@ plot_avg_validity_stats(summary_stats_df_list, "avg_width")
 
 ```{r}
 # Check cluster stability
-kmeans_bootstrapping_df <- plot_cluster_stability(sample_290_normalized, c(4:10), 1, "kmeans")
-kmeans_bootstrapping_df
+kmeans_ari_df <- plot_cluster_stability(sample_290_normalized, c(4:10), 1, "kmeans")
+kmeans_ari_df
 ```
 
 ### graph-based, walktrap
 
-```{r}
-walktrap_bootstrapping_df <- plot_cluster_stability(sample_290_normalized, c(5:25), 5, "graph", cluster_function = "walktrap")
-walktrap_bootstrapping_df
+```{r warning=FALSE}
+walktrap_ari_df <- plot_cluster_stability(sample_290_normalized, c(5:25), 5, cluster_type = "graph", cluster_function = "walktrap")
+walktrap_ari_df
 ```
 
 ### graph-based, louvain
 
-```{r}
-louvain_bootstrapping_df <- plot_cluster_stability(sample_290_normalized, c(5:25), 5, "graph", cluster_function = "louvain")
-louvain_bootstrapping_df
+```{r warning=FALSE}
+louvain_ari_df <- plot_cluster_stability(sample_290_normalized, c(5:25), 5, cluster_type = "graph", cluster_function = "louvain")
+louvain_ari_df
 ```
 
 ## Session info

@@ -438,8 +438,8 @@ plot_cluster_stability <- function(normalized_sce,
                                    cluster_type,
                                    weighting_type = "rank",
                                    cluster_function = "walktrap") {
-  # Purpose: Calculate and plot the cluster bootstrapping stability values of 
-  # the clusters stored in the SingleCellExperiment object
+  # Purpose: Calculate and plot the ARI values of the bootstrapping replicates
+  # and the associated original clusters stored in the SingleCellExperiment object
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
@@ -458,26 +458,42 @@ plot_cluster_stability <- function(normalized_sce,
   
   # define cluster names
   param_values <- seq(min(params_range), max(params_range),step_size)
-  cluster_names <- paste(cluster_type, param_values, sep = "_")
+  if (cluster_type == "kmeans") {
+    cluster_names <- paste(cluster_type, param_values, sep = "_")
+  } else if (cluster_type == "graph") {
+    cluster_names <- paste(cluster_function, param_values, sep = "_")
+  }
   
-  bootstrapping_df_list <- c()
+  ari_results <- c()
   
   for (name in cluster_names) {
-    # set the name from which the bootstrapping results can be retrieved from the SCE object
-    bootstrapping_name <-
-      paste("bootstrapping_results", name, sep = "_")
+    # grab k from cluster name
     k <- as.numeric(sub('.+_(.+)', '\\1', name))
     
-    bootstrapping_df_list[[bootstrapping_name]] <- check_cluster_stability(
-      normalized_sce,
+    # run custom `check_cluster_stability` function and save results to a list
+    ari_results[[name]] <- check_cluster_stability(
       pca_matrix,
+      cluster_assignments = normalized_sce[[name]],
       cluster_type,
-      name,
       k,
       weighting_type,
       cluster_function
     )
   }
   
-  return(bootstrapping_df_list)
+  # combine ARI results from each of the cluster assignments and get data frame
+  # ready for plotting
+  plot_ari_df <- data.frame(ari_results) %>%
+    t() %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column("cluster_assignments") %>%
+    tidyr::pivot_longer(-c("cluster_assignments"), values_to = "ari_value", names_to = "bootstrap_interation") %>%
+    tidyr::separate(cluster_assignments, 
+                    c("cluster_type", "param_value"),
+                    remove = FALSE) %>% # keep original column for grouping later
+    dplyr::select(-cluster_assignments) %>%
+    dplyr::mutate(bootstrap_interation = gsub("V", "", bootstrap_interation))
+  
+  
+  return(plot_ari_df)
 }

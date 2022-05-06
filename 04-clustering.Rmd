@@ -3,12 +3,12 @@ title: "Clustering"
 author: "Data Lab for ALSF"
 date: "2022"
 output:
-  html_document:
-    toc: yes
-    df_print: paged
   html_notebook:
     toc: yes
     toc_float: yes
+  html_document:
+    toc: yes
+    df_print: paged
 ---
 
 This notebook will begin looking at clustering methods on the expression of the genes in a single sample of the dataset of interest, from an unbiased approach.
@@ -35,7 +35,7 @@ source(file.path("utils", "clustering-functions.R"))
 
 ```{r}
 sample_290_normalized <- read_rds(
-  file.path(data_dir, "SCPCS000216", "SCPCL000290_miQC_downstream_processed_normalized_reduced_sce.rds"))
+  file.path(data_dir, "SCPCS000216", "SCPCL000290_miQC_processed_sce.rds"))
 ```
 
 ## Perform clustering

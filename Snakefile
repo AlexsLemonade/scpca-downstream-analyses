@@ -9,8 +9,6 @@ samples_information = pd.read_csv(config["project_metadata"], sep='\t', index_co
 SAMPLES = list(samples_information['sample_id'])
 LIBRARY_ID = list(samples_information['library_id'])
 FILTERING_METHOD = list(samples_information['filtering_method'])
-DATA_DIRECTORY = list(samples_information['data_directory'])
-FILENAME = list(samples_information['filename'])
     
 rule target:
     input:
@@ -24,10 +22,13 @@ rule target:
                sample = SAMPLES, 
                library = LIBRARY_ID,
                filtering_method = FILTERING_METHOD)
+
+def get_input_rds_files(wildcards):
+    return samples_information["filepath"][wildcards.sample_id]
     
 rule filter_data:
     input:
-        expand(os.path.join("{data_directory}", "{filename}"), zip, data_directory=DATA_DIRECTORY, filename=FILENAME)
+        get_input_rds_files
     output:
         downstream_filtered_rds = temp(os.path.join(config["results_dir"], "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds")),
         plot = os.path.join(config["results_dir"], "{sample_id}/plots/{library_id}_{filtering_method}_cell_filtering.png")

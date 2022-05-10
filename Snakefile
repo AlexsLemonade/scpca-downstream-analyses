@@ -24,7 +24,8 @@ rule target:
                filtering_method = FILTERING_METHOD)
 
 def get_input_rds_files(wildcards):
-    return samples_information["filepath"][wildcards.sample_id]
+    lib_info = samples_information.set_index('library_id')
+    return lib_info.loc[wildcards.library_id]['filepath']
     
 rule filter_data:
     input:

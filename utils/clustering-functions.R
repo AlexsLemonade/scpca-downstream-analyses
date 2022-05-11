@@ -432,14 +432,15 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
   return(summary_plot)
 }
 
-plot_cluster_stability <- function(normalized_sce,
+get_cluster_stability_summary <- function(normalized_sce,
                                    params_range,
                                    step_size,
                                    cluster_type,
                                    weighting_type = "rank",
                                    cluster_function = "walktrap") {
-  # Purpose: Calculate and plot the cluster bootstrapping stability values of 
-  # the clusters stored in the SingleCellExperiment object
+  # Purpose: Calculate and return a data frame of ARI values of the bootstrapping
+  # replicates and the associated original clusters stored in the 
+  # SingleCellExperiment object for the specified clustering parameters
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
@@ -458,26 +459,38 @@ plot_cluster_stability <- function(normalized_sce,
   
   # define cluster names
   param_values <- seq(min(params_range), max(params_range),step_size)
-  cluster_names <- paste(cluster_type, param_values, sep = "_")
+  if (cluster_type == "kmeans") {
+    cluster_names <- paste(cluster_type, param_values, sep = "_")
+  } else if (cluster_type == "graph") {
+    cluster_names <- paste(cluster_function, param_values, sep = "_")
+  }
   
-  bootstrapping_df_list <- c()
+  ari_results <- list()
   
   for (name in cluster_names) {
-    # set the name from which the bootstrapping results can be retrieved from the SCE object
-    bootstrapping_name <-
-      paste("bootstrapping_results", name, sep = "_")
+    # grab k from cluster name
     k <- as.numeric(sub('.+_(.+)', '\\1', name))
     
-    bootstrapping_df_list[[bootstrapping_name]] <- check_cluster_stability(
-      normalized_sce,
+    # run custom `check_cluster_stability` function and save results to a list
+    ari_results[[name]] <- check_cluster_stability(
       pca_matrix,
+      cluster_assignments = normalized_sce[[name]],
       cluster_type,
-      name,
       k,
       weighting_type,
       cluster_function
     )
   }
   
-  return(bootstrapping_df_list)
+  # combine ARI results from each of the cluster assignments and get data frame
+  # ready for plotting
+  plot_ari_df <- data.frame(ari_results) %>%
+    tibble::rownames_to_column("bootstrap_iteration") %>%
+    tidyr::pivot_longer(-c("bootstrap_iteration"), values_to = "ARI", names_to = "cluster_names_column") %>%
+    tidyr::separate(cluster_names_column, 
+                    c("cluster_type", "param_value"),
+                    remove = FALSE) # keep original column for grouping later
+  
+  
+  return(plot_ari_df)
 }

@@ -9,7 +9,7 @@ samples_information = pd.read_csv(config["project_metadata"], sep='\t', index_co
 SAMPLES = list(samples_information['sample_id'])
 LIBRARY_ID = list(samples_information['library_id'])
 FILTERING_METHOD = list(samples_information['filtering_method'])
-          
+    
 rule target:
     input:
         expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_processed_sce.rds"), 
@@ -22,11 +22,14 @@ rule target:
                sample = SAMPLES, 
                library = LIBRARY_ID,
                filtering_method = FILTERING_METHOD)
-               
 
+def get_input_rds_files(wildcards):
+    lib_info = samples_information.set_index('library_id')
+    return lib_info.loc[wildcards.library_id]['filepath']
+    
 rule filter_data:
     input:
-        os.path.join(config["data_dir"], "{sample_id}/{library_id}_filtered.rds")
+        get_input_rds_files
     output:
         downstream_filtered_rds = temp(os.path.join(config["results_dir"], "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds")),
         plot = os.path.join(config["results_dir"], "{sample_id}/plots/{library_id}_{filtering_method}_cell_filtering.png")

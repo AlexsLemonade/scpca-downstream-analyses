@@ -464,7 +464,7 @@ plot_cluster_stability <- function(normalized_sce,
     cluster_names <- paste(cluster_function, param_values, sep = "_")
   }
   
-  ari_results <- c()
+  ari_results <- list()
   
   for (name in cluster_names) {
     # grab k from cluster name
@@ -484,15 +484,11 @@ plot_cluster_stability <- function(normalized_sce,
   # combine ARI results from each of the cluster assignments and get data frame
   # ready for plotting
   plot_ari_df <- data.frame(ari_results) %>%
-    t() %>%
-    as.data.frame() %>%
-    tibble::rownames_to_column("cluster_assignments") %>%
-    tidyr::pivot_longer(-c("cluster_assignments"), values_to = "ari_value", names_to = "bootstrap_interation") %>%
-    tidyr::separate(cluster_assignments, 
+    tibble::rownames_to_column("bootstrap_iteration") %>%
+    tidyr::pivot_longer(-c("bootstrap_iteration"), values_to = "ARI", names_to = "cluster_names_column") %>%
+    tidyr::separate(cluster_names_column, 
                     c("cluster_type", "param_value"),
-                    remove = FALSE) %>% # keep original column for grouping later
-    dplyr::select(-cluster_assignments) %>%
-    dplyr::mutate(bootstrap_interation = gsub("V", "", bootstrap_interation))
+                    remove = FALSE) # keep original column for grouping later
   
   
   return(plot_ari_df)

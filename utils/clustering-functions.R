@@ -432,14 +432,15 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
   return(summary_plot)
 }
 
-plot_cluster_stability <- function(normalized_sce,
+get_cluster_stability_summary <- function(normalized_sce,
                                    params_range,
                                    step_size,
                                    cluster_type,
                                    weighting_type = "rank",
                                    cluster_function = "walktrap") {
-  # Purpose: Calculate and plot the ARI values of the bootstrapping replicates
-  # and the associated original clusters stored in the SingleCellExperiment object
+  # Purpose: Calculate and return a data frame of ARI values of the bootstrapping
+  # replicates and the associated original clusters stored in the 
+  # SingleCellExperiment object for the specified clustering parameters
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object

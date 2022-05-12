@@ -491,6 +491,37 @@ get_cluster_stability_summary <- function(normalized_sce,
                     c("cluster_type", "param_value"),
                     remove = FALSE) # keep original column for grouping later
   
-  
   return(plot_ari_df)
+}
+
+plot_cluster_stability_ari <- function(ari_plotting_df) {
+  # Purpose: Plot the ARI values of the bootstrapping replicates and the 
+  # associated original clusters stored in the SingleCellExperiment object for 
+  # the specified clustering parameters
+  
+  # Args:
+  #   ari_plotting_df: data frame with ARI values for plotting
+  
+  plot <-
+    ggplot(ari_plotting_df, aes(x = param_value, y = ARI)) +
+    geom_violin() +
+    ggforce::geom_sina(size = 0.2) +
+    stat_summary(
+      aes(group = param_value),
+      color = "red",
+      # median and quartiles for point range
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      },
+      geom = "pointrange",
+      position = position_dodge(width = 0.9),
+      size = 0.2
+    ) +
+    theme_bw()
+  
+  return(plot)
 }

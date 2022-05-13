@@ -227,28 +227,26 @@ if (opt$filtering_method == "manual") {
         miQC::filterCells(sce_qc,
                           model = model,
                           verbose = FALSE)
+      
+      # Plot model
+      filtered_model_plot <- miQC::plotModel(sce_qc, model)
+      
+      # Plot filtering
+      filtered_cell_plot <- miQC::plotFiltering(sce_qc, model)
+      
+      # Combine plots
+      filtered_cell_plot <-
+        ggarrange(filtered_model_plot,
+                  filtered_cell_plot,
+                  ncol = 1,
+                  nrow = 2)
+      # Include note in metadata re: filtering
+      metadata(filtered_sce)$filtering <- "miQC filtered"
+
     }, silent = TRUE)
-  }
+  } 
   
-  # if miQC was successful then create plots 
-  if(!is.null(filtered_sce) && !is.null(model)){
-    
-    # Plot model
-    filtered_model_plot <- miQC::plotModel(sce_qc, model)
-    
-    # Plot filtering
-    filtered_cell_plot <- miQC::plotFiltering(sce_qc, model)
-    
-    # Combine plots
-    filtered_cell_plot <-
-      ggarrange(filtered_model_plot,
-                filtered_cell_plot,
-                ncol = 1,
-                nrow = 2)
-    # Include note in metadata re: filtering
-    metadata(filtered_sce)$filtering <- "miQC filtered"
-    
-  } else {
+  if(is.null(filtered_sce) || is.null(model)) {
     # if miQC failed after 3 attempts then do manual filtering instead 
     warning(glue::glue("
                        miQC filtering failed for {opt$sample_sce_filepath}. 

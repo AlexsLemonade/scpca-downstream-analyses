@@ -182,7 +182,7 @@ check_cluster_stability <- function(pca_matrix,
       resampled_clusters <- cluster_stability_subfunction(resampled_pca)
       
       # calculate ARI between new clustering and original clustering 
-      ari[iter] <- pdfCluster::adj.rand.index(resampled_clusters, cluster_assignments)
+      ari[iter] <- pdfCluster::adj.rand.index(resampled_clusters, cluster_assignments[sample_cells])
     }
   return(ari)
 }

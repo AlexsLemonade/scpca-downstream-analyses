@@ -489,7 +489,8 @@ get_cluster_stability_summary <- function(normalized_sce,
     tidyr::pivot_longer(-c("bootstrap_iteration"), values_to = "ARI", names_to = "cluster_names_column") %>%
     tidyr::separate(cluster_names_column, 
                     c("cluster_type", "param_value"),
-                    remove = FALSE) # keep original column for grouping later
+                    remove = FALSE) %>% # keep original column for grouping later
+    dplyr::mutate(param_value = as.numeric(param_value))
   
   return(plot_ari_df)
 }
@@ -502,8 +503,11 @@ plot_cluster_stability_ari <- function(ari_plotting_df) {
   # Args:
   #   ari_plotting_df: data frame with ARI values for plotting
   
+  # set params range
+  params_range <- unique(ari_plotting_df$param_value)
+  
   plot <-
-    ggplot(ari_plotting_df, aes(x = param_value, y = ARI)) +
+    ggplot(ari_plotting_df, aes(x = param_value, y = ARI, group = param_value)) +
     geom_violin() +
     ggforce::geom_sina(size = 0.2) +
     stat_summary(
@@ -521,7 +525,9 @@ plot_cluster_stability_ari <- function(ari_plotting_df) {
       position = position_dodge(width = 0.9),
       size = 0.2
     ) +
-    theme_bw()
+    theme_bw() +
+    scale_x_discrete(name = "Parameter value",
+                     limits = params_range)
   
   return(plot)
 }

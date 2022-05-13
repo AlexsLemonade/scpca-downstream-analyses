@@ -6,9 +6,9 @@
 # source(file.path("utils", "filtering-functions.R"))
 
 manual_cell_filtering <- function(sce,
-                             mito_percent_cutoff,
-                             detected_gene_cutoff,
-                             umi_count_cutoff){
+                                  mito_percent_cutoff,
+                                  detected_gene_cutoff,
+                                  umi_count_cutoff){
   # Purpose: Remove low quality cells from a SingleCellExperiment object using 
   # provided manual thresholds. 
   
@@ -52,7 +52,9 @@ plot_manual_filtering <- function(sce,
     ggplot(coldata_qc, aes(x = sum, y = detected, color = subsets_mito_percent)) +
     geom_point(alpha = 0.5) +
     scale_color_viridis_c() +
-    labs(x = "Total Count", y = "Number of Genes Expressed", color = "Mitochondrial \nFraction") +
+    labs(x = "Total Count",
+         y = "Number of Genes Expressed",
+         color = "Mitochondrial\nFraction") +
     theme_classic() +
     geom_hline(yintercept = detected_gene_cutoff) +
     geom_vline(xintercept = umi_count_cutoff)

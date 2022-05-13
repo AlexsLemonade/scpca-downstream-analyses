@@ -151,7 +151,7 @@ library(scuttle)
 library(tryCatchLog)
 
 # source filtering functions 
-source(file.path("utils", "filtering-functions.R"))
+source(here::here("utils", "filtering-functions.R"))
 
 ## Set the seed
 set.seed(opt$seed)
@@ -222,7 +222,7 @@ if (opt$filtering_method == "manual") {
     model_attempt <- model_attempt + 1
     try({
       model <- miQC::mixtureModel(sce_qc)
-      # filter step can fail, so we will try this too, keeping the passing cell ids
+      # filter step can fail too
       filtered_sce <- 
         miQC::filterCells(sce_qc,
                           model = model,

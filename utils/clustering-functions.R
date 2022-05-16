@@ -136,7 +136,8 @@ check_cluster_stability <- function(pca_matrix,
                                     k,
                                     weighting_type = "rank",
                                     cluster_function = "walktrap",
-                                    iterations = 20) {
+                                    iterations = 20,
+                                    seed = 2021) {
   # Purpose: To use bootstrapping to check the stability of given clusters
   
   # Args:
@@ -151,6 +152,10 @@ check_cluster_stability <- function(pca_matrix,
   #                     being tested -- can be "walktrap" or "louvain";
   #                     "walktrap" being the default
   #   iterations: The number of iterations to perform for bootstrapping, default is 20.
+  #   seed: an integer to set the seed as for reproducibility
+  
+  # set the seed for reproducible results
+  set.seed(seed)
   
   # check cluster stability if the `check_stability == TRUE`
   if (cluster_type == "kmeans") {

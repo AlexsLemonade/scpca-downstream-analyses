@@ -509,7 +509,7 @@ plot_cluster_stability_ari <- function(ari_plotting_df) {
   #   ari_plotting_df: data frame with ARI values for plotting
   
   # set params range
-  params_range <- unique(ari_plotting_df$param_value)
+  params_range <- sort(unique(ari_plotting_df$param_value))
   
   plot <-
     ggplot(ari_plotting_df, aes(x = param_value, y = ARI, group = param_value)) +

@@ -542,8 +542,8 @@ summarize_cluster_stability_ari <- function(ari_df_list) {
   # stability ARI values
   
   # Args:
-  #   clustered_validity_df: data.frame with cluster validity stats associated
-  #                          with their relevant cluster names
+  #   ari_df_list: list of data frames with cluster stability ARI values 
+  #                associated with their relevant clustering type and param values
   
   # prepare a data frame for plotting
   ari_combined_df <- dplyr::bind_rows(ari_df_list)

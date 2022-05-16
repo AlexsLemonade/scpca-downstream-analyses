@@ -1,6 +1,7 @@
 sample_id	library_id	filtering_method	filepath
 SCPCS000216	SCPCL000290	miQC	data/Gawad_processed_data/SCPCS000216/SCPCL000290_filtered.rds
 SCPCS000217	SCPCL000291	miQC	data/Gawad_processed_data/SCPCS000217/SCPCL000291_filtered.rds
+SCPCS000218	SCPCL000292	miQC	data/Gawad_processed_data/SCPCS000218/SCPCL000292_filtered.rds
 SCPCS000219	SCPCL000293	miQC	data/Gawad_processed_data/SCPCS000219/SCPCL000293_filtered.rds
 SCPCS000220	SCPCL000294	miQC	data/Gawad_processed_data/SCPCS000220/SCPCL000294_filtered.rds
 SCPCS000221	SCPCL000295	miQC	data/Gawad_processed_data/SCPCS000221/SCPCL000295_filtered.rds

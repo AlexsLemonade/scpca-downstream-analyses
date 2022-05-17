@@ -136,7 +136,8 @@ check_cluster_stability <- function(pca_matrix,
                                     k,
                                     weighting_type = "rank",
                                     cluster_function = "walktrap",
-                                    iterations = 20) {
+                                    iterations = 20,
+                                    seed = 2021) {
   # Purpose: To use bootstrapping to check the stability of given clusters
   
   # Args:
@@ -151,6 +152,10 @@ check_cluster_stability <- function(pca_matrix,
   #                     being tested -- can be "walktrap" or "louvain";
   #                     "walktrap" being the default
   #   iterations: The number of iterations to perform for bootstrapping, default is 20.
+  #   seed: an integer to set the seed as for reproducibility
+  
+  # set the seed for reproducible results
+  set.seed(seed)
   
   # check cluster stability if the `check_stability == TRUE`
   if (cluster_type == "kmeans") {
@@ -182,7 +187,7 @@ check_cluster_stability <- function(pca_matrix,
       resampled_clusters <- cluster_stability_subfunction(resampled_pca)
       
       # calculate ARI between new clustering and original clustering 
-      ari[iter] <- pdfCluster::adj.rand.index(resampled_clusters, cluster_assignments)
+      ari[iter] <- pdfCluster::adj.rand.index(resampled_clusters, cluster_assignments[sample_cells])
     }
   return(ari)
 }
@@ -489,8 +494,45 @@ get_cluster_stability_summary <- function(normalized_sce,
     tidyr::pivot_longer(-c("bootstrap_iteration"), values_to = "ARI", names_to = "cluster_names_column") %>%
     tidyr::separate(cluster_names_column, 
                     c("cluster_type", "param_value"),
-                    remove = FALSE) # keep original column for grouping later
-  
+                    remove = FALSE) %>% # keep original column for grouping later
+    dplyr::mutate(param_value = as.numeric(param_value))
   
   return(plot_ari_df)
+}
+
+plot_cluster_stability_ari <- function(ari_plotting_df) {
+  # Purpose: Plot the ARI values of the bootstrapping replicates and the 
+  # associated original clusters stored in the SingleCellExperiment object for 
+  # the specified clustering parameters
+  
+  # Args:
+  #   ari_plotting_df: data frame with ARI values for plotting
+  
+  # set params range
+  params_range <- sort(unique(ari_plotting_df$param_value))
+  
+  plot <-
+    ggplot(ari_plotting_df, aes(x = param_value, y = ARI, group = param_value)) +
+    geom_violin() +
+    ggforce::geom_sina(size = 0.2) +
+    stat_summary(
+      aes(group = param_value),
+      color = "red",
+      # median and quartiles for point range
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      },
+      geom = "pointrange",
+      position = position_dodge(width = 0.9),
+      size = 0.2
+    ) +
+    theme_bw() +
+    scale_x_discrete(name = "Parameter value",
+                     limits = params_range)
+  
+  return(plot)
 }

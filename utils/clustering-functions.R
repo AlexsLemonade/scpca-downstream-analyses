@@ -537,9 +537,9 @@ plot_cluster_stability_ari <- function(ari_plotting_df) {
   return(plot)
 }
 
-summarize_cluster_stability_ari <- function(ari_df_list) {
-  # Purpose: Calculate and return a summary data frame of the provided cluster
-  # stability ARI values
+plot_summary_cluster_stability_ari <- function(ari_df_list) {
+  # Purpose: Calculate a summary data frame of the provided cluster
+  # stability ARI values and return a plot displaying these summary values
   
   # Args:
   #   ari_df_list: list of data frames with cluster stability ARI values 
@@ -552,9 +552,25 @@ summarize_cluster_stability_ari <- function(ari_df_list) {
   ari_summary_df <- ari_combined_df %>%
     dplyr::group_by(cluster_names_column, cluster_type, param_value) %>%
     # here we calculate and store the median of the ARI values along with the
-    # median  absolute deviation (MAD) values
+    # median absolute deviation (MAD) values
     dplyr::summarize(avg_ARI = median(ARI),
                      mad_ARI = mad(ARI))
+
   
-  return(ari_summary_df)
+  # plot the summary ARI values
+  ari_summary_plot <- ggplot(
+    ari_summary_df,
+    aes(
+      x = param_value,
+      y = avg_ARI,
+      color = cluster_type)) +
+    geom_pointrange(aes(x = param_value, y = avg_ARI, 
+                        ymin = avg_ARI - mad_ARI,
+                        ymax = avg_ARI + mad_ARI),
+                    color = "black") +
+    geom_line() +
+    theme_bw() + 
+    theme(text = element_text(size = 9))
+  
+  return(ari_summary_plot)
 }

@@ -553,8 +553,9 @@ plot_summary_cluster_stability_ari <- function(ari_df_list) {
     dplyr::group_by(cluster_names_column, cluster_type, param_value) %>%
     # here we calculate and store the median of the ARI values along with the
     # median absolute deviation (MAD) values
-    dplyr::summarize(avg_ARI = median(ARI),
-                     mad_ARI = mad(ARI))
+    dplyr::summarize(median_ARI = median(ARI),
+                     mad_ARI = mad(ARI),
+                     .groups = 'drop')
 
   
   # plot the summary ARI values
@@ -562,11 +563,11 @@ plot_summary_cluster_stability_ari <- function(ari_df_list) {
     ari_summary_df,
     aes(
       x = param_value,
-      y = avg_ARI,
+      y = median_ARI,
       color = cluster_type)) +
-    geom_pointrange(aes(x = param_value, y = avg_ARI, 
-                        ymin = avg_ARI - mad_ARI,
-                        ymax = avg_ARI + mad_ARI),
+    geom_pointrange(aes(x = param_value, y = median_ARI, 
+                        ymin = median_ARI - mad_ARI,
+                        ymax = median_ARI + mad_ARI),
                     color = "black") +
     geom_line() +
     theme_bw() + 

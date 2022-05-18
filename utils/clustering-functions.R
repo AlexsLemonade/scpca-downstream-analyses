@@ -433,6 +433,8 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
     geom_line() +
     ylim(y_range) + 
     theme_bw() + 
+    labs(x = "Parameter Value",
+         y = gsub("_", " ", measure)) +
     theme(text = element_text(size = 9))
   
   return(summary_plot)
@@ -572,7 +574,9 @@ plot_summary_cluster_stability_ari <- function(ari_df_list) {
                     color = "black",
                     position = position_dodge2(width = 0.6)) +
     geom_line() +
-    theme_bw() + 
+    theme_bw() +
+    labs(x = "Parameter Value",
+         y = "Median ARI") +
     theme(text = element_text(size = 9))
   
   return(ari_summary_plot)

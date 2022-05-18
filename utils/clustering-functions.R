@@ -428,7 +428,8 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
     geom_pointrange(aes(x = param_value, y = !!summary_y, 
                         ymin = !!summary_y - !!mad_column,
                         ymax = !!summary_y + !!mad_column),
-                    color = "black") +
+                    color = "black",
+                    position = position_dodge2(width = 0.6)) +
     geom_line() +
     ylim(y_range) + 
     theme_bw() + 

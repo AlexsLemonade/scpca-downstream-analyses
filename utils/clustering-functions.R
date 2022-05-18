@@ -568,7 +568,8 @@ plot_summary_cluster_stability_ari <- function(ari_df_list) {
     geom_pointrange(aes(x = param_value, y = median_ARI, 
                         ymin = median_ARI - mad_ARI,
                         ymax = median_ARI + mad_ARI),
-                    color = "black") +
+                    color = "black",
+                    position = position_dodge2(width = 0.6)) +
     geom_line() +
     theme_bw() + 
     theme(text = element_text(size = 9))

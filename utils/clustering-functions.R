@@ -428,10 +428,14 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
     geom_pointrange(aes(x = param_value, y = !!summary_y, 
                         ymin = !!summary_y - !!mad_column,
                         ymax = !!summary_y + !!mad_column),
-                    color = "black") +
+                    color = "black",
+                    position = position_dodge2(width = 0.6)) +
     geom_line() +
     ylim(y_range) + 
     theme_bw() + 
+    labs(x = "Parameter value",
+         y = gsub("_", " ", measure),
+         color = "Cluster type") +
     theme(text = element_text(size = 9))
   
   return(summary_plot)
@@ -537,9 +541,9 @@ plot_cluster_stability_ari <- function(ari_plotting_df) {
   return(plot)
 }
 
-summarize_cluster_stability_ari <- function(ari_df_list) {
-  # Purpose: Calculate and return a summary data frame of the provided cluster
-  # stability ARI values
+plot_summary_cluster_stability_ari <- function(ari_df_list) {
+  # Purpose: Calculate a summary data frame of the provided cluster
+  # stability ARI values and return a plot displaying these summary values
   
   # Args:
   #   ari_df_list: list of data frames with cluster stability ARI values 
@@ -552,9 +556,30 @@ summarize_cluster_stability_ari <- function(ari_df_list) {
   ari_summary_df <- ari_combined_df %>%
     dplyr::group_by(cluster_names_column, cluster_type, param_value) %>%
     # here we calculate and store the median of the ARI values along with the
-    # median  absolute deviation (MAD) values
-    dplyr::summarize(avg_ARI = median(ARI),
-                     mad_ARI = mad(ARI))
+    # median absolute deviation (MAD) values
+    dplyr::summarize(median_ARI = median(ARI),
+                     mad_ARI = mad(ARI),
+                     .groups = 'drop')
+
   
-  return(ari_summary_df)
+  # plot the summary ARI values
+  ari_summary_plot <- ggplot(
+    ari_summary_df,
+    aes(
+      x = param_value,
+      y = median_ARI,
+      color = cluster_type)) +
+    geom_pointrange(aes(x = param_value, y = median_ARI, 
+                        ymin = median_ARI - mad_ARI,
+                        ymax = median_ARI + mad_ARI),
+                    color = "black",
+                    position = position_dodge2(width = 0.6)) +
+    geom_line() +
+    theme_bw() +
+    labs(x = "Parameter value",
+         y = "Median ARI",
+         color = "Cluster type") +
+    theme(text = element_text(size = 9))
+  
+  return(ari_summary_plot)
 }

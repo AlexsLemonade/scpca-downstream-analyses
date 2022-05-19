@@ -279,8 +279,8 @@ plot_cluster_stability_ari(louvain_ari_df)
 summary_ari_df_list <- list("walktrap" = walktrap_ari_df,
                             "louvain" = louvain_ari_df)
 
-ari_summary_df <- summarize_cluster_stability_ari(summary_ari_df_list)
-ari_summary_df
+# plot ARI summary plot
+plot_summary_cluster_stability_ari(summary_ari_df_list)
 ```
 
 ## Session info

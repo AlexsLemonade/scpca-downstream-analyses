@@ -144,7 +144,8 @@ check_cluster_stability <- function(pca_matrix,
   #   pca_matrix: the matrix object that contains the PCA results that were
   #               extracted from a normalized SingleCellExperiment object
   #   cluster_assignments: original cluster assignments from the SingleCellExperiment
-  #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
+  #   cluster_type: the type of clustering method performed - can be "kmeans", 
+  #                 "walktrap", or "louvain"
   #   k: the desired number of centers
   #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank";
   #                   "rank" being the default
@@ -163,7 +164,7 @@ check_cluster_stability <- function(pca_matrix,
     cluster_stability_subfunction <- function(x) {
       clusterRows(x, KmeansParam(centers = k))
     }
-  } else if (cluster_type == "graph") {
+  } else if (cluster_type %in% c("walktrap", "louvain")) {
     cluster_stability_subfunction <- function(x) {
       clusterRows(x,
                   NNGraphParam(
@@ -173,7 +174,7 @@ check_cluster_stability <- function(pca_matrix,
                   ))
     }
   } else {
-    stop("Clustering type is not valid. Please use --cluster_type to specify 'kmeans' or 'graph' clustering.")
+    stop("Clustering type is not valid. Please use --cluster_type to specify 'kmeans', 'walktrap' or 'louvain' clustering.")
   }
   
   # perform bootstrapping across a given number of iterations
@@ -235,7 +236,8 @@ create_metadata_stats_df <- function(clustered_sce, params_range, step_size, clu
   #   params_range: the range of numeric parameters to test for clustering
   #   step_size: a numeric value representing the step_size by which to explore
   #               the params range of values
-  #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
+  #   cluster_type: the type of clustering method performed - can be "kmeans", 
+  #                 "walktrap", or "louvain"
   
   # define cluster names
   param_values <- seq(min(params_range), max(params_range),step_size)
@@ -456,7 +458,8 @@ get_cluster_stability_summary <- function(normalized_sce,
   #   params_range: the range of numeric parameters to test for clustering
   #   step_size: a numeric value representing the step_size by which to explore
   #               the params range of values
-  #   cluster_type: the type of clustering method performed - can be "kmeans or graph"
+  #   cluster_type: the type of clustering method performed - can be "kmeans",
+  #                 "walktrap", or "louvain"
   #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank";
   #                   "rank" being the default
   #   cluster_function: the name of the community detection algorithm that is
@@ -470,7 +473,7 @@ get_cluster_stability_summary <- function(normalized_sce,
   param_values <- seq(min(params_range), max(params_range),step_size)
   if (cluster_type == "kmeans") {
     cluster_names <- paste(cluster_type, param_values, sep = "_")
-  } else if (cluster_type == "graph") {
+  } else if (cluster_type %in% c("walktrap", "louvain")) {
     cluster_names <- paste(cluster_function, param_values, sep = "_")
   }
   

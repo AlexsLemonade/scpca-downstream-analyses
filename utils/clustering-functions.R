@@ -65,8 +65,7 @@ kmeans_clustering <- function(normalized_sce,
 graph_clustering <- function(normalized_sce,
                              params_range,
                              step_size = NULL,
-                             weighting_type = "rank",
-                             cluster_function = "walktrap",
+                             cluster_type = "walktrap",
                              seed = 2021) {
   # Purpose: Perform the graph based clustering on a normalized SingleCellExperiment
   # object
@@ -100,10 +99,15 @@ graph_clustering <- function(normalized_sce,
     nn_range <- params_range
   }
   
+  # determine weighting type to use based on graph detection algorithm specified 
+  # if louvain is used, use jaccard 
+  # if walktrap is used, use rank 
+  weighting_type <- ifelse(cluster_type == "louvain", "jaccard", "rank")
+  
   # perform the graph-based clustering
   for (nearest_neighbors in nn_range) {
     # set cluster name
-    cluster_name <- paste(cluster_function, nearest_neighbors, sep = "_")
+    cluster_name <- paste(cluster_type, nearest_neighbors, sep = "_")
     
     # set the seed for reproducible results
     set.seed(seed)
@@ -117,7 +121,7 @@ graph_clustering <- function(normalized_sce,
       NNGraphParam(
         k = nearest_neighbors,
         type = weighting_type,
-        cluster.fun = cluster_function
+        cluster.fun = cluster_type
       )
     )
     
@@ -134,8 +138,6 @@ check_cluster_stability <- function(pca_matrix,
                                     cluster_assignments,
                                     cluster_type,
                                     k,
-                                    weighting_type = "rank",
-                                    cluster_function = "walktrap",
                                     iterations = 20,
                                     seed = 2021) {
   # Purpose: To use bootstrapping to check the stability of given clusters
@@ -160,17 +162,21 @@ check_cluster_stability <- function(pca_matrix,
   
   # check cluster stability if the `check_stability == TRUE`
   if (cluster_type == "kmeans") {
-    # Create subfunctions for `bootstrapStability()`
+    # Create subfunctions needed for bootstrapping
     cluster_stability_subfunction <- function(x) {
       clusterRows(x, KmeansParam(centers = k))
     }
   } else if (cluster_type %in% c("walktrap", "louvain")) {
+    # grab weighting type based on cluster type
+    weighting_type <- ifelse(cluster_type == "louvain", "jaccard", "rank")
+    
+    # create cluster stability subfunction
     cluster_stability_subfunction <- function(x) {
       clusterRows(x,
                   NNGraphParam(
                     k = k,
                     type = weighting_type,
-                    cluster.fun = cluster_function
+                    cluster.fun = cluster_type,
                   ))
     }
   } else {
@@ -446,9 +452,7 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
 get_cluster_stability_summary <- function(normalized_sce,
                                    params_range,
                                    step_size,
-                                   cluster_type,
-                                   weighting_type = "rank",
-                                   cluster_function = "walktrap") {
+                                   cluster_type) {
   # Purpose: Calculate and return a data frame of ARI values of the bootstrapping
   # replicates and the associated original clusters stored in the 
   # SingleCellExperiment object for the specified clustering parameters
@@ -460,11 +464,6 @@ get_cluster_stability_summary <- function(normalized_sce,
   #               the params range of values
   #   cluster_type: the type of clustering method performed - can be "kmeans",
   #                 "walktrap", or "louvain"
-  #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank";
-  #                   "rank" being the default
-  #   cluster_function: the name of the community detection algorithm that is
-  #                     being tested -- can be "walktrap" or "louvain";
-  #                     "walktrap" being the default
   
   # extract the principal components matrix
   pca_matrix <- reducedDim(normalized_sce, "PCA")
@@ -474,7 +473,7 @@ get_cluster_stability_summary <- function(normalized_sce,
   if (cluster_type == "kmeans") {
     cluster_names <- paste(cluster_type, param_values, sep = "_")
   } else if (cluster_type %in% c("walktrap", "louvain")) {
-    cluster_names <- paste(cluster_function, param_values, sep = "_")
+    cluster_names <- paste(cluster_type, param_values, sep = "_")
   }
   
   ari_results <- list()
@@ -488,9 +487,7 @@ get_cluster_stability_summary <- function(normalized_sce,
       pca_matrix,
       cluster_assignments = normalized_sce[[name]],
       cluster_type,
-      k,
-      weighting_type,
-      cluster_function
+      k
     )
   }
   

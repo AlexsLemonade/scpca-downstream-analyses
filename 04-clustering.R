@@ -122,16 +122,10 @@ if(is(sce,"SingleCellExperiment")){
 
 #### Perform clustering --------------------------------------------------------
 
-# determine weighting type to use based on graph detection algorith specified 
-# if louvain is used, use jaccard 
-# if walktrap is used, use rank 
-weighting_type <- ifelse(opt$cluster_type == "louvain", "jaccard", "rank")
-
 # perform clustering
 sce <- graph_clustering(normalized_sce = sce,
                         params_range = opt$nearest_neighbors,
-                        weighting_type = weighting_type,
-                        cluster_function = opt$cluster_type)
+                        cluster_type = opt$cluster_type)
 
 # write output file
 readr::write_rds(sce, opt$output_filepath)

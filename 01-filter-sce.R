@@ -23,6 +23,9 @@
 # so we can pass this to `renv::load()` to load the project file
 renv::load(here::here())
 
+# install packages/dependencies that are not already installed
+renv::restore()
+
 # Check that R version is at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){
   stop("R version must be at least 4.1")

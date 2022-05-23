@@ -9,12 +9,8 @@ Note that R 4.1.2 is required for running our pipeline, along with Bioconductor 
 This analysis is meant to be performed on single cell gene expression data. 
 More specifically, the expected input for each sample is a RDS file containing a `SingleCellExperiment` object that has been pre-processed using the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where the data is selectively aligned using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/). For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
 
-## Before running the workflows
-
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html). 
 
-When running the workflow in your local environment, you will first want to open the R project file, `scpca-downstream-analyses.Rproj` in R and if prompted, install any package dependencies using `renv::restore()`.
-`renv::restore()` can be used to sync local package installations with those required to run the pipeline. 
 If you are making any changes to the workflow, `renv::snapshot()` should be run periodically during development, as to add any packages that are used in added/modified scripts and notebooks to the `renv.lock` file.
 
 # Running the analysis workflows

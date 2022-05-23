@@ -5,6 +5,23 @@
 #
 # source(file.path("utils", "filtering-functions.R"))
 
+setup_renv <- function(project_filepath = here::here()) {
+  # Purpose: Load the project file and install any packages/dependecies needed
+  #          to run the workflow
+  #
+  # Args:
+  #   project_filepath: filepath to the project file to be loaded in, the
+  #                     default here being the `here::here()` function
+  
+  # `here::here()` looks at a number of criteria to identify the root 
+  # directory, including whether or not there is a .Rproj file present,
+  # so we can pass this to `renv::load()` to load the project file
+  renv::load(here::here())
+  
+  # install any necessary packages and dependecies from the renv.lock file
+  renv::restore()
+}
+
 manual_cell_filtering <- function(sce,
                                   mito_percent_cutoff,
                                   detected_gene_cutoff,

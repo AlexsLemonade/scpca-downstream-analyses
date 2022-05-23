@@ -13,15 +13,11 @@
 
 ## Set up -------------------------------------------------------------
 
-## Load project
+# Source in functions 
+source(file.path("utils", "filtering-functions.R"))
 
-# `here::here()` looks at a number of criteria to identify the root 
-# directory, including whether or not there is a .Rproj file present,
-# so we can pass this to `renv::load()` to load the project file
-renv::load(here::here())
-
-# install packages/dependencies that are not already installed
-renv::restore()
+# Load project
+setup_renv()
 
 # Check that R version us at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){

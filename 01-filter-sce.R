@@ -16,15 +16,11 @@
 
 ## Set up -------------------------------------------------------------
 
-## Load project
+# Source in functions 
+source(file.path("utils", "filtering-functions.R"))
 
-# `here::here()` looks at a number of criteria to identify the root 
-# directory, including whether or not there is a .Rproj file present,
-# so we can pass this to `renv::load()` to load the project file
-renv::load(here::here())
-
-# install packages/dependencies that are not already installed
-renv::restore()
+# Load project
+setup_renv()
 
 # Check that R version is at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){
@@ -153,9 +149,6 @@ library(cowplot)
 library(scuttle)
 library(tryCatchLog)
 
-# source filtering functions 
-source(here::here("utils", "filtering-functions.R"))
-
 ## Set the seed
 set.seed(opt$seed)
 
@@ -187,7 +180,8 @@ sce_qc <- readr::read_rds(opt$sample_sce_filepath)
 mito_genes <- unique(readLines(opt$mito_file))
 
 if (is.null(sce_qc$detected)) {
-  # We will filter by cells using `scpcaTools::add_cell_mito_qc()`
+  # We will filter by features (genes) using `scater::addPerFeatureQC()` and by
+  # cells using `scpcaTools::add_cell_mito_qc()`
   sce_qc <- add_cell_mito_qc(sce_qc, mito_genes)
 }
 
@@ -201,72 +195,79 @@ if (!is.null(sce_qc$prob_compromised)) {
 # Perform filtering based on specified method
 if (opt$filtering_method == "manual") {
   
-  # manually filter the cells 
-  filtered_sce <- manual_cell_filtering(sce = sce_qc,
-                                        mito_percent_cutoff = opt$mito_percent_cutoff,
-                                        detected_gene_cutoff = opt$detected_gene_cutoff, 
-                                        umi_count_cutoff = opt$umi_count_cutoff)
-    
-  # create summary plot 
-  filtered_cell_plot <- plot_manual_filtering(sce = sce_qc,
-                                              detected_gene_cutoff = opt$detected_gene_cutoff, 
-                                              umi_count_cutoff = opt$umi_count_cutoff)
+  # Filter the cells
+  mito_filter <-
+    colData(sce_qc)$mito_percent < opt$mito_percent_cutoff
+  gene_filter <-
+    colData(sce_qc)$detected > opt$detected_gene_cutoff
+  sum_filter <- colData(sce_qc)$sum > opt$umi_count_cutoff
+  filtered_sce <-
+    sce_qc[, mito_filter & gene_filter & sum_filter]
+  
+  coldata_qc <- data.frame(colData(sce_qc))
+  filtered_cell_plot <-
+    ggplot(coldata_qc, aes(x = sum, y = detected, color = mito_percent)) +
+    geom_point(alpha = 0.5) +
+    scale_color_viridis_c() +
+    labs(x = "Total Count", y = "Number of Genes Expressed", color = "Mitochondrial \nFraction") +
+    theme_classic() +
+    geom_hline(yintercept = opt$detected_gene_cutoff) +
+    geom_vline(xintercept = opt$umi_count_cutoff)
+  
+  # Include note in metadata re: filtering
+  metadata(filtered_sce)$filtering <- "manually filtered"
   
 } else if (opt$filtering_method == "miQC") {
-  
-  model <- NULL
-  filtered_sce <- NULL
-  model_attempt <- 0
-  
-  # This can fail in a few ways, so we will wrap the next steps in a while/try loop
-  while(model_attempt < 3 &&
-        (!is(model, "flexmix") || length(model@components) < 2 ) &&
-        is.null(filtered_sce)){
-    model_attempt <- model_attempt + 1
-    try({
-      model <- miQC::mixtureModel(sce_qc)
-      # filter step can fail too
-      filtered_sce <- 
-        miQC::filterCells(sce_qc,
-                          model = model,
-                          verbose = FALSE)
+  # Rename columns for `mixtureModel()`
+  names(colData(sce_qc)) <-
+    stringr::str_replace(names(colData(sce_qc)),
+                         "^mito_",
+                         "subsets_mito_")
+  tryCatch(
+    expr = {
+      # Generate miQC model
+      sce_model <- miQC::mixtureModel(sce_qc)
       
-      # Plot model
-      filtered_model_plot <- miQC::plotModel(sce_qc, model)
-      
-      # Plot filtering
-      filtered_cell_plot <- miQC::plotFiltering(sce_qc, model)
-      
-      # Combine plots
-      filtered_cell_plot <-
-        ggarrange(filtered_model_plot,
-                  filtered_cell_plot,
-                  ncol = 1,
-                  nrow = 2)
-      # Include note in metadata re: filtering
-      metadata(filtered_sce)$filtering <- "miQC filtered"
-
-    }, silent = TRUE)
-  } 
-  
-  if(is.null(filtered_sce) || is.null(model)) {
-    # if miQC failed after 3 attempts then do manual filtering instead 
-    warning(glue::glue("
-                       miQC filtering failed for {opt$sample_sce_filepath}. 
-                       Using manual filtering instead.
-                       "))
+    },
+    error = function(e) {
+      print(
+        paste0(
+          "miQC filtering failed. Skipping filtering for sample ",
+          opt$sample_sce_filepath,
+          ". Try `manual` filtering instead."
+        )
+      )
+    }
     
-    # manually filter the cells 
-    filtered_sce <- manual_cell_filtering(sce = sce_qc,
-                                          mito_percent_cutoff = opt$mito_percent_cutoff,
-                                          detected_gene_cutoff = opt$detected_gene_cutoff, 
-                                          umi_count_cutoff = opt$umi_count_cutoff)
+  )
+  
+  if (exists("sce_model")) {
+    # Filter cells
+    filtered_sce <- miQC::filterCells(sce_qc, sce_model)
     
-    # create summary plot 
-    filtered_cell_plot <- plot_manual_filtering(sce = sce_qc,
-                                                detected_gene_cutoff = opt$detected_gene_cutoff, 
-                                                umi_count_cutoff = opt$umi_count_cutoff)
+    # Plot model
+    filtered_model_plot <- miQC::plotModel(sce_qc, sce_model)
+    
+    # Plot filtering
+    filtered_cell_plot <- miQC::plotFiltering(sce_qc, sce_model)
+    
+    # Combine plots
+    filtered_cell_plot <-
+      ggarrange(filtered_model_plot,
+                filtered_cell_plot,
+                ncol = 1,
+                nrow = 2)
+    # Include note in metadata re: filtering
+    metadata(filtered_sce)$filtering <- "miQC filtered"
+    
+  } else {
+    filtered_sce <- sce_qc
+    # Include note in metadata re: failed filtering
+    metadata(filtered_sce)$filtering <- "miQC filtering failed"
+    # Implement `plotMetrics` when a model cannot be generated
+    filtered_cell_plot <- miQC::plotMetrics(filtered_sce)
   }
+  
 }
 
 # Save plot

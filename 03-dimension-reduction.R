@@ -13,8 +13,8 @@
 
 ## Set up -------------------------------------------------------------
 
-# Source in functions 
-source(file.path("utils", "filtering-functions.R"))
+# Source in set up function
+source(file.path("utils", "setup-functions.R"))
 
 # Load project
 setup_renv()

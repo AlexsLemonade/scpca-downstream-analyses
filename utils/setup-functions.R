@@ -12,15 +12,15 @@ setup_renv <- function(project_filepath = here::here(),
   #
   # Args:
   #   project_filepath: filepath to the project file to be loaded in, the
-  #                     default is the `here::here()` function to identify the path of the root directory. 
+  #                     default is the `here::here()` function to identify the 
+  #                     path of the root directory, including whether or not 
+  #                     there is a .Rproj file present
   #   restore_packages: logical argument to determine whether or not packages
   #                     should be restored to what's in the renv.lock file;
   #                     default is TRUE
   
-  # `here::here()` looks at a number of criteria to identify the root 
-  # directory, including whether or not there is a .Rproj file present,
-  # so we can pass this to `renv::load()` to load the project file
-  renv::load(here::here())
+  # use `renv::load()` to load the project file
+  renv::load(project_filepath)
   
   if (restore_packages == TRUE) {
     # install any necessary packages and dependecies from the renv.lock file

@@ -13,12 +13,11 @@
 
 ## Set up -------------------------------------------------------------
 
-## Load project
+# Source in set up function
+source(file.path("utils", "setup-functions.R"))
 
-# `here::here()` looks at a number of criteria to identify the root 
-# directory, including whether or not there is a .Rproj file present,
-# so we can pass this to `renv::load()` to load the project file
-renv::load(here::here())
+# Load project
+setup_renv()
 
 # Check that R version us at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){

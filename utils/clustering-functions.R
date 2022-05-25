@@ -76,9 +76,8 @@ graph_clustering <- function(normalized_sce,
   #     can be a range of values, e.g. c(1:10), or a single value
   #   step_size: if a range of values is provided to `params_range`, 
   #     a numeric value representing the step size to use within the params range of values
-  #   weighting_type: the type of weighting scheme -- can be "rank", "number", or "jaccard"
-  #   cluster_function: the name of the community detection algorithm that is
-  #                     being tested -- can be "walktrap" or "louvain"
+  #   cluster_type: the type of graph-based clustering method that is being 
+  #     tested -- can be "walktrap" or "louvain"; the default is "walktrap"
   #   seed: an integer to set the seed as for reproducibility
   
   # first check that the normalized object is a SingleCellExperiment object
@@ -149,11 +148,6 @@ check_cluster_stability <- function(pca_matrix,
   #   cluster_type: the type of clustering method performed - can be "kmeans", 
   #                 "walktrap", or "louvain"
   #   k: the desired number of centers
-  #   weighting_type: the type of weighting scheme -- can be "jaccard" or "rank";
-  #                   "rank" being the default
-  #   cluster_function: the name of the community detection algorithm that is
-  #                     being tested -- can be "walktrap" or "louvain";
-  #                     "walktrap" being the default
   #   iterations: The number of iterations to perform for bootstrapping, default is 20.
   #   seed: an integer to set the seed as for reproducibility
   

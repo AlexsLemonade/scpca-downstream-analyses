@@ -71,8 +71,7 @@ sample_290_normalized <- graph_clustering(
   sample_290_normalized,
   params_range = c(5:25),
   step_size = 5,
-  weighting_type = "rank",
-  cluster_function = "walktrap"
+  cluster_type = "walktrap"
 )
 
 # grab column names with clustering results
@@ -96,8 +95,7 @@ sample_290_normalized <- graph_clustering(
   sample_290_normalized,
   params_range = c(5:25),
   step_size = 5,
-  weighting_type = "jaccard",
-  cluster_function = "louvain"
+  cluster_type = "louvain"
 )
 
 # grab column names with clustering results
@@ -252,7 +250,7 @@ plot_cluster_stability_ari(kmeans_ari_df)
 ### graph-based, walktrap
 
 ```{r warning=FALSE}
-walktrap_ari_df <- get_cluster_stability_summary(sample_290_normalized, c(5:25), 5, cluster_type = "graph", cluster_function = "walktrap")
+walktrap_ari_df <- get_cluster_stability_summary(sample_290_normalized, c(5:25), 5, cluster_type = "walktrap")
 walktrap_ari_df
 ```
 
@@ -264,7 +262,7 @@ plot_cluster_stability_ari(walktrap_ari_df)
 ### graph-based, louvain
 
 ```{r warning=FALSE}
-louvain_ari_df <- get_cluster_stability_summary(sample_290_normalized, c(5:25), 5, cluster_type = "graph", cluster_function = "louvain")
+louvain_ari_df <- get_cluster_stability_summary(sample_290_normalized, c(5:25), 5, cluster_type = "louvain")
 louvain_ari_df
 ```
 

@@ -1,0 +1,51 @@
+---
+params:
+  sample: Sample
+  library: Library
+  pre_processed_sce: "data/Gawad_processed_data/SCPCS000216/SCPCL000290_filtered.rds"
+  processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
+  date: !r Sys.Date()
+
+title: "`r glue::glue('Core analysis report for sample {params$sample}')`"
+author: "CCDL"
+date: "`r params$date`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+---
+
+## Set Up
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r}
+# Load libraries
+library(readr)
+```
+
+## Read in data
+
+```{r}
+pre_processed_sce <- read_rds(file.path(params$pre_processed_sce))
+
+processed_sce <- read_rds(file.path(params$processed_sce))
+
+num_cells_pre_processed <- dim(pre_processed_sce)[2]
+num_cells_processed <- dim(processed_sce)[2]
+glue::glue("This sample has {num_cells_pre_processed} cells before being processed through the core analysis pipeline, and has {num_cells_processed} cells after processing.")
+```
+
+## Session info
+
+```{r}
+sessionInfo()
+```

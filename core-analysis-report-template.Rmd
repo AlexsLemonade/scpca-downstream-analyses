@@ -6,7 +6,7 @@ params:
   processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
   date: !r Sys.Date()
 
-title: "`r glue::glue('Core analysis report for sample {params$sample}')`"
+title: "`r glue::glue('Core analysis report for sample {params$library}')`"
 author: "CCDL"
 date: "`r params$date`"
 output: 
@@ -40,12 +40,13 @@ pre_processed_sce <- read_rds(file.path(params$pre_processed_sce))
 processed_sce <- read_rds(file.path(params$processed_sce))
 
 num_cells_pre_processed <- dim(pre_processed_sce)[2]
-num_cells_processed <- dim(processed_sce)[2]
-glue::glue("This sample has {num_cells_pre_processed} cells before being processed through the core analysis pipeline, and has {num_cells_processed} cells after processing.")
+num_filtered_cells <- dim(processed_sce)[2]
+glue::glue("This sample has {num_cells_pre_processed} cells before being processed through the core analysis pipeline, and has {num_filtered_cells} cells after removal of low quality cells.")
 ```
 
 ## Session info
-
+<details>
+<summary>R session information</summary>
 ```{r}
 sessionInfo()
 ```

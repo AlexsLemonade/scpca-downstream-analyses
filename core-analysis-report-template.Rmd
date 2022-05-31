@@ -6,7 +6,7 @@ params:
   processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
   date: !r Sys.Date()
 
-title: "`r glue::glue('Core analysis report for sample {params$library}')`"
+title: "`r glue::glue('Core analysis report for {params$library}')`"
 author: "CCDL"
 date: "`r params$date`"
 output: 

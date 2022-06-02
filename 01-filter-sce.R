@@ -113,10 +113,10 @@ option_list <- list(
   ),
   optparse::make_option(
     c("--prob_compromised_cutoff"),
-    type = "integer",
+    type = "double",
     default = 0.75,
     help = "probability compromised cutoff used for filtering cells if using miQC",
-    metavar = "integer"
+    metavar = "double"
   ),
   optparse::make_option(
     c("-f", "--filtering_method"),

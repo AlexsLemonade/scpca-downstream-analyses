@@ -11,6 +11,7 @@
 #   --seed 2021 \
 #   --gene_detected_row_cutoff 5 \
 #   --gene_means_cutoff 0.1 \
+#   --prob_compromised_cutoff 0.75 \
 #   --filtering_method "miQC"
 
 ## Set up -------------------------------------------------------------
@@ -91,10 +92,10 @@ option_list <- list(
   ),
   optparse::make_option(
     c("-c", "--mito_percent_cutoff"),
-    type = "integer",
+    type = "double",
     default = 20,
     help = "cell mitochondrial percent cutoff -- not needed for miQC filtering",
-    metavar = "integer"
+    metavar = "double"
   ),
   optparse::make_option(
     c("-p", "--detected_gene_cutoff"),
@@ -108,6 +109,13 @@ option_list <- list(
     type = "integer",
     default = 500,
     help = "cell UMI counts cutoff -- not needed for miQC filtering",
+    metavar = "integer"
+  ),
+  optparse::make_option(
+    c("--prob_compromised_cutoff"),
+    type = "integer",
+    default = 0.75,
+    help = "probability compromised cutoff used for filtering cells if using miQC",
     metavar = "integer"
   ),
   optparse::make_option(
@@ -216,6 +224,7 @@ if (opt$filtering_method == "manual") {
       filtered_sce <- 
         miQC::filterCells(sce_qc,
                           model = model,
+                          posterior_cutoff = opt$prob_compromised_cutoff,
                           verbose = FALSE)
       
       # Plot model
@@ -232,6 +241,7 @@ if (opt$filtering_method == "manual") {
                   nrow = 2)
       # Include note in metadata re: filtering
       metadata(filtered_sce)$filtering <- "miQC filtered"
+      metadata(filtered_sce)$probability_compromised_cutoff <- opt$prob_compromised_cutoff
 
     }, silent = TRUE)
   } 

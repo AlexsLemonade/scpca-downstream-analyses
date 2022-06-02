@@ -36,7 +36,8 @@ rule filter_data:
     shell:
         "Rscript --vanilla 01-filter-sce.R"
         "  --sample_sce_filepath {input}"
-        "  --sample_name {wildcards.library_id}"
+        "  --sample_id {wildcards.sample_id}"
+        "  --library_id {wildcards.library_id}"
         "  --mito_file {config[mito_file]}"
         "  --output_plots_directory $(dirname {output.plot})"
         "  --output_filepath {output.downstream_filtered_rds}"

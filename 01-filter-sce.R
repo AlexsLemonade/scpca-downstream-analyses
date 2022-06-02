@@ -4,7 +4,8 @@
 
 # Rscript --vanilla 01-filter-sce.R \
 #   --sample_sce_filepath "data/anderson-single-cell/pre-filtered-sce/GSM4186961_pre-filtered_sce.rds" \
-#   --sample_name "GSM4186961" \
+#   --sample_id "GSM4186961" \
+#   --library_id "GSL4186960" \
 #   --mito_file data/Homo_sapiens.GRCh38.103.mitogenes.txt \
 #   --output_filepath data/anderson-single-cell/results/sample_filtered_sce.rds \
 #   --output_plots_directory plots \
@@ -46,10 +47,16 @@ option_list <- list(
     help = "path to sample SCE RDS file",
   ),
   optparse::make_option(
-    c("-r", "--sample_name"),
+    c("-r", "--sample_id"),
     type = "character",
     default = NULL,
     help = "name of sample being analyzed",
+  ),
+  optparse::make_option(
+    c("-l", "--library_id"),
+    type = "character",
+    default = NULL,
+    help = "name of library being analyzed",
   ),
   optparse::make_option(
     c("-i", "--mito_file"),
@@ -171,7 +178,7 @@ if (!dir.exists(plots_dir)) {
 
 output_filtered_cell_plot <- file.path(
   plots_dir,
-  paste0(opt$sample_name, "_", opt$filtering_method, "_cell_filtering.png"))
+  paste0(opt$library_id, "_", opt$filtering_method, "_cell_filtering.png"))
 
 #### Filter data ---------------------------------------------------------------
 
@@ -279,6 +286,10 @@ detected <-
   rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
 expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
 filtered_sce <- filtered_sce[detected & expressed, ]
+
+# Save sample and library id in metadata of filtered object
+metadata(filtered_sce)$sample <- opt$sample_id
+metadata(filtered_sce)$library <- opt$library_id
 
 # Save output filtered sce
 readr::write_rds(filtered_sce, output_file)

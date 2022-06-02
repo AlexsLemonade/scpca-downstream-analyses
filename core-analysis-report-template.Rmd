@@ -1,6 +1,5 @@
 ---
 params:
-  sample: Sample
   library: Library
   pre_processed_sce: "data/Gawad_processed_data/SCPCS000216/SCPCL000290_filtered.rds"
   processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
@@ -39,26 +38,33 @@ library(dplyr)
 pre_processed_sce <- read_rds(file.path(params$pre_processed_sce))
 
 processed_sce <- read_rds(file.path(params$processed_sce))
-
-num_cells_pre_processed <- dim(pre_processed_sce)[2]
-num_filtered_cells <- dim(processed_sce)[2]
-glue::glue("This sample has {num_cells_pre_processed} cells before being processed through the core analysis pipeline, and has {num_filtered_cells} cells after removal of low quality cells.")
 ```
 
-## Filtering results
+## Filtering results for `r params$library_id`
 
 ```{r}
 # Extract sce metadata
 processed_meta <- metadata(processed_sce)
 
+# Define number of cells
+num_cells_pre_processed <- dim(pre_processed_sce)[2]
+num_filtered_cells <- dim(processed_sce)[2]
+
+# Define sample id
+if(is.null(processed_meta$sample)){
+  sample <- NA
+} else {
+  sample <- processed_meta$sample
+}
+
 # Put a sample information data frame together
 sample_information <- tibble::tibble(
-  "Sample id" = params$sample,
+  "Sample id" = sample,
   "Library id" = params$library,
   "Cells before filtering" = 
-    format(dim(pre_processed_sce)[2], big.mark = ',', scientific = FALSE),
+    format(num_cells_pre_processed, big.mark = ',', scientific = FALSE),
   "Cells after filtering" = 
-    format(dim(processed_sce)[2], big.mark = ',', scientific = FALSE),
+    format(num_filtered_cells, big.mark = ',', scientific = FALSE),
   "Filtering type" = 
     format(processed_meta$filtering, big.mark = ',', scientific = FALSE)
 )

@@ -40,7 +40,7 @@ pre_processed_sce <- read_rds(file.path(params$pre_processed_sce))
 processed_sce <- read_rds(file.path(params$processed_sce))
 ```
 
-## Filtering results for `r params$library_id`
+## Filtering results for `r params$library`
 
 ```{r}
 # Extract sce metadata

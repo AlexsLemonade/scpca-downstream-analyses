@@ -11,7 +11,6 @@
 #   --seed 2021 \
 #   --gene_detected_row_cutoff 5 \
 #   --gene_means_cutoff 0.1 \
-#   --prob_compromised_cutoff 0.75 \
 #   --filtering_method "miQC"
 
 ## Set up -------------------------------------------------------------
@@ -85,10 +84,10 @@ option_list <- list(
   ),
   optparse::make_option(
     c("-m", "--gene_means_cutoff"),
-    type = "integer",
+    type = "double",
     default = 0.1,
     help = "gene mean expression cutoff",
-    metavar = "integer"
+    metavar = "double"
   ),
   optparse::make_option(
     c("-c", "--mito_percent_cutoff"),
@@ -109,14 +108,6 @@ option_list <- list(
     type = "integer",
     default = 500,
     help = "cell UMI counts cutoff -- not needed for miQC filtering",
-    metavar = "integer"
-  ),
-  optparse::make_option(
-    c("--prob_compromised_cutoff"),
-    type = "integer",
-    default = 0.75,
-    help = "cell probability compromised cutoff -- this should be provided if
-            `prob_compromised` already exists in the object",
     metavar = "integer"
   ),
   optparse::make_option(

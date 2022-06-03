@@ -71,7 +71,7 @@ sample_information <- tibble::tibble(
 
 if (processed_meta$filtering == "manually filtered"){
   
-  sample_information <- sample_information |>
+  sample_information <- sample_information %>%
     mutate(
       "UMI count cutoff" = 
         format(processed_meta$umi_count_cutoff, big.mark = ',', scientific = FALSE),
@@ -82,11 +82,22 @@ if (processed_meta$filtering == "manually filtered"){
     )
 }
 
+if (processed_meta$filtering == "miQC" ){
+  
+  sample_information <- sample_information %>%
+    mutate("Probability compromised cutoff" = 
+             format(processed_meta$probability_compromised_cutoff, big.mark = ',', scientific = FALSE))
+}
+
+sample_information <- sample_information %>%
+  mutate(across(.fns = ~ifelse(.x == "NULL", "N/A", .x))) %>% # reformat nulls
+  t()
+
 # Make the table with sample information
-knitr::kable(sample_information, align = 'r') |>
+knitr::kable(sample_information, align = 'r') %>%
   kableExtra::kable_styling(bootstrap_options = "striped",
                             full_width = FALSE,
-                            position = "left") |>
+                            position = "left") %>%
   kableExtra::column_spec(2, monospace = TRUE)
 ```
 

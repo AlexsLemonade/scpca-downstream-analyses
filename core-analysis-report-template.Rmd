@@ -82,7 +82,7 @@ if (processed_meta$filtering == "manually filtered"){
     )
 }
 
-if (processed_meta$filtering == "miQC" ){
+if (processed_meta$filtering == "miQC filtered" ){
   
   sample_information <- sample_information %>%
     mutate("Probability compromised cutoff" = 

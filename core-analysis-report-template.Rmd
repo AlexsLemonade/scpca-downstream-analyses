@@ -1,6 +1,5 @@
 ---
 params:
-  sample: Sample
   library: Library
   pre_processed_sce: "data/Gawad_processed_data/SCPCS000216/SCPCL000290_filtered.rds"
   processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
@@ -30,17 +29,76 @@ knitr::opts_chunk$set(
 ```{r}
 # Load libraries
 library(readr)
+library(SingleCellExperiment)
+library(dplyr)
 ```
 
-
 ```{r}
+# Read in SCE objects
 pre_processed_sce <- read_rds(file.path(params$pre_processed_sce))
 
 processed_sce <- read_rds(file.path(params$processed_sce))
+```
 
+## Filtering results for `r params$library`
+
+```{r}
+# Extract sce metadata
+processed_meta <- metadata(processed_sce)
+
+# Define number of cells
 num_cells_pre_processed <- dim(pre_processed_sce)[2]
 num_filtered_cells <- dim(processed_sce)[2]
-glue::glue("This sample has {num_cells_pre_processed} cells before being processed through the core analysis pipeline, and has {num_filtered_cells} cells after removal of low quality cells.")
+
+# Define sample id
+if(is.null(processed_meta$sample)){
+  sample <- NA
+} else {
+  sample <- processed_meta$sample
+}
+
+# Put a sample information data frame together
+sample_information <- tibble::tibble(
+  "Sample id" = sample,
+  "Library id" = params$library,
+  "Cells before filtering" = 
+    format(num_cells_pre_processed, big.mark = ',', scientific = FALSE),
+  "Cells after filtering" = 
+    format(num_filtered_cells, big.mark = ',', scientific = FALSE),
+  "Filtering type" = 
+    format(processed_meta$filtering, big.mark = ',', scientific = FALSE)
+)
+
+if (processed_meta$filtering == "manually filtered"){
+  
+  sample_information <- sample_information %>%
+    mutate(
+      "UMI count cutoff" = 
+        format(processed_meta$umi_count_cutoff, big.mark = ',', scientific = FALSE),
+      "Percent mito cutoff" = 
+        format(processed_meta$mito_percent_cutoff, big.mark = ',', scientific = FALSE),
+      "Detected genes cutoff" = 
+        format(processed_meta$detected_gene_cutoff, big.mark = ',', scientific = FALSE)
+    )
+}
+
+if (processed_meta$filtering == "miQC filtered" ){
+  
+  sample_information <- sample_information %>%
+    mutate("Probability compromised cutoff" = 
+             format(processed_meta$probability_compromised_cutoff, big.mark = ',', scientific = FALSE))
+}
+
+sample_information <- sample_information %>%
+  mutate(across(.fns = ~ifelse(.x == "NULL", "N/A", .x))) %>% # reformat nulls
+  t()
+
+# Make the table with sample information
+knitr::kable(sample_information, align = 'r') %>%
+  kableExtra::kable_styling(bootstrap_options = "striped",
+                            full_width = FALSE,
+                            position = "left") %>%
+  kableExtra::column_spec(2, monospace = TRUE)
 ```
 
 ## Session info

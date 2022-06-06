@@ -3,6 +3,19 @@ results_dir: "results/Gawad_processed_data"
 mito_file: "data/Homo_sapiens.GRCh38.103.mitogenes.txt"
 project_metadata: "project-metadata/gawad-library-metadata.tsv"
 
+# seed to use for all steps
+seed: 2021
+
+# miQC filtering parameters
+prob_compromised_cutoff: 0.75 # Maximum miQC probablity of cell being compromised
+
+# manual filtering parameters 
+gene_detected_row_cutoff: 5 # Percent of cells a gene must be detected in
+gene_means_cutoff: 0.1 # Mean gene expression minimum threshold
+mito_percent_cutoff: 20 # Maximum percent mitochondrial reads per cell threshold
+detected_gene_cutoff: 500 # Minimum number of genes detected per cell
+umi_count_cutoff: 500 # Minimum UMI per cell 
+
 # dimensionality reduction parameters
 n_genes_pca: 2000 # The `n` number of highly variable genes to subset for PCA
 

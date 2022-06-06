@@ -41,12 +41,13 @@ rule filter_data:
         "  --mito_file {config[mito_file]}"
         "  --output_plots_directory $(dirname {output.plot})"
         "  --output_filepath {output.downstream_filtered_rds}"
-        "  --seed 2021"
-        "  --gene_detected_row_cutoff 5"
-        "  --gene_means_cutoff 0.1"
-        "  --mito_percent_cutoff 20"
-        "  --detected_gene_cutoff 500"
-        "  --umi_count_cutoff 500"
+        "  --seed {config[seed]}"
+        "  --gene_detected_row_cutoff {config[gene_detected_row_cutoff]}"
+        "  --gene_means_cutoff {config[gene_means_cutoff]}"
+        "  --mito_percent_cutoff {config[mito_percent_cutoff]}"
+        "  --detected_gene_cutoff {config[detected_gene_cutoff]}"
+        "  --umi_count_cutoff {config[umi_count_cutoff]}"
+        "  --prob_compromised_cutoff {config[prob_compromised_cutoff]}"
         "  --filtering_method {wildcards.filtering_method}"
 
 rule normalize_data:
@@ -57,7 +58,7 @@ rule normalize_data:
     shell:
         "Rscript --vanilla 02-normalize-sce.R"
         "  --sce {input}"
-        "  --seed 2021"
+        "  --seed {config[seed]}"
         "  --output_filepath {output}"
         
 rule dimensionality_reduction:
@@ -68,7 +69,7 @@ rule dimensionality_reduction:
     shell:
         "Rscript --vanilla 03-dimension-reduction.R"
         "  --sce {input}"
-        "  --seed 2021"
+        "  --seed {config[seed]}"
         "  --top_n {config[n_genes_pca]}"
         "  --output_filepath {output}"
         "  --overwrite"
@@ -78,13 +79,10 @@ rule clustering:
         "{basename}_downstream_processed_normalized_reduced_sce.rds"
     output:
         "{basename}_processed_sce.rds"
-    params:
-        cluster_type=config["cluster_type"],
-        nearest_neighbors=config["nearest_neighbors"]
     shell:
         "Rscript --vanilla 04-clustering.R"
         "  --sce {input}"
-        "  --seed 2021"
-        "  --cluster_type {params.cluster_type}"
-        "  --nearest_neighbors {params.nearest_neighbors}"
+        "  --seed {config[seed]}"
+        "  --cluster_type {config[cluster_type]}"
+        "  --nearest_neighbors {config[nearest_neighbors]}"
         "  --output_filepath {output}"

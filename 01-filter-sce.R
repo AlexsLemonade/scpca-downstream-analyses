@@ -234,9 +234,8 @@ if (opt$filtering_method == "manual") {
                           posterior_cutoff = opt$prob_compromised_cutoff,
                           verbose = FALSE)
       
-      # save model and pre-filtered sce object in metadata for plotting later
+      # save model in metadata for plotting later
       metadata(filtered_sce)$miQC_model <- model
-      metadata(filtered_sce)$original_sce <- sce_qc
       
       # Plot model
       filtered_model_plot <- miQC::plotModel(sce_qc, model)

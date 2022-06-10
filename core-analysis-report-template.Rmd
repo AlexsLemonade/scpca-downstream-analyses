@@ -31,6 +31,12 @@ knitr::opts_chunk$set(
 library(readr)
 library(SingleCellExperiment)
 library(dplyr)
+library(miQC)
+library(ggpubr)
+
+# Source filtering functions 
+source(here::here("utils", "filtering-functions.R"))
+
 ```
 
 ```{r}
@@ -99,6 +105,35 @@ knitr::kable(sample_information, align = 'r') %>%
                             full_width = FALSE,
                             position = "left") %>%
   kableExtra::column_spec(2, monospace = TRUE)
+```
+
+### Filtering plots
+
+```{r}
+if (processed_meta$filtering == "manually filtered"){
+  # Plot manual filtering thresholds
+  filtered_cell_plot <- plot_manual_filtering(
+    sce = pre_processed_sce,
+    detected_gene_cutoff = processed_meta$detected_gene_cutoff,
+    umi_count_cutoff = processed_meta$umi_count_cutoff
+  )
+}
+if (processed_meta$filtering == "miQC filtered" ){
+  # Remove `prob_compromised` if it exists
+  pre_processed_sce$prob_compromised <- NULL
+  # Plot model
+  filtered_model_plot <- miQC::plotModel(pre_processed_sce, processed_meta$miQC_model)
+  # Plot filtering
+  filtered_cell_plot <- miQC::plotFiltering(pre_processed_sce, processed_meta$miQC_model)
+  # Combine plots
+  filtered_cell_plot <-
+    ggarrange(filtered_model_plot,
+              filtered_cell_plot,
+              ncol = 1,
+              nrow = 2)
+}
+  
+filtered_cell_plot
 ```
 
 ## Session info

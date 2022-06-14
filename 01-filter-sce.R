@@ -8,7 +8,6 @@
 #   --library_id "GSL4186960" \
 #   --mito_file data/Homo_sapiens.GRCh38.103.mitogenes.txt \
 #   --output_filepath data/anderson-single-cell/results/sample_filtered_sce.rds \
-#   --output_plots_directory plots \
 #   --seed 2021 \
 #   --gene_detected_row_cutoff 5 \
 #   --gene_means_cutoff 0.1 \
@@ -63,12 +62,6 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "the path to the mito file"
-  ),
-  optparse::make_option(
-    c("--output_plots_directory"),
-    type = "character",
-    default = NULL,
-    help = "output plots directory"
   ),
   optparse::make_option(
     c("--output_filepath"),
@@ -147,7 +140,6 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
 library(scater)
 library(scran)
 library(ggplot2)
-library(ggpubr)
 library(magrittr)
 library(scpcaTools)
 library(SingleCellExperiment)
@@ -171,15 +163,6 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-plots_dir <- file.path(opt$output_plots_directory)
-if (!dir.exists(plots_dir)) {
-  dir.create(plots_dir, recursive = TRUE)
-}
-
-output_filtered_cell_plot <- file.path(
-  plots_dir,
-  paste0(opt$library_id, "_", opt$filtering_method, "_cell_filtering.png"))
-
 #### Filter data ---------------------------------------------------------------
 
 # Read in sce object
@@ -193,13 +176,6 @@ if (is.null(sce_qc$detected)) {
   sce_qc <- add_cell_mito_qc(sce_qc, mito_genes)
 }
 
-if (!is.null(sce_qc$prob_compromised)) {
-  
-  # Remove `prob_compromised` if it exists, as this will cause errors with
-  # plotModel
-  sce_qc$prob_compromised <- NULL
-}
-
 # Perform filtering based on specified method
 if (opt$filtering_method == "manual") {
   
@@ -208,11 +184,7 @@ if (opt$filtering_method == "manual") {
                                         mito_percent_cutoff = opt$mito_percent_cutoff,
                                         detected_gene_cutoff = opt$detected_gene_cutoff, 
                                         umi_count_cutoff = opt$umi_count_cutoff)
-    
-  # create summary plot 
-  filtered_cell_plot <- plot_manual_filtering(sce = sce_qc,
-                                              detected_gene_cutoff = opt$detected_gene_cutoff, 
-                                              umi_count_cutoff = opt$umi_count_cutoff)
+  
   
 } else if (opt$filtering_method == "miQC") {
   
@@ -234,21 +206,9 @@ if (opt$filtering_method == "manual") {
                           posterior_cutoff = opt$prob_compromised_cutoff,
                           verbose = FALSE)
       
-      # save model in metadata for plotting later
+      # Save model in metadata for plotting later
       metadata(filtered_sce)$miQC_model <- model
       
-      # Plot model
-      filtered_model_plot <- miQC::plotModel(sce_qc, model)
-      
-      # Plot filtering
-      filtered_cell_plot <- miQC::plotFiltering(sce_qc, model)
-      
-      # Combine plots
-      filtered_cell_plot <-
-        ggarrange(filtered_model_plot,
-                  filtered_cell_plot,
-                  ncol = 1,
-                  nrow = 2)
       # Include note in metadata re: filtering
       metadata(filtered_sce)$filtering <- "miQC filtered"
       metadata(filtered_sce)$probability_compromised_cutoff <- opt$prob_compromised_cutoff
@@ -269,15 +229,8 @@ if (opt$filtering_method == "manual") {
                                           detected_gene_cutoff = opt$detected_gene_cutoff, 
                                           umi_count_cutoff = opt$umi_count_cutoff)
     
-    # create summary plot 
-    filtered_cell_plot <- plot_manual_filtering(sce = sce_qc,
-                                                detected_gene_cutoff = opt$detected_gene_cutoff, 
-                                                umi_count_cutoff = opt$umi_count_cutoff)
   }
 }
-
-# Save plot
-ggsave(output_filtered_cell_plot, filtered_cell_plot)
 
 # Remove old gene-level rowData statistics and recalculate
 drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')

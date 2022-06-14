@@ -8,7 +8,6 @@
 #   --library_id "GSL4186960" \
 #   --mito_file data/Homo_sapiens.GRCh38.103.mitogenes.txt \
 #   --output_filepath data/anderson-single-cell/results/sample_filtered_sce.rds \
-#   --output_plots_directory plots \
 #   --seed 2021 \
 #   --gene_detected_row_cutoff 5 \
 #   --gene_means_cutoff 0.1 \
@@ -175,13 +174,6 @@ mito_genes <- unique(readLines(opt$mito_file))
 if (is.null(sce_qc$detected)) {
   # We will filter by cells using `scpcaTools::add_cell_mito_qc()`
   sce_qc <- add_cell_mito_qc(sce_qc, mito_genes)
-}
-
-if (!is.null(sce_qc$prob_compromised)) {
-  
-  # Remove `prob_compromised` if it exists, as this will cause errors with
-  # plotModel
-  sce_qc$prob_compromised <- NULL
 }
 
 # Perform filtering based on specified method

@@ -33,6 +33,7 @@ library(SingleCellExperiment)
 library(dplyr)
 library(miQC)
 library(ggpubr)
+library(scater)
 
 # Source filtering functions 
 source(here::here("utils", "filtering-functions.R"))
@@ -135,6 +136,23 @@ if (processed_meta$filtering == "miQC filtered" ){
   
 filtered_cell_plot
 ```
+
+## Clustering results for `r params$library`
+
+```{r}
+# Grab column name with clustering results
+cluster_col <- grep("louvain|walktrap|kmeans", colnames(colData(processed_sce)))
+cluster_name <- colnames(colData(processed_sce)[cluster_col])
+
+# Plot
+cluster_name %>%
+  purrr::map(
+    ~ plotReducedDim(processed_sce, dimred = "UMAP", colour_by = .x) +
+      theme_bw() +
+      theme(text = element_text(size = 22))
+  )
+```
+
 
 ## Session info
 <details>

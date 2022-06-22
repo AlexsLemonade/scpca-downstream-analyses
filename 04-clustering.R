@@ -12,11 +12,14 @@
 
 ## Set up -------------------------------------------------------------
 
+# define project root 
+project_root <- rprojroot::find_root(rprojroot::has_file("scpca-downstream-analyses.Rproj"))
+
 # Source in set up function
-source(file.path("utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "setup-functions.R"))
 
 # Load project
-setup_renv()
+setup_renv(project_filepath = project_root)
 
 # Check that R version us at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){
@@ -27,6 +30,8 @@ if (! (R.version$major == 4 && R.version$minor >= 1)){
 if (packageVersion("BiocVersion") < 3.14){
   stop("Bioconductor version is less than 3.14")
 }
+
+library(optparse)
 
 ## Command line arguments/options
 
@@ -39,7 +44,7 @@ suppressPackageStartupMessages({
 })
 
 # source in clustering functions 
-source(file.path("utils", "clustering-functions.R"))
+source(file.path(project_root, "utils", "clustering-functions.R"))
 
 option_list <- list(
   optparse::make_option(

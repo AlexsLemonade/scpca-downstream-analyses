@@ -13,11 +13,14 @@
 
 ## Set up -------------------------------------------------------------
 
+# define project root 
+project_root <- rprojroot::find_root(rprojroot::has_file("scpca-downstream-analyses.Rproj"))
+
 # Source in set up function
-source(file.path("utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "setup-functions.R"))
 
 # Load project
-setup_renv()
+setup_renv(project_filepath = project_root)
 
 # Check that R version us at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){

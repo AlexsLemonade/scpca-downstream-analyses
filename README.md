@@ -43,7 +43,7 @@ The default `config.yaml` variables that are relevant to your project include th
 
 - `results_dir`: path to a results directory to hold your project's output files
 - `project_metadata`: path to your specific project metadata TSV file with the columns as follows:
-    -  `sample_id`, unique ID for all libraries that were sampled from a unique piece of tissue
+    -  `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
     - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
     - `filtering_method`, whose values should be one of "manual" or "miQC"
     - `filepath`, the relative path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`

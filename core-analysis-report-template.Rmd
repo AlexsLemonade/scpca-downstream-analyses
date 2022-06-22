@@ -141,7 +141,7 @@ filtered_cell_plot
 
 ```{r}
 # Grab column name with clustering results
-cluster_col <- grep("louvain|walktrap|kmeans", colnames(colData(processed_sce)))
+cluster_col <- grep("louvain|walktrap", colnames(colData(processed_sce)))
 cluster_name <- colnames(colData(processed_sce)[cluster_col])
 
 # Plot

@@ -41,13 +41,12 @@ Note that we have also provided a [configuration file](https://snakemake.readthe
 
 The default `config.yaml` variables that are relevant to your project include the following:
 
-- `data_dir`: path to the main data directory that holds your samples' files
-	- expected within this directory would be individual folders for each sample, with the folder name corresponding to the sample ID, that hold the pre-processed RDS files with the file name in the format, `<library_id>_filtered.rds`
 - `results_dir`: path to a results directory to hold your project's output files
 - `project_metadata`: path to your specific project metadata TSV file with the columns as follows:
-    -  `sample_id`, whose values are the names of the sample folders
-    - `library_id`, whose values are the prefix to the `_filtered.rds` file
+    -  `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
+    - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
     - `filtering_method`, whose values should be one of "manual" or "miQC"
+    - `filepath`, the relative path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`
 
 
 You can tell the config file to point to your specific project variables by running Snakemake using the `snakemake --cores 2` command and modifying the relevant parameters using the `--config` flag as in the following example:

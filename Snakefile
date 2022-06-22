@@ -42,7 +42,6 @@ rule filter_data:
         "  --umi_count_cutoff {config[umi_count_cutoff]}"
         "  --prob_compromised_cutoff {config[prob_compromised_cutoff]}"
         "  --filtering_method {wildcards.filtering_method}"
-        "  --project_root {workflow.basedir}"
 
 rule normalize_data:
     input:
@@ -54,7 +53,6 @@ rule normalize_data:
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --output_filepath {output}"
-        "  --project_root {workflow.basedir}"
         
 rule dimensionality_reduction:
     input:
@@ -68,7 +66,6 @@ rule dimensionality_reduction:
         "  --top_n {config[n_genes_pca]}"
         "  --output_filepath {output}"
         "  --overwrite"
-        "  --project_root {workflow.basedir}"
 
 rule clustering:
     input:
@@ -82,4 +79,3 @@ rule clustering:
         "  --cluster_type {config[cluster_type]}"
         "  --nearest_neighbors {config[nearest_neighbors]}"
         "  --output_filepath {output}"
-        "  --project_root {workflow.basedir}"

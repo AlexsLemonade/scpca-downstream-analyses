@@ -13,6 +13,15 @@
 
 ## Set up -------------------------------------------------------------
 
+# define project root 
+project_root <- rprojroot::find_root(rprojroot::has_file("scpca-downstream-analyses.Rproj"))
+
+# Source in set up function
+source(file.path(project_root, "utils", "setup-functions.R"))
+
+# Load project
+setup_renv(project_filepath = project_root)
+
 # Check that R version us at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){
   stop("R version must be at least 4.1")
@@ -48,30 +57,12 @@ option_list <- list(
     default = 2021,
     help = "seed integer",
     metavar = "integer"
-  ),
-  optparse::make_option(
-    c("--project_root"),
-    type = "character",
-    help = "the path to the root directory for the R project and where the `utils` folder lives."
   )
 )
 
 # Read the arguments passed
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
-
-# if project root is not provided use here::here()
-if(is.null(opt$project_root)){
-  project_root <- here::here()
-} else {
-  project_root <- opt$project_root
-}
-
-# Source in set up function
-source(file.path(project_root, "utils", "setup-functions.R"))
-
-# Load project
-setup_renv(project_filepath = project_root)
 
 ## Load libraries
 library(scater)

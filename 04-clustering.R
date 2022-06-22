@@ -12,6 +12,15 @@
 
 ## Set up -------------------------------------------------------------
 
+# define project root 
+project_root <- rprojroot::find_root(rprojroot::has_file("scpca-downstream-analyses.Rproj"))
+
+# Source in set up function
+source(file.path(project_root, "utils", "setup-functions.R"))
+
+# Load project
+setup_renv(project_filepath = project_root)
+
 # Check that R version us at least 4.1
 if (! (R.version$major == 4 && R.version$minor >= 1)){
   stop("R version must be at least 4.1")
@@ -22,7 +31,21 @@ if (packageVersion("BiocVersion") < 3.14){
   stop("Bioconductor version is less than 3.14")
 }
 
+library(optparse)
+
 ## Command line arguments/options
+
+## Load libraries
+suppressPackageStartupMessages({
+  library(optparse)
+  library(magrittr)
+  library(bluster)
+  library(SingleCellExperiment)
+})
+
+# source in clustering functions 
+source(file.path(project_root, "utils", "clustering-functions.R"))
+
 option_list <- list(
   optparse::make_option(
     c("-i", "--sce"),
@@ -54,40 +77,11 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "path to output RDS file containing SCE with cluster assignments added"
-  ),
-  optparse::make_option(
-    c("--project_root"),
-    type = "character",
-    help = "the path to the root directory for the R project and where the `utils` folder lives."
   )
 )
 
 # Read the arguments passed
 opt <- parse_args(OptionParser(option_list = option_list))
-
-# if project root is not provided use here::here()
-if(is.null(opt$project_root)){
-  project_root <- here::here()
-} else {
-  project_root <- opt$project_root
-}
-
-# Source in set up function
-source(file.path(project_root, "utils", "setup-functions.R"))
-
-# source in clustering functions 
-source(file.path(project_root, "utils", "clustering-functions.R"))
-
-# Load project
-setup_renv(project_filepath = project_root)
-
-## Load libraries
-suppressPackageStartupMessages({
-  library(optparse)
-  library(magrittr)
-  library(bluster)
-  library(SingleCellExperiment)
-})
 
 ## Set the seed
 set.seed(opt$seed)

@@ -4,6 +4,7 @@ params:
   pre_processed_sce: "data/Gawad_processed_data/SCPCS000216/SCPCL000290_filtered.rds"
   processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
   cluster_type: "louvain"
+  nearest_neighbors: 10
   date: !r Sys.Date()
 
 title: "`r glue::glue('Core analysis report for {params$library}')`"
@@ -142,16 +143,12 @@ filtered_cell_plot
 
 ```{r}
 # Grab column name with clustering results
-cluster_col <- grep(params$cluster_type, colnames(colData(processed_sce)))
-cluster_name <- colnames(colData(processed_sce)[cluster_col])
+cluster_name <- paste(params$cluster_type, params$nearest_neighbors, sep = "_")
 
 # Plot
-cluster_name %>%
-  purrr::map(
-    ~ plotReducedDim(processed_sce, dimred = "UMAP", colour_by = .x) +
+plotReducedDim(processed_sce, dimred = "UMAP", colour_by = cluster_name) +
       theme_bw() +
       theme(text = element_text(size = 14))
-  )
 ```
 
 

@@ -85,7 +85,6 @@ setup_renv(project_filepath = project_root)
 
 ## Load libraries
 suppressPackageStartupMessages({
-  library(optparse)
   library(magrittr)
   library(bluster)
   library(SingleCellExperiment)

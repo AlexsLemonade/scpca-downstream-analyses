@@ -1,6 +1,6 @@
 # file paths
 results_dir: "results/Gawad_processed_data"
-mito_file: "data/Homo_sapiens.GRCh38.103.mitogenes.txt"
+mito_file: "reference-files/Homo_sapiens.GRCh38.103.mitogenes.txt"
 project_metadata: "project-metadata/gawad-library-metadata.tsv"
 
 # seed to use for all steps

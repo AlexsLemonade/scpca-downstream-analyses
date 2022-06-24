@@ -152,10 +152,10 @@ cluster_name <- paste(params$cluster_type, params$nearest_neighbors, sep = "_")
 plotReducedDim(processed_sce, dimred = "UMAP", colour_by = cluster_name) +
   theme_bw() +
   labs(
-    color = "Cluster assignment",
     caption = paste0(params$cluster_type, 
                      " clustering with nearest neighbors value ",
                      params$nearest_neighbors)) +
+  guides(col = guide_legend("Cluster assignment")) +
   theme(text = element_text(size = 14),
         plot.caption = element_text(hjust = 0.5))
 ```

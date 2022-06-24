@@ -141,14 +141,23 @@ filtered_cell_plot
 
 ## Clustering results for `r params$library`
 
+Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment. 
+Here clustering was performed using `r params$cluster_type` clustering with a nearest neighbors value of `r params$nearest_neighbors`.
+
 ```{r}
 # Grab column name with clustering results
 cluster_name <- paste(params$cluster_type, params$nearest_neighbors, sep = "_")
 
 # Plot
 plotReducedDim(processed_sce, dimred = "UMAP", colour_by = cluster_name) +
-      theme_bw() +
-      theme(text = element_text(size = 14))
+  theme_bw() +
+  labs(
+    color = "Cluster assignment",
+    caption = paste0(params$cluster_type, 
+                     " clustering with nearest neighbors value ",
+                     params$nearest_neighbors)) +
+  theme(text = element_text(size = 14),
+        plot.caption = element_text(hjust = 0.5))
 ```
 
 

@@ -1019,6 +1019,13 @@
       "Repository": "RSPM",
       "Hash": "41e7097a7a02db986344eeca0d8a49ac"
     },
+    "markdown": {
+      "Package": "markdown",
+      "Version": "1.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "61e4a10781dd00d7d81dd06ca9b94e95"
+    },
     "matrixStats": {
       "Package": "matrixStats",
       "Version": "0.61.0",

@@ -26,6 +26,10 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE
 )
+
+# Set theme for plotting
+library(ggplot2)
+theme_set(theme_bw())
 ```
 
 ```{r}
@@ -152,7 +156,7 @@ cluster_name <- paste(params$cluster_type, params$nearest_neighbors, sep = "_")
 plotReducedDim(processed_sce, dimred = "UMAP", colour_by = cluster_name) +
   theme_bw() +
   labs(
-    caption = paste0(params$cluster_type, 
+    caption = paste0(stringr::str_to_title(params$cluster_type),
                      " clustering with nearest neighbors value ",
                      params$nearest_neighbors)) +
   guides(col = guide_legend("Cluster assignment")) +

@@ -3,6 +3,8 @@ params:
   library: Library
   pre_processed_sce: "data/Gawad_processed_data/SCPCS000216/SCPCL000290_filtered.rds"
   processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
+  cluster_type: "louvain"
+  nearest_neighbors: 10
   date: !r Sys.Date()
 
 title: "`r glue::glue('Core analysis report for {params$library}')`"
@@ -24,6 +26,10 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE
 )
+
+# Set theme for plotting
+library(ggplot2)
+theme_set(theme_bw())
 ```
 
 ```{r}
@@ -33,6 +39,7 @@ library(SingleCellExperiment)
 library(dplyr)
 library(miQC)
 library(ggpubr)
+library(scater)
 
 # Source filtering functions 
 source(here::here("utils", "filtering-functions.R"))
@@ -135,6 +142,28 @@ if (processed_meta$filtering == "miQC filtered" ){
   
 filtered_cell_plot
 ```
+
+## Clustering results for `r params$library`
+
+Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment. 
+Here clustering was performed using `r params$cluster_type` clustering with a nearest neighbors value of `r params$nearest_neighbors`.
+
+```{r}
+# Grab column name with clustering results
+cluster_name <- paste(params$cluster_type, params$nearest_neighbors, sep = "_")
+
+# Plot
+plotReducedDim(processed_sce, dimred = "UMAP", colour_by = cluster_name) +
+  theme_bw() +
+  labs(
+    caption = paste0(stringr::str_to_title(params$cluster_type),
+                     " clustering with nearest neighbors value ",
+                     params$nearest_neighbors)) +
+  guides(col = guide_legend("Cluster assignment")) +
+  theme(text = element_text(size = 14),
+        plot.caption = element_text(hjust = 0.5))
+```
+
 
 ## Session info
 <details>

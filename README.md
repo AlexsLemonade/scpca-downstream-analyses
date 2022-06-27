@@ -41,13 +41,14 @@ Note that we have also provided a [configuration file](https://snakemake.readthe
 
 The default `config.yaml` variables that are relevant to your project include the following:
 
-- `results_dir`: path to a results directory to hold your project's output files
-- `project_metadata`: path to your specific project metadata TSV file with the columns as follows:
+- `results_dir`: relative path to a results directory to hold your project's output files
+- `project_metadata`: relative path to your specific project metadata TSV file with the columns as follows:
     -  `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
     - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
     - `filtering_method`, whose values should be one of "manual" or "miQC"
     - `filepath`, the relative path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`
-
+- `mito_file`: full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. 
+By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. 
 
 You can tell the config file to point to your specific project variables by running Snakemake using the `snakemake --cores 2` command and modifying the relevant parameters using the `--config` flag as in the following example:
 
@@ -58,6 +59,8 @@ project_metadata="project-metadata/your-project-metadata.TSV"
 ```
 
 You can also use `snakemake --cores 1` to run the workflow as is, using the default values for the variables.
+
+**Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using `snakemake -s <full path to scpca-downstream-analyses/Snakefile>`.
 
 ## Running the optional genes of interest analysis pipeline
 

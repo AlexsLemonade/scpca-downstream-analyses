@@ -24,7 +24,7 @@ This R version is necessary for certain Bioconductor packages to work.
             ```
             export PATH=$PATH:/opt/R/arm64/gfortran/bin
             ```
-5. You should also need to install `openmp`, as follows, from the Terminal:
+5. You also need to install `openmp`, as follows, from the Terminal:
     ```
     curl -O https://mac.r-project.org/openmp/openmp-12.0.1-darwin20-Release.tar.gz
     # Again, you may be promptd for your password here:
@@ -48,8 +48,16 @@ The `renv` package will then install for this version (`4.1.2`) of R.
 
 9. At this point, you should be ready to set up the rest of the project with `renv`. 
 In the R Console within Rstudio, run: `renv::restore()` and follow prompts to install all package versions needed for the workflow.
-You are now ready to go!
-
+**IMPORTANTLY,** you will have to run `renv::restore()` several times.
+This is because your Mac will need to use these newly-downloaded softwares (`gfortran` and `openmp`) as well as certain compiler libraries installed along with them.
+Since this will be the first time those softwares/libaries are "opened," you will receive standard Mac prompts, "XYZ can't be opened because Apple cannot check it for malicious software."
+When you see these prompt, click "Open," and then also open `System Preferences -> Security and Privacy -> General`," and click "Allow" (you may need to click the unlock icon first) so that R can use it to build packages.
+You will need to iterate through this process *several times*: 
+    * Run `renv::restore()`.
+    * When the system prompt appears, click "Open," and then click "Allow" in `System Preferences`.
+    * The `renv::restore()` will then fail, but the _next time_ you run `renv::restore()` the particular software you allowed will work smoothly.
+    * Run `renv::restore()` again!
+After several rounds, there will be no further system prompts and all R packages should install.
 
 
 

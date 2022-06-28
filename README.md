@@ -5,6 +5,7 @@ This pipeline has been created in a modular format with the intent for users to 
 This pipeline also includes an optional genes of interest analysis, when a genes of interest list is provided.
 
 Note that R 4.1.2 is required for running our pipeline, along with Bioconductor 3.14.
+If you are using an Apple computer with an M1 chip, you will need to follow [these instructions](./instructions-mac-M1.md) to get set up in R/RStudio.
 
 This analysis is meant to be performed on single cell gene expression data. 
 More specifically, the expected input for each sample is a RDS file containing a `SingleCellExperiment` object that has been pre-processed using the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where the data is selectively aligned using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/). For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
@@ -76,5 +77,3 @@ bash optional-goi-analysis/run-provided-goi-analysis.sh \
  --sample_metadata "path/to/sample/metadata" \
  --goi_list "path/to/goi-list"
 ```
-
-Where `goi_list` is the path to the genes of interest TSV file relevant to your dataset.

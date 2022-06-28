@@ -1,17 +1,25 @@
 # ScPCA downstream analyses
 
-This repository stores our pipeline for ScPCA downstream analyses.
-This pipeline has been created in a modular format with the intent for users to begin processing at the module or script that is most appropriate for their data.
-This pipeline also includes an optional genes of interest analysis, when a genes of interest list is provided.
+This repository stores a set of workflows used for performing downstream analyses on quantified single-cell and single-nuclei gene expression data.
+More specifically, the repository currently contains a core workflow that performs initial pre-processing of gene expression data. 
+Future development will include addition of optional workflows to be applied to datasets after running the core workflow. 
+
+The core workflow takes as input a RDS file containing a `SingleCellExperiment` object for each library to process and performs the following steps: 
+
+1. Filtering: Each library is filtered to remove any low quality cells.
+Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g. minimum number of UMI counts).
+In addition to removing low quality cells, genes found in a low percentage of cells in a library are removed.
+2. Normalization and dimensionality reduction: Cells are normalized using the [deconvolution method](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP). 
+Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow. 
+3. Clustering: Cells are assigned to cell clusters using graph-based clustering. 
+The default clustering here is Louvain clustering with a nearest neighbors parameter of 10. 
+Cluster assignments are stored in the `SingleCellExperiment` object returned by the workflow.
+
+This pipeline is complementary to the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where single-cell/single-nuclei gene expression data is mapped and quantified using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/).  
+For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
 
 Note that R 4.1.2 is required for running our pipeline, along with Bioconductor 3.14.
-
-This analysis is meant to be performed on single cell gene expression data. 
-More specifically, the expected input for each sample is a RDS file containing a `SingleCellExperiment` object that has been pre-processed using the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where the data is selectively aligned using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/). For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
-
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html). 
-
-If you are making any changes to the workflow, `renv::snapshot()` should be run periodically during development, as to add any packages that are used in added/modified scripts and notebooks to the `renv.lock` file.
 
 # Running the analysis workflows
 
@@ -62,7 +70,7 @@ You can also use `snakemake --cores 1` to run the workflow as is, using the defa
 
 **Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using `snakemake -s <full path to scpca-downstream-analyses/Snakefile>`.
 
-## Running the optional genes of interest analysis pipeline
+## The optional genes of interest analysis pipeline (In development)
 
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.
 

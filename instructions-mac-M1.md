@@ -59,6 +59,3 @@ You will need to iterate through this process *several times*:
     * Run `renv::restore()` again!
 After several rounds, there will be no further system prompts and all R packages should install.
 
-
-
-

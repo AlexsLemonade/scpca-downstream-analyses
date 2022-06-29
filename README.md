@@ -77,3 +77,5 @@ bash optional-goi-analysis/run-provided-goi-analysis.sh \
  --sample_metadata "path/to/sample/metadata" \
  --goi_list "path/to/goi-list"
 ```
+
+Where `goi_list` is the path to the genes of interest TSV file relevant to your dataset.

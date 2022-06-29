@@ -14,7 +14,7 @@ This R version is necessary for certain Bioconductor packages to work.
 3. Install the Desktop version of **RStudio** [here](https://www.rstudio.com/products/rstudio/download/#download), and follow all subsequent installation instructions as normal.
 
 4. Next, you will need to install `gfortran` to be able to build R packages (instructions adapted from [here](https://mac.r-project.org/tools/)):
-    * Click [**this link**](https://mac.r-project.org/tools/gfortran-12.0.1-20220312-is-darwin20-arm64.tar.xz), which will download a compressed file `gfortran-12.0.1-20220312-is-darwin20-arm64.tar.xz` to your computer.
+    * To download the compressed file, `gfortran-12.0.1-20220312-is-darwin20-arm64.tar.xz`,  to your computer, click [**this link**](https://mac.r-project.org/tools/gfortran-12.0.1-20220312-is-darwin20-arm64.tar.xz). 
     * Open the Terminal, and navigate to your `Downloads/` directory (or to a different location where this file downloaded). Enter the following in Terminal to install `gfortran` into its proper location:
         ```
         # Note because of sudo you'll be prompted for your password

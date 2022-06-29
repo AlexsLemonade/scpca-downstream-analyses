@@ -20,6 +20,7 @@ If you are making any changes to the workflow, `renv::snapshot()` should be run 
 
 The core downstream scPCA analysis pipeline, which includes filtering, normalization, and dimension reduction, is implemented using a Snakemake workflow.
 Therefore, you will first need to install Snakemake before running the pipeline.
+If you are working on an M1 Apple computer, be sure to follow [these setup steps](./instructions-mac-M1.md) to run the pipeline.
 
 ### 1) Install Snakemake
 

@@ -9,7 +9,7 @@ The subsequent installation process will take 10-20 minutes.
 
 2. Install the **intel version** of R, which still works perfectly fine on M1 computers using Rosetta under the hood, specifically R version `4.1.2`. 
 This R version is necessary for certain Bioconductor packages to work.
-[**Click here**](https://cran.r-project.org/bin/macosx/base/R-4.1.2.pkg) to automatically install the appropriate version of R, and follow all subsequent installation instructions as normal.
+To automatically download and install the appropriate version of R, [**click here**](https://cran.r-project.org/bin/macosx/base/R-4.1.2.pkg) and follow all subsequent installation instructions as normal.
 
 3. Install the Desktop version of **RStudio** [here](https://www.rstudio.com/products/rstudio/download/#download), and follow all subsequent installation instructions as normal.
 

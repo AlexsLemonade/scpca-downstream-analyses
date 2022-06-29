@@ -12,7 +12,8 @@ In addition to removing low quality cells, genes found in a low percentage of ce
 2. Normalization and dimensionality reduction: Cells are normalized using the [deconvolution method](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP). 
 Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow. 
 3. Clustering: Cells are assigned to cell clusters using graph-based clustering. 
-The default clustering here is Louvain clustering with a nearest neighbors parameter of 10. 
+Louvain clustering is performed using the [`bluster::NNGraphParam()`](https://rdrr.io/github/LTLA/bluster/man/NNGraphParam-class.html) function using the default nearest neighbors parameter of 10. 
+The type of graph based clustering and number of nearest neighbors parameter can be altered if desired.
 Cluster assignments are stored in the `SingleCellExperiment` object returned by the workflow.
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.

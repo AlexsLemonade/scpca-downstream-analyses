@@ -24,7 +24,7 @@ This R version is necessary for certain Bioconductor packages to work.
             ```
             export PATH=$PATH:/opt/R/arm64/gfortran/bin
             ```
-5. You also need to install `openmp`, as follows, from the Terminal:
+5. You also need to download and install `openmp`, as follows, from the Terminal:
     ```
     curl -O https://mac.r-project.org/openmp/openmp-12.0.1-darwin20-Release.tar.gz
     # Again, you may be promptd for your password here:

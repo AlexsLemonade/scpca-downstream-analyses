@@ -1,10 +1,10 @@
 # ScPCA downstream analyses
 
-This repository stores a set of workflows used for performing downstream analyses on quantified single-cell and single-nuclei gene expression data.
+This repository stores workflows used for performing downstream analyses on quantified single-cell and single-nuclei gene expression data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/).
 More specifically, the repository currently contains a core workflow that performs initial pre-processing of gene expression data. 
-Future development will include addition of optional workflows to be applied to datasets after running the core workflow. 
+Future development will include addition of optional workflows for extended data analyses to be applied to datasets after running the core workflow. 
 
-The core workflow takes as input a RDS file containing a `SingleCellExperiment` object for each library to process and performs the following steps: 
+The core workflow takes as input the gene expression data for each library being processed and performs the following steps: 
 
 1. Filtering: Each library is filtered to remove any low quality cells.
 Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g. minimum number of UMI counts).
@@ -15,11 +15,8 @@ Normalized log counts and embeddings from PCA and UMAP are stored in the `Single
 The default clustering here is Louvain clustering with a nearest neighbors parameter of 10. 
 Cluster assignments are stored in the `SingleCellExperiment` object returned by the workflow.
 
-This pipeline is complementary to the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where single-cell/single-nuclei gene expression data is mapped and quantified using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/).  
-For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
-
-Note that R 4.1.2 is required for running our pipeline, along with Bioconductor 3.14.
-Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html). 
+**Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
+Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow. 
 
 # Running the analysis workflows
 

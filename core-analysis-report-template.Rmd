@@ -27,6 +27,12 @@ knitr::opts_chunk$set(
   warning = FALSE
 )
 
+# Source in set up function
+source(here::here("utils", "setup-functions.R"))
+
+# Load project
+setup_renv()
+
 # Set theme for plotting
 library(ggplot2)
 theme_set(theme_bw())

@@ -5,6 +5,7 @@ params:
   processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
   cluster_type: "louvain"
   nearest_neighbors: 10
+  project_root: NULL
   date: !r Sys.Date()
 
 title: "`r glue::glue('Core analysis report for {params$library}')`"
@@ -27,8 +28,15 @@ knitr::opts_chunk$set(
   warning = FALSE
 )
 
+# If project root is not provided use here::here() 
+if (is.null(params$project_root)) {
+  project_root <- here::here()
+} else {
+  project_root <- params$project_root
+} 
+
 # Source in set up function
-source(here::here("utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "setup-functions.R"))
 
 # Load project
 setup_renv()
@@ -48,7 +56,7 @@ library(ggpubr)
 library(scater)
 
 # Source filtering functions 
-source(here::here("utils", "filtering-functions.R"))
+source(file.path(project_root, "utils", "filtering-functions.R"))
 
 ```
 

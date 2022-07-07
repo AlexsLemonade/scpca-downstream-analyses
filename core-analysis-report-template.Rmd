@@ -39,7 +39,7 @@ if (is.null(params$project_root)) {
 source(file.path(project_root, "utils", "setup-functions.R"))
 
 # Load project
-setup_renv()
+setup_renv(project_filepath = project_root)
 
 # Set theme for plotting
 library(ggplot2)

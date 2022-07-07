@@ -136,7 +136,7 @@ knitr::kable(sample_information, align = 'r') %>%
 mito_genes <- unique(readLines(params$mito_file))
 
 if (is.null(pre_processed_sce$detected)) {
-  # We will filter by cells using `scpcaTools::add_cell_mito_qc()`
+  # Add cell QC metrics to pre processed sce needed for plotting
   pre_processed_sce <- scpcaTools::add_cell_mito_qc(pre_processed_sce, mito_genes)
 }
 ```

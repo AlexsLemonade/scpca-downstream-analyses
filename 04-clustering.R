@@ -136,7 +136,7 @@ if(is(sce,"SingleCellExperiment")){
 # perform clustering
 sce <- graph_clustering(normalized_sce = sce,
                         params_range = opt$nearest_neighbors,
-                        cluster_function = opt$cluster_type)
+                        cluster_type = opt$cluster_type)
 
 # write output file
 readr::write_rds(sce, opt$output_filepath)

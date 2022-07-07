@@ -107,6 +107,7 @@ rule generate_report:
                                          processed_sce = '{input.processed_sce}', \
                                          cluster_type = '{config[cluster_type]}', \
                                          nearest_neighbors = {config[nearest_neighbors]},
+                                         mito_file = {config[mito_file]}, \
                                          project_root = '{workflow.basedir}'), \
                            envir = new.env())"
         """

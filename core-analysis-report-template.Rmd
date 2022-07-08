@@ -6,6 +6,7 @@ params:
   cluster_type: "louvain"
   nearest_neighbors: 10
   project_root: NULL
+  mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
   date: !r Sys.Date()
 
 title: "`r glue::glue('Core analysis report for {params$library}')`"
@@ -131,6 +132,17 @@ knitr::kable(sample_information, align = 'r') %>%
 ### Filtering plots
 
 ```{r}
+# Read in mito genes
+mito_genes <- unique(readLines(params$mito_file))
+
+if (is.null(pre_processed_sce$detected)) {
+  # Add cell QC metrics to pre processed sce needed for plotting
+  pre_processed_sce <- scpcaTools::add_cell_mito_qc(pre_processed_sce, mito_genes)
+}
+```
+
+
+```{r}
 if (processed_meta$filtering == "manually filtered"){
   # Plot manual filtering thresholds
   filtered_cell_plot <- plot_manual_filtering(
@@ -145,7 +157,9 @@ if (processed_meta$filtering == "miQC filtered" ){
   # Plot model
   filtered_model_plot <- miQC::plotModel(pre_processed_sce, processed_meta$miQC_model)
   # Plot filtering
-  filtered_cell_plot <- miQC::plotFiltering(pre_processed_sce, processed_meta$miQC_model)
+  filtered_cell_plot <- miQC::plotFiltering(pre_processed_sce, 
+                                            processed_meta$miQC_model,
+                                            posterior_cutoff = processed_meta$probability_compromised_cutoff)
   # Combine plots
   filtered_cell_plot <-
     ggarrange(filtered_model_plot,

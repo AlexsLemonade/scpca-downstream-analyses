@@ -9,19 +9,25 @@ samples_information = pd.read_csv(config["project_metadata"], sep='\t', index_co
 SAMPLES = list(samples_information['sample_id'])
 LIBRARY_ID = list(samples_information['library_id'])
 FILTERING_METHOD = list(samples_information['filtering_method'])
-    
+
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_processed_sce.rds"), 
-               zip, 
-               sample = SAMPLES, 
-               library = LIBRARY_ID, 
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_processed_sce.rds"),
+               zip,
+               sample = SAMPLES,
+               library = LIBRARY_ID,
+               filtering_method = FILTERING_METHOD),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_core_analysis_report.html"),
+               zip,
+               sample = SAMPLES,
+               library = LIBRARY_ID,
                filtering_method = FILTERING_METHOD)
+
 
 def get_input_rds_files(wildcards):
     lib_info = samples_information.set_index('library_id')
     return lib_info.loc[wildcards.library_id]['filepath']
-    
+
 rule filter_data:
     input:
         get_input_rds_files
@@ -55,7 +61,7 @@ rule normalize_data:
         "  --seed {config[seed]}"
         "  --output_filepath {output}"
         "  --project_root {workflow.basedir}"
-        
+
 rule dimensionality_reduction:
     input:
         "{basename}_downstream_processed_normalized_sce.rds"
@@ -83,3 +89,25 @@ rule clustering:
         "  --nearest_neighbors {config[nearest_neighbors]}"
         "  --output_filepath {output}"
         "  --project_root {workflow.basedir}"
+
+rule generate_report:
+    input:
+        pre_processed_sce = get_input_rds_files,
+        processed_sce =  "{basedir}/{library_id}_{filtering_method}_processed_sce.rds"
+    output:
+        "{basedir}/{library_id}_{filtering_method}_core_analysis_report.html"
+    shell:
+        """
+        Rscript -e \
+        "rmarkdown::render('{workflow.basedir}/core-analysis-report-template.Rmd', \
+                           clean = TRUE, \
+                           output_file = '{output}', \
+                           params = list(library = '{wildcards.library_id}', \
+                                         pre_processed_sce = '{input.pre_processed_sce}', \
+                                         processed_sce = '{input.processed_sce}', \
+                                         cluster_type = '{config[cluster_type]}', \
+                                         nearest_neighbors = {config[nearest_neighbors]}, \
+                                         mito_file = '{config[mito_file]}', \
+                                         project_root = '{workflow.basedir}'), \
+                           envir = new.env())"
+        """

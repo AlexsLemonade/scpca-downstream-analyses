@@ -19,17 +19,18 @@ Cluster assignments are stored in the `SingleCellExperiment` object returned by 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow. 
 
-# Expected input
+# The core downstream analyses workflow
 
-The expected input for our core single-cell downstream analysis pipeline is a [`SingleCellExperiment` object](https://rdrr.io/bioc/SingleCellExperiment/man/SingleCellExperiment.html) that has been store as a RDS file.
-This RDS object should contain gene expression data that has been pre-filtered for empty drops.
-The filepath to each individual RDS file should be defined in the project metadata described in the following "How to run the pipeline" section.
+## Input data format
 
-The pipeline in this repository is an ideal pipeline for processing output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where single-cell/single-nuclei gene expression data is mapped and quantified using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/).
+The expected input for our core single-cell downstream analysis pipeline is a [`SingleCellExperiment` object](https://rdrr.io/bioc/SingleCellExperiment/man/SingleCellExperiment.html) that has been stored as a RDS file.
+This`SingleCellExperiment` object should contain non-normalized gene expression data with barcodes as the column names and gene identifiers as the row names.
+All barcodes included in the `SingleCellExperiment` object should correspond to droplets likely to contain cells and should not contain empty droplets (e.g. droplets with FDR < 0.01 calculated with [`DropletUtils::emptyDropsCellRanger()`](https://rdrr.io/github/MarioniLab/DropletUtils/man/emptyDropsCellRanger.html).
+The full path to each individual RDS file should be defined in the project metadata described in the following "How to run the pipeline" section.
+
+The pipeline in this repository is setup to process data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) and output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where single-cell/single-nuclei gene expression data is mapped and quantified using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/).
 For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
 Note however that the input for this pipeline is **not required** to be scpca-nf processed output.
-
-# Running the analysis workflows
 
 ## Running the core ScPCA downstream analysis pipeline
 

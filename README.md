@@ -62,7 +62,7 @@ Once the repository is successfully cloned, a folder named `scpca-downstream-ana
 
 ### 2) Install Snakemake
 
-The core downstream scPCA analysis pipeline, which includes filtering, normalization, and dimension reduction, is implemented using a Snakemake workflow.
+The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using a Snakemake workflow.
 Therefore, you will also need to install Snakemake before running the pipeline.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).

@@ -50,19 +50,15 @@ First you will want to clone the [`scpca-downstream-analyses` repository](https:
 
 You can do this by navigating to the `Code` button at the top of the repository page and copying the URL.
 Next, open a local `Terminal` window and use `cd` to navigate to the desired local directory for storing the repository.
-This repository may be better suited in a directory specific to cloned repositories.
-So you may enter the following after creating a `cloned_repos` directory for example:
-
-`cd ~/Desktop/cloned_repos`
+We recommend cloning this repository into a separate folder specifically for git repositories.
 
 You can then implement the following command to clone the repository:
 
-`git clone [copied repository URL]`
+`git clone https://github.com/AlexsLemonade/scpca-downstream-analyses.git`
 
-Note that you may be prompted to enter your GitHub user credentials.
 More instructions on cloning a GitHub repository can be found [here](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
 
-Once the repository is cloned to your local directory, we recommend copying your `data` directory, with the relevant input files, to the cloned directory for ease of access.
+Once the repository is successfully cloned, a folder named `scpca-downstream-analyses` containing a local copy of the contents of the repository will be created.
 
 ### 2) Install Snakemake
 
@@ -80,6 +76,10 @@ conda activate base
 mamba create -c conda-forge -c bioconda -n snakemake snakemake
 conda activate snakemake
 ```
+
+Note that `pandoc` must also be installed and in your path to successfully run the `Snakefile`.
+Therefore, if you are using snakemake in a separate environment then pandoc must also be in that environment.
+See [pandoc's installation instructions](https://pandoc.org/installing.html) for more information.
 
 ## Metadata file format
 

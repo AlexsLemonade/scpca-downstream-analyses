@@ -116,9 +116,12 @@ gene_variance <- scran::modelGeneVar(normalized_sce)
 # select the most variable genes
 subset_genes <- scran::getTopHVGs(gene_variance, n = opt$top_n)
 
+# save the most variable genes to the metatadata
+metadata(normalized_sce)$variable_genes <- subset_genes
+
 # make function to add dimensionality reduction to sce
 dim_reduction <- function(normalized_sce, subset_genes) {
-  
+
   # add PCA to normalized sce
   normalized_sce <- runPCA(normalized_sce, subset_row = subset_genes)
 

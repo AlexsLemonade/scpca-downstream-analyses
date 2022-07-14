@@ -84,7 +84,8 @@ See [pandoc's installation instructions](https://pandoc.org/installing.html) for
 ## Metadata file format
 
 Now the environment should be all set to implement the Snakemake workflow. 
-Note that we have also provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the default values for variables needed to run the workflow.
+Note that we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the default values for variables needed to run the workflow.
+Also **note** that, for development purposes, the `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the server at `/shared/scpca/gawad_data/scpca_processed_output`.
 
 The default `config.yaml` variables that are relevant to your project include the following:
 

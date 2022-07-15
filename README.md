@@ -28,6 +28,7 @@ Package dependencies for the analysis workflows in this repository are managed u
 - [Input data format](#input-data-format)
 - [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
 - [Metadata file format](#metadata-file-format)
+- [Running the workflow](#running-the-workflow)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -83,31 +84,37 @@ See [pandoc's installation instructions](https://pandoc.org/installing.html) for
 
 ## Metadata file format
 
-Now the environment should be all set to implement the Snakemake workflow. 
-Note that we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the default values for variables needed to run the workflow.
+Now the environment should be all set to implement the Snakemake workflow.
+Before running the workflow, you will need to create a project metadata TSV file that is relevant to your input data files, with columns and values as follows:
+
+- `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
+- `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
+- `filtering_method`, whose values should be one of "manual" or "miQC"
+- `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`
+
+## Running the workflow
+
+We have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the default values for variables needed to run the workflow.
 
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
 
 The default `config.yaml` variables that are relevant to your project include the following:
 
 - `results_dir`: relative path to a results directory to hold your project's output files
-- `project_metadata`: relative path to your specific project metadata TSV file with the columns as follows:
-    -  `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
-    - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
-    - `filtering_method`, whose values should be one of "manual" or "miQC"
-    - `filepath`, the relative path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`
+- `project_metadata`: relative path to your specific project metadata TSV file
 - `mito_file`: full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. 
-By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. 
+By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory.
 
 You can tell the config file to point to your specific project variables by running Snakemake using the `snakemake --cores 2` command and modifying the relevant parameters using the `--config` flag as in the following example:
 
 ```
-snakemake --cores 2 --config data_dir="path/to/main/data/directory" \
-results_dir="path/to/relevant/results/directory" \
-project_metadata="project-metadata/your-project-metadata.TSV"
+snakemake --cores 2 --config results_dir="path/to/relevant/results/directory" \
+project_metadata="project-metadata/your-project-metadata.TSV" \
+mito_file="reference-files/your-mito-file.txt"
 ```
 
-You can also use `snakemake --cores 1` to run the workflow as is, using the default values for the variables.
+You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
+The required parameters mentioned above can be found under the `Project-specific parameters` section of the config file, while the remaining parameters that can be optionally modified are found under the `Non project-specific parameters` section.
 
 **Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using `snakemake -s <full path to scpca-downstream-analyses/Snakefile>`.
 

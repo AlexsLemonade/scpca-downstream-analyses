@@ -1,7 +1,11 @@
+### Project-specific parameters
+
 # file paths
 results_dir: "/shared/scpca/gawad_data/scpca_processed_output"
 mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
 project_metadata: "project-metadata/gawad-library-metadata.tsv"
+
+### Non project-specific parameters
 
 # seed to use for all steps
 seed: 2021

@@ -33,6 +33,7 @@ rule filter_data:
         get_input_rds_files
     output:
         downstream_filtered_rds = temp(os.path.join(config["results_dir"], "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"))
+    conda: envs/scpca-r.yaml
     shell:
         "Rscript --vanilla {workflow.basedir}/01-filter-sce.R"
         "  --sample_sce_filepath {input}"
@@ -55,6 +56,7 @@ rule normalize_data:
         "{basename}_downstream_processed_sce.rds"
     output:
         temp("{basename}_downstream_processed_normalized_sce.rds")
+    conda: envs/scpca-r.yaml
     shell:
         "Rscript --vanilla {workflow.basedir}/02-normalize-sce.R"
         "  --sce {input}"
@@ -67,6 +69,7 @@ rule dimensionality_reduction:
         "{basename}_downstream_processed_normalized_sce.rds"
     output:
         temp("{basename}_downstream_processed_normalized_reduced_sce.rds")
+    conda: envs/scpca-r.yaml
     shell:
         "Rscript --vanilla {workflow.basedir}/03-dimension-reduction.R"
         "  --sce {input}"
@@ -81,6 +84,7 @@ rule clustering:
         "{basename}_downstream_processed_normalized_reduced_sce.rds"
     output:
         "{basename}_processed_sce.rds"
+    conda: envs/scpca-r.yaml
     shell:
         "Rscript --vanilla {workflow.basedir}/04-clustering.R"
         "  --sce {input}"
@@ -96,6 +100,7 @@ rule generate_report:
         processed_sce =  "{basedir}/{library_id}_{filtering_method}_processed_sce.rds"
     output:
         "{basedir}/{library_id}_{filtering_method}_core_analysis_report.html"
+    conda: envs/scpca-r.yaml
     shell:
         """
         Rscript -e \

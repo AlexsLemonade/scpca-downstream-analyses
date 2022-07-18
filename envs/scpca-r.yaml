@@ -1,0 +1,8 @@
+name: scpca-r
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base=4.1.2
+  - pandoc=2.12

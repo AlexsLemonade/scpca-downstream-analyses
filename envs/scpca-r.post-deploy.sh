@@ -1,4 +1,3 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
 
 Rscript -e 'renv::restore()'

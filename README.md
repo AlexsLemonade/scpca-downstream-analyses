@@ -85,7 +85,8 @@ See [pandoc's installation instructions](https://pandoc.org/installing.html) for
 ## Metadata file format
 
 Now the environment should be all set to implement the Snakemake workflow.
-Before running the workflow, you will need to create a project metadata TSV file that is relevant to your input data files, with columns and values as follows:
+Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
+The file should contain the following columns: 
 
 - `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
 - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
@@ -94,15 +95,17 @@ Before running the workflow, you will need to create a project metadata TSV file
 
 ## Running the workflow
 
-We have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the default values for variables needed to run the workflow.
+We have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the defaults for all parameters needed to run the workflow.
 
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
 
 ### Required parameters to be modified
 
-The default `config.yaml` variables that are relevant to your project include the following:
+There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow. 
+These parameters are specific to the project or dataset being processed.
+These include the following parameters:
 
-- `results_dir`: relative path to a results directory to hold your project's output files
+- `results_dir`: relative path to the directory where output files from running the core workflow will be stored
 - `project_metadata`: relative path to your specific project metadata TSV file
 - `mito_file`: full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. 
 By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory.
@@ -116,9 +119,15 @@ mito_file="reference-files/your-mito-file.txt"
 ```
 
 You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
-The required parameters mentioned above can be found under the `Project-specific parameters` section of the config file, while the remaining parameters that can be optionally modified are found under the `Non project-specific parameters` section.
+The required parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
 
-**Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using `snakemake -s <full path to scpca-downstream-analyses/Snakefile>`.
+**Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using the `-s` flag as in the following example: 
+
+```
+snakemake --cores 2 \
+ -s "path to snakemake file" \
+ --config project_metadata="path to project metadata"
+```
 
 ### Optional parameters to be modified
 

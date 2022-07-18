@@ -28,6 +28,7 @@ Package dependencies for the analysis workflows in this repository are managed u
 - [Input data format](#input-data-format)
 - [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
 - [Metadata file format](#metadata-file-format)
+- [Running the workflow](#running-the-workflow)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -83,21 +84,27 @@ See [pandoc's installation instructions](https://pandoc.org/installing.html) for
 
 ## Metadata file format
 
-Now the environment should be all set to implement the Snakemake workflow. 
-Note that we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the default values for variables needed to run the workflow.
+Now the environment should be all set to implement the Snakemake workflow.
+Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
+The file should contain the following columns: 
+
+- `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
+- `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
+- `filtering_method`, whose values should be one of "manual" or "miQC"
+- `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`
+
+## Running the workflow
+
+We have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the defaults for all parameters needed to run the workflow.
 
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
 
 The default `config.yaml` variables that are relevant to your project include the following:
 
-- `results_dir`: relative path to a results directory to hold your project's output files
 - `project_metadata`: relative path to your specific project metadata TSV file with the columns as follows:
-    -  `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
-    - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
-    - `filtering_method`, whose values should be one of "manual" or "miQC"
-    - `filepath`, the relative path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`
+- `results_dir`: relative path to a results directory to hold your project's output files
 - `mito_file`: full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. 
-By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. 
+By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory.
 
 You can tell the config file to point to your specific project variables by running Snakemake using the `snakemake --cores 2` command and modifying the relevant parameters using the `--config` flag as in the following example:
 

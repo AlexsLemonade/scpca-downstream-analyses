@@ -99,7 +99,7 @@ We have provided a [configuration file](https://snakemake.readthedocs.io/en/stab
 
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
 
-### Required parameters to be modified
+### Project-specific parameters
 
 There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow. 
 These parameters are specific to the project or dataset being processed.
@@ -129,9 +129,9 @@ snakemake --cores 2 \
  --config project_metadata="path to project metadata"
 ```
 
-### Optional parameters to be modified
+### Processing parameters
 
-The parameters found under the `Non project-specific parameters` section of the config file can be optionally modified, and are as follows:
+The parameters found under the `Processing parameters` section of the config file can be optionally modified, and are as follows:
 
 - `seed`: an integer to bed used to set a seed for running the workflow reproducibily
 - `prob_compromised_cutoff`: the maximum miQC probablity of cell being compromised which is required for miQC filtering; default is 0.75
@@ -143,6 +143,14 @@ The parameters found under the `Non project-specific parameters` section of the 
 - `n_genes_pca`: the `n` number of highly variable genes to subset for PCA; default is 2000
 - `cluster_type`: the type of clustering to be performed, values can be "louvain" or "walktrap"; default is "louvain" (see more on these graph-based clustering methods in this [Community Detection Algorithms article](https://towardsdatascience.com/community-detection-algorithms-9bd8951e7dae))
 - `nearest_neighbors`: the `n` number of nearest neighbors when performing the chosen graph-based clustering method; default is 10
+
+These parameters can also be modified by manually updating the `config.yaml` file using a text editor of your choice or by supplying the parameters you would like to modify to the `--config` flag as in the following example:
+
+```
+snakemake --cores 2 --config seed=your-seed \
+cluster_type="your-desired-cluster-type" \
+nearest_neighbors=your-n-nearest_neighbors
+```
 
 ## The optional genes of interest analysis pipeline (In development)
 

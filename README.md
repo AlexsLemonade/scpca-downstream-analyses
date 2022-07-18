@@ -98,6 +98,8 @@ We have provided a [configuration file](https://snakemake.readthedocs.io/en/stab
 
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
 
+### Required parameters to be modified
+
 The default `config.yaml` variables that are relevant to your project include the following:
 
 - `results_dir`: relative path to a results directory to hold your project's output files
@@ -117,6 +119,21 @@ You can also modify the relevant parameters by manually updating the `config.yam
 The required parameters mentioned above can be found under the `Project-specific parameters` section of the config file, while the remaining parameters that can be optionally modified are found under the `Non project-specific parameters` section.
 
 **Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using `snakemake -s <full path to scpca-downstream-analyses/Snakefile>`.
+
+### Optional parameters to be modified
+
+The parameters found under the `Non project-specific parameters` section of the config file can be optionally modified, and are as follows:
+
+- `seed`: an integer to bed used to set a seed for running the workflow reproducibily
+- `prob_compromised_cutoff`: the maximum miQC probablity of cell being compromised which is required for miQC filtering; default is 0.75
+- `gene_detected_row_cutoff`: the percent of cells a gene must be detected in; default is 5
+- `gene_means_cutoff`: mean gene expression minimum threshold; default is 0.1
+- `mito_percent_cutoff`: maximum percent mitochondrial reads per cell threshold, which is only required when manually filtering; default is 20
+- `detected_gene_cutoff`: minimum number of genes detected per cell, which is only required when manually filtering; default is 500
+- `umi_count_cutoff`: minimum unique molecular identifiers (UMI) per cell, which is only required when manually filtering; default is 500
+- `n_genes_pca`: the `n` number of highly variable genes to subset for PCA; default is 2000
+- `cluster_type`: the type of clustering to be performed, values can be "louvain" or "walktrap"; default is "louvain" (see more on these graph-based clustering methods in this [Community Detection Algorithms article](https://towardsdatascience.com/community-detection-algorithms-9bd8951e7dae))
+- `nearest_neighbors`: the `n` number of nearest neighbors when performing the chosen graph-based clustering method; default is 10
 
 ## The optional genes of interest analysis pipeline (In development)
 

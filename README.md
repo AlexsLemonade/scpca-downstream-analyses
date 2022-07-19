@@ -148,7 +148,7 @@ Below are the parameters required to run either of the filtering methods.
 
 #### Dimensionality reduction and clustering parameters
 
-In the core workflow, PCA and UMAP results are calculated and stored, and the UMAP coordinates usef for graph-based clustering.
+In the core workflow, PCA and UMAP results are calculated and stored, and the UMAP coordinates used for graph-based clustering.
 Below are the parameters required to run the dimensionality reduction and clustering scripts.
 
 | Parameter        | Description |

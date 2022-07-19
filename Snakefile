@@ -1,6 +1,6 @@
 import pandas as pd
 
-configfile: os.path.join(workflow.basedir, "config.yaml")
+configfile: "config.yaml"
 
 # getting the samples information
 samples_information = pd.read_csv(config["project_metadata"], sep='\t', index_col=False)

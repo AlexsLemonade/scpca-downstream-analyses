@@ -97,8 +97,6 @@ The file should contain the following columns:
 
 We have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the defaults for all parameters needed to run the workflow.
 
-**Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
-
 ### Project-specific parameters
 
 There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow. 
@@ -151,6 +149,9 @@ snakemake --cores 2 --config seed=your-seed \
 cluster_type="your-desired-cluster-type" \
 nearest_neighbors=your-n-nearest_neighbors
 ```
+
+**Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
+The workflow can still be run from inside the directory that holds this repository without modifying any parameters, just by specifying the number of cores as in `snakemake --cores 2`.
 
 ## The optional genes of interest analysis pipeline (In development)
 

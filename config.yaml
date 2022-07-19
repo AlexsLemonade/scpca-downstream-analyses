@@ -9,7 +9,8 @@ mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
 project_metadata: "project-metadata/gawad-library-metadata.tsv"
 
 ### Processing parameters
-# The below are parameters that are utilized in a processing step at some point in the workflow, and can therefore be left at the default values.
+# The below are parameters that are utilized to specify parameters specific to processing an individual library through the workflow.
+# Changes to these are not required and can therefore be left at the default values.
 # Although one may want to alter these parameters for exploratory purposes.
 
 # seed to use for all steps

@@ -114,9 +114,9 @@ The below code is an example of running the Snakemake workflow using the project
 
 ```
 snakemake --cores 2 \
-  --config results_dir="path/to/relevant/results/directory" \
-  project_metadata="project-metadata/your-project-metadata.TSV" \
-  mito_file="reference-files/your-mito-file.txt"
+  --config results_dir="path to relevant results directory" \
+  project_metadata="path to your-project-metadata.TSV" \
+  mito_file="path to your-mito-file.txt"
 ```
 
 You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.

@@ -28,6 +28,12 @@ def get_input_rds_files(wildcards):
     lib_info = samples_information.set_index('library_id')
     return lib_info.loc[wildcards.library_id]['filepath']
 
+rule build_envs:
+    input: "envs/scpca-r.yaml"
+    conda: "envs/scpca-r.yaml"
+    shell: "echo 'Enviroment ready'"
+
+
 rule filter_data:
     input:
         get_input_rds_files

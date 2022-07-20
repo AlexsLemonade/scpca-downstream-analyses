@@ -108,12 +108,16 @@ These include the following parameters:
 - `mito_file`: full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. 
 By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory.
 
-You can tell the config file to point to your specific project variables by running Snakemake using the `snakemake --cores 2` command and modifying the relevant parameters using the `--config` flag as in the following example:
+The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html). 
+It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
+If `--cores` is given without a number, all available cores are used to run the workflow. 
+The below code is an example of running the Snakemake workflow using the project specific parameters.
 
 ```
-snakemake --cores 2 --config results_dir="path/to/relevant/results/directory" \
-project_metadata="project-metadata/your-project-metadata.TSV" \
-mito_file="reference-files/your-mito-file.txt"
+snakemake --cores 2 \
+  --config results_dir="path/to/relevant/results/directory" \
+  project_metadata="project-metadata/your-project-metadata.TSV" \
+  mito_file="reference-files/your-mito-file.txt"
 ```
 
 You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.

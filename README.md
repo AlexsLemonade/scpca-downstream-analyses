@@ -101,10 +101,11 @@ There are a set of parameters included in the `config.yaml` file that will need 
 These parameters are specific to the project or dataset being processed.
 These include the following parameters:
 
-- `results_dir`: relative path to the directory where output files from running the core workflow will be stored
-- `project_metadata`: relative path to your specific project metadata TSV file
-- `mito_file`: full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. 
-By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory.
+| Parameter        | Description |
+|------------------|-------------|
+| `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
+| `project_metadata` | relative path to your specific project metadata TSV file |
+| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html). 
 It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).

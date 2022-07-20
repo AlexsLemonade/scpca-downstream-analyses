@@ -31,8 +31,9 @@ def get_input_rds_files(wildcards):
 # Dummy rule used for building conda environment
 rule build_renv:
     input: "envs/scpca-renv.yaml"
+    output: "envs/.scpca-renv"
     conda: "envs/scpca-renv.yaml"
-    shell: "echo 'Enviroment ready'"
+    shell: "touch {output}"
 
 
 rule filter_data:

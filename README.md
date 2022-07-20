@@ -152,7 +152,7 @@ Below are the parameters required to run either of the filtering methods.
 
 #### Dimensionality reduction and clustering parameters
 
-In the core workflow, PCA and UMAP results are calculated and stored, and the UMAP coordinates are used for graph-based clustering.
+In the core workflow, PCA and UMAP results are calculated and stored, and the PCA coordinates are used for graph-based clustering.
 Below are the parameters required to run the dimensionality reduction and clustering steps of the workflow.
 
 | Parameter        | Description |
@@ -165,9 +165,9 @@ These parameters can also be modified by manually updating the `config.yaml` fil
 
 ```
 snakemake --cores 2 \
-  --config seed=your-seed \
-  cluster_type="your-desired-cluster-type" \
-  nearest_neighbors=your-n-nearest_neighbors
+  --config seed=2021 \
+  cluster_type="louvain" \
+  nearest_neighbors=10
 ```
 
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.

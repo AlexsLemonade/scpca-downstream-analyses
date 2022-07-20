@@ -173,6 +173,17 @@ snakemake --cores 2 \
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
 The workflow can still be run from inside the directory that holds this repository without modifying any parameters, just by specifying the number of cores as in `snakemake --cores 2`.
 
+## Expected output
+
+There are two expected output files that are associated with each individual library ID.
+These files can be found in the `results_dir`, as defined in the `config.yaml` file.
+The format of these expected output filenames are below, along with a description of what they contain.
+
+| Output filename | Description |
+| --------------------- | ----------- |
+| `{sample}/{library}/{library}_{filtering_method}_processed_sce.rds` | [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) storing the final processed (filtered, normalized, with dimensionality reduction and clustering results added) `SingleCellExperiment` object |
+| `{sample}/{library}_{filtering_method}_core_analysis_report.html` | [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) with a summary of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object |
+
 ## The optional genes of interest analysis pipeline (In development)
 
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.

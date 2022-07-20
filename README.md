@@ -19,6 +19,13 @@ Cluster assignments are stored in the `SingleCellExperiment` object returned by 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow. 
 
+To run the core downstream analyses workflow on your own sample data, you will need the following:
+
+1. Single-cell gene expression data stored as `SingleCellExperiment` objects (see more on this in the ["Input data format" section](#input-data-format))
+2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format))
+3. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
+4. Installation of Snakemake (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
+
 # The core downstream analyses workflow
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

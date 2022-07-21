@@ -140,26 +140,26 @@ The parameters found under the `Processing parameters` section of the config fil
 There are two types of filtering methods that can be specified in the project metadata file, [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual` filtering.
 Below are the parameters required to run either of the filtering methods.
 
-| Parameter        | Description |
-|------------------|-------------|
-| `seed` | an integer to be used to set a seed for reproducibility when running the workflow |
-| `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata; default is 0.75 |
-| `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata; default is 5 |
-| `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata; default is 0.1 |
-| `mito_percent_cutoff` | maximum percent mitochondrial reads per cell threshold, which is only required when `filtering_method` is set to `manual`; default is 20 |
-| `detected_gene_cutoff` | minimum number of genes detected per cell, which is only required when `filtering_method` is set to `manual`; default is 500 |
-| `umi_count_cutoff` | minimum unique molecular identifiers (UMI) per cell, which is only required when `filtering_method` is set to `manual`; default is 500 |
+| Parameter        | Description | Default value |
+|------------------|-------------|---------------|
+| `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
+| `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
+| `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata | 5 |
+| `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata | 0.1 |
+| `mito_percent_cutoff` | maximum percent mitochondrial reads per cell threshold, which is only required when `filtering_method` is set to `manual` | 20 |
+| `detected_gene_cutoff` | minimum number of genes detected per cell, which is only required when `filtering_method` is set to `manual` | 500 |
+| `umi_count_cutoff` | minimum unique molecular identifiers (UMI) per cell, which is only required when `filtering_method` is set to `manual` | 500 |
 
 #### Dimensionality reduction and clustering parameters
 
 In the core workflow, PCA and UMAP results are calculated and stored, and the PCA coordinates are used for graph-based clustering.
 Below are the parameters required to run the dimensionality reduction and clustering steps of the workflow.
 
-| Parameter        | Description |
-|------------------|-------------|
-| `n_genes_pca` | the `n` number of highly variable genes to select as input for PCA; default is 2000 |
-| `cluster_type` | the type of clustering to be performed, values can be "louvain" or "walktrap"; default is "louvain" (see more on these graph-based clustering methods in this [Community Detection Algorithms article](https://towardsdatascience.com/community-detection-algorithms-9bd8951e7dae)) |
-| `nearest_neighbors` | the `n` number of nearest neighbors when performing the chosen graph-based clustering method; default is 10 |
+| Parameter        | Description | Default value |
+|------------------|-------------|---------------|
+| `n_genes_pca` | the `n` number of highly variable genes to select as input for PCA| 2000 |
+| `cluster_type` | the type of clustering to be performed, values can be "louvain" or "walktrap" (see more on these graph-based clustering methods in this [Community Detection Algorithms article](https://towardsdatascience.com/community-detection-algorithms-9bd8951e7dae)) | "louvain" |
+| `nearest_neighbors` | the `n` number of nearest neighbors when performing the chosen graph-based clustering method | 10 |
 
 These parameters can also be modified by manually updating the `config.yaml` file using a text editor of your choice or by supplying the parameters you would like to modify to the `--config` flag as in the following example:
 

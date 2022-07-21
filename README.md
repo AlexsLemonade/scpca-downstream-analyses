@@ -104,26 +104,82 @@ The file should contain the following columns:
 
 We have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the defaults for all parameters needed to run the workflow.
 
+### Project-specific parameters
+
+There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow. 
+These parameters are specific to the project or dataset being processed.
+These include the following parameters:
+
+| Parameter        | Description |
+|------------------|-------------|
+| `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
+| `project_metadata` | relative path to your specific project metadata TSV file |
+| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
+
+The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html). 
+It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
+If `--cores` is given without a number, all available cores are used to run the workflow. 
+The below code is an example of running the Snakemake workflow using the project-specific parameters.
+
+```
+snakemake --cores 2 \
+  --config results_dir="relative path to relevant results directory" \
+  project_metadata="relative path to your-project-metadata.TSV" \
+  mito_file="full path to your-mito-file.txt"
+```
+
+You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
+The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
+
+**Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using the `-s` flag as in the following example: 
+
+```
+snakemake --cores 2 \
+ -s "path to snakemake file" \
+ --config project_metadata="path to project metadata"
+```
+
+### Processing parameters
+
+The parameters found under the `Processing parameters` section of the config file can be optionally modified, and are as follows:
+
+#### Filtering parameters
+
+There are two types of filtering methods that can be specified in the project metadata file, [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual` filtering.
+Below are the parameters required to run either of the filtering methods.
+
+| Parameter        | Description | Default value |
+|------------------|-------------|---------------|
+| `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
+| `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
+| `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata | 5 |
+| `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata | 0.1 |
+| `mito_percent_cutoff` | maximum percent mitochondrial reads per cell threshold, which is only required when `filtering_method` is set to `manual` | 20 |
+| `detected_gene_cutoff` | minimum number of genes detected per cell, which is only required when `filtering_method` is set to `manual` | 500 |
+| `umi_count_cutoff` | minimum unique molecular identifiers (UMI) per cell, which is only required when `filtering_method` is set to `manual` | 500 |
+
+#### Dimensionality reduction and clustering parameters
+
+In the core workflow, PCA and UMAP results are calculated and stored, and the PCA coordinates are used for graph-based clustering.
+Below are the parameters required to run the dimensionality reduction and clustering steps of the workflow.
+
+| Parameter        | Description | Default value |
+|------------------|-------------|---------------|
+| `n_genes_pca` | the `n` number of highly variable genes to select as input for PCA| 2000 |
+| `cluster_type` | the type of clustering to be performed, values can be "louvain" or "walktrap" (see more on these graph-based clustering methods in this [Community Detection Algorithms article](https://towardsdatascience.com/community-detection-algorithms-9bd8951e7dae)) | "louvain" |
+| `nearest_neighbors` | the `n` number of nearest neighbors when performing the chosen graph-based clustering method | 10 |
+
+These parameters can also be modified by manually updating the `config.yaml` file using a text editor of your choice or by supplying the parameters you would like to modify to the `--config` flag as in the following example:
+
+```
+snakemake --cores 2 \
+  --config seed=2021 \
+  cluster_type="louvain" \
+  nearest_neighbors=10
+```
+
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
-
-The default `config.yaml` variables that are relevant to your project include the following:
-
-- `project_metadata`: relative path to your specific project metadata TSV file with the columns as follows:
-- `results_dir`: relative path to a results directory to hold your project's output files
-- `mito_file`: full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. 
-By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory.
-
-You can tell the config file to point to your specific project variables by running Snakemake using the `snakemake --cores 2` command and modifying the relevant parameters using the `--config` flag as in the following example:
-
-```
-snakemake --cores 2 --config data_dir="path/to/main/data/directory" \
-results_dir="path/to/relevant/results/directory" \
-project_metadata="project-metadata/your-project-metadata.TSV"
-```
-
-You can also use `snakemake --cores 1` to run the workflow as is, using the default values for the variables.
-
-**Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using `snakemake -s <full path to scpca-downstream-analyses/Snakefile>`.
+The workflow can still be run from inside the directory that holds this repository without modifying any parameters, just by specifying the number of cores as in `snakemake --cores 2`.
 
 ## The optional genes of interest analysis pipeline (In development)
 

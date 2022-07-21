@@ -175,14 +175,17 @@ The workflow can still be run from inside the directory that holds this reposito
 
 ## Expected output
 
-There are two expected output files that are associated with each individual library ID.
+For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary html report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.
 These files can be found in the `results_dir`, as defined in the `config.yaml` file.
-The format of these expected output filenames are below, along with a description of what they contain.
+Within the `results_dir`, output files for each library will be nested within folders labeled with the provided `sample_id`.
+Each output filename will be prefixed with the associated `library_id` and `filtering_method`.
+Below is an example of the nested file structure you can expect, where `scpca_processed_data` would be replaced with your specified `results_dir`.
 
-| Output filename | Description |
-| --------------------- | ----------- |
-| `{sample}/{library}/{library}_{filtering_method}_processed_sce.rds` | [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) storing the final processed (filtered, normalized, with dimensionality reduction and clustering results added) `SingleCellExperiment` object |
-| `{sample}/{library}_{filtering_method}_core_analysis_report.html` | [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) with a summary of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object |
+![Expected output directory structure](./screenshots/expected_output_structure.png)
+
+The `_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+
+The `_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
 ## The optional genes of interest analysis pipeline (In development)
 

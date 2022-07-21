@@ -97,26 +97,41 @@ The file should contain the following columns:
 
 We have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the defaults for all parameters needed to run the workflow.
 
+There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow. 
+These parameters are specific to the project or dataset being processed.
+These include the following parameters:
+
+| Parameter        | Description |
+|------------------|-------------|
+| `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
+| `project_metadata` | relative path to your specific project metadata TSV file |
+| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
+
+The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html). 
+It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
+If `--cores` is given without a number, all available cores are used to run the workflow. 
+The below code is an example of running the Snakemake workflow using the project-specific parameters.
+
+```
+snakemake --cores 2 \
+  --config results_dir="relative path to relevant results directory" \
+  project_metadata="relative path to your-project-metadata.TSV" \
+  mito_file="full path to your-mito-file.txt"
+```
+
+You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
+The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
+
+**Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using the `-s` flag as in the following example: 
+
+```
+snakemake --cores 2 \
+ -s "path to snakemake file" \
+ --config project_metadata="path to project metadata"
+```
+
 **Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
-
-The default `config.yaml` variables that are relevant to your project include the following:
-
-- `project_metadata`: relative path to your specific project metadata TSV file with the columns as follows:
-- `results_dir`: relative path to a results directory to hold your project's output files
-- `mito_file`: full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. 
-By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory.
-
-You can tell the config file to point to your specific project variables by running Snakemake using the `snakemake --cores 2` command and modifying the relevant parameters using the `--config` flag as in the following example:
-
-```
-snakemake --cores 2 --config data_dir="path/to/main/data/directory" \
-results_dir="path/to/relevant/results/directory" \
-project_metadata="project-metadata/your-project-metadata.TSV"
-```
-
-You can also use `snakemake --cores 1` to run the workflow as is, using the default values for the variables.
-
-**Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using `snakemake -s <full path to scpca-downstream-analyses/Snakefile>`.
+The workflow can still be run from inside the directory that holds this repository without modifying any parameters, just by specifying the number of cores as in `snakemake --cores 2`.
 
 ## The optional genes of interest analysis pipeline (In development)
 

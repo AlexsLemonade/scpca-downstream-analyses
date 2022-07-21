@@ -179,11 +179,16 @@ For each `SingleCellExperiment` and associated `library_id` used as input, the w
 These files can be found in the `results_dir`, as defined in the `config.yaml` file.
 Within the `results_dir`, output files for each library will be nested within folders labeled with the provided `sample_id`.
 Each output filename will be prefixed with the associated `library_id` and `filtering_method`.
-Below is an example of the nested file structure you can expect, where `scpca_processed_data` would be replaced with your specified `results_dir`.
+Below is an example of the nested file structure you can expect.
 
 ![Expected output directory structure](./screenshots/expected_output_structure.png)
 
+
 The `_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+Clustering results can be found in the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the `SingleCellExperiment` object, stored in a metadata column named using the associated clustering type and nearest neighbours values.
+For example, if using the default values, you would grab the clustering results using the following command after loading the RDS file into R as an object named `processed_sce`:
+
+`colData(processed_sce)$louvain_10`
 
 The `_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 

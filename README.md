@@ -38,8 +38,8 @@ If you are using conda, dependencies can be installed as [part of the initial se
   - [1) Clone the repository](#1-clone-the-repository)
   - [2) Install Snakemake](#2-install-snakemake)
   - [3) Additional dependencies](#3-additional-dependencies)
-    - [Independent installation](#independent-installation)
     - [Snakemake/conda installation](#snakemakeconda-installation)
+    - [Independent installation](#independent-installation)
 - [Metadata file format](#metadata-file-format)
 - [Running the workflow](#running-the-workflow)
   - [Project-specific parameters](#project-specific-parameters)
@@ -103,15 +103,6 @@ To run the Snakemake workflow, you will need to have R version 4.1 installed, as
 This can be done independently, or you can use Snakemake's conda integration to set up an R environment that the workflow will use.
 If you are on an Apple Silicon (M1/Arm) Mac, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
 
-#### Independent installation
-
-After confirming that you have R version 4.1 (Intel) installed, you will want to make sure that all of the R packages are installed as well.
-From within the `scpca-downstream-analyses` directory, launch `R` at the command line.
-At the R prompt, run the `renv::restore()` command to install all necessary packages.
-
-Note that pandoc must also be installed and in your path to successfully run the `Snakefile`.
-You can install pandoc system-wide by following [pandoc's instructions](https://pandoc.org/installing.html), or you can add it to your conda environment with `mamba install pandoc`.
-
 #### Snakemake/conda installation
 
 Snakemake can also handle the dependencies by creating its own conda environemnts, which we have provided as an option.
@@ -130,6 +121,21 @@ This installation may take up to an hour, as all of the R packages will likely h
 However, this should be a one-time cost, and ensures that you have all of the tools for the workflow installed and ready.
 
 To use the environment you have just created, you will need to run Snakemake with the `--use-conda` flag each time.
+
+
+#### Independent installation
+
+After confirming that you have R version 4.1 (the Intel version if you are on a Mac) installed, you will want to make sure that all of the R packages are installed as well.
+First install the `renv` package by your preferred method.
+Then, from within the `scpca-downstream-analyses` directory, run the following command to install all of the additional required packages:
+
+```
+Rscript -e "renv::restore()"
+```
+
+Note that pandoc must also be installed and in your path to successfully run the `Snakefile`.
+You can install pandoc system-wide by following [pandoc's instructions](https://pandoc.org/installing.html), or you can add it to your conda environment with `mamba install pandoc`.
+
 
 ## Metadata file format
 

@@ -28,12 +28,12 @@ def get_input_rds_files(wildcards):
     lib_info = samples_information.set_index('library_id')
     return lib_info.loc[wildcards.library_id]['filepath']
 
-# Dummy rule used for building conda environment
+# Dummy rule used for building conda & renv environment
 rule build_renv:
-    input: "envs/scpca-renv.yaml"
-    output: "envs/.scpca-renv"
+    input: "renv.lock"
+    output: "renv/.snakemake_timestamp"
     conda: "envs/scpca-renv.yaml"
-    shell: "touch {output}"
+    shell: "date -u -Iseconds  > {output}"
 
 
 rule filter_data:

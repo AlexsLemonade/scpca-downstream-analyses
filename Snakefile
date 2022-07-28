@@ -3,8 +3,8 @@ import pandas as pd
 configfile: "config.yaml"
 
 # getting the samples information
-if os.path.exists(config["project_metadata"]):
-  samples_information = pd.read_csv(config["project_metadata"], sep='\t', index_col=False)
+if os.path.exists(config['project_metadata']):
+  samples_information = pd.read_csv(config['project_metadata'], sep='\t', index_col=False)
   
   # get a list of the sample and library ids
   SAMPLES = list(samples_information['sample_id'])
@@ -12,7 +12,7 @@ if os.path.exists(config["project_metadata"]):
   FILTERING_METHOD = list(samples_information['filtering_method'])
 else:
   # If the metadata file is missing, warn and fill with empty lists
-  print(f"Warning: Project metadata file '{config["project_metadata"]}' is missing.")
+  print(f"Warning: Project metadata file '{config['project_metadata']}' is missing.")
   samples_information = None
   SAMPLES = list()
   LIBRARY_ID = list()

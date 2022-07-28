@@ -36,12 +36,16 @@ def get_input_rds_files(wildcards):
     lib_info = samples_information.set_index('library_id')
     return lib_info.loc[wildcards.library_id]['filepath']
 
-# Dummy rule used for building conda & renv environment
+# Rule used for building conda & renv environment
 rule build_renv:
-    input: "renv.lock"
+    input: workflow.source_path("renv.lock")
     output: "renv/.snakemake_timestamp"
     conda: "envs/scpca-renv.yaml"
-    shell: "date -u -Iseconds  > {output}"
+    shell:
+      """
+      Rscript -e "renv::restore('{input}')"
+      date -u -Iseconds  > {output}
+      """
 
 
 rule filter_data:

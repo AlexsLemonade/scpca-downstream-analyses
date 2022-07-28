@@ -171,20 +171,14 @@ The below code is an example of running the Snakemake workflow using the project
 
 ```
 snakemake --cores 2 \
+  --use-conda \
   --config results_dir="relative path to relevant results directory" \
   project_metadata="relative path to your-project-metadata.TSV" \
   mito_file="full path to your-mito-file.txt"
 ```
 
-If you have installed dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to add the `--use-conda` flag as follows:
+**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
-```
-snakemake --cores 2 \
- --use-conda \
- --config results_dir="relative path to relevant results directory" \
- project_metadata="relative path to your-project-metadata.TSV" \
- mito_file="full path to your-mito-file.txt"
-```
 
 You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
 The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
@@ -193,10 +187,12 @@ The project-specific parameters mentioned above can be found under the [`Project
 
 ```
 snakemake --cores 2 \
+ --use-conda \
  -s "path to snakemake file" \
  --configfile "path to config.yaml" \
  --config project_metadata="path to project metadata"
 ```
+
 
 
 
@@ -235,6 +231,7 @@ These parameters can also be modified by manually updating the `config.yaml` fil
 
 ```
 snakemake --cores 2 \
+  --use-conda \
   --config seed=2021 \
   cluster_type="louvain" \
   nearest_neighbors=10

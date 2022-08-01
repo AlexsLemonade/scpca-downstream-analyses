@@ -25,7 +25,7 @@ Note that if miQC fails, the manual filtering described below will be implemente
 
 See the main [`README.md`](https://github.com/AlexsLemonade/scpca-downstream-analyses#scpca-downstream-analyses) file for more information on the default thresholds set throughout the workflow.
 The filtering method can be specified for each sample in the [metadata file](https://github.com/AlexsLemonade/scpca-downstream-analyses#metadata-file-format).
-You can also find more on modifying additional filtering parameters under [processing parameters](https://github.com/AlexsLemonade/scpca-downstream-analyses#processing-parameters).
+You can also find more on modifying additional filtering parameters under [processing parameters](https://github.com/AlexsLemonade/scpca-downstream-analyses#filtering-parameters).
 
 ## Normalization
 

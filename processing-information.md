@@ -31,7 +31,7 @@ You can also find more on modifying additional filtering parameters under [proce
 To normalize and log-transform the filtered data, we implement the normalization using the deconvolution method [(Lun, Bach, and Marioni (2016)](https://doi.org/10.1186/s13059-016-0947-7), implemented in the `scran`/`scater` packages.
 We first use the [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) function to cluster similar cells where possible, followed by using the [`scater::logNormCounts()`](https://rdrr.io/github/LTLA/scuttle/man/logNormCounts.html) function to perform normalization.
 If the `scran::quickCluster()` fails and clustering of similar cells is unsuccessful, a note will be included in the metadata of the `SingleCellExperiment` object indicating that clusters were not used for normalization. 
-This can be found by accessing `metadata(sce)$normalization`.
+The note indicating whether or not clusters were used can be found by accessing `metadata(sce)$normalization`.
 
 ## Dimensionality reduction
 

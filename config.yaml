@@ -17,7 +17,7 @@ project_metadata: "project-metadata/gawad-library-metadata.tsv"
 seed: 2021
 
 # miQC filtering parameters
-prob_compromised_cutoff: 0.75 # Maximum miQC probablity of cell being compromised
+prob_compromised_cutoff: 0.75 # Maximum miQC probability of cell being compromised
 
 # manual filtering parameters
 gene_detected_row_cutoff: 5 # Percent of cells a gene must be detected in

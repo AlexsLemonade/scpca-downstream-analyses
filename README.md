@@ -95,10 +95,10 @@ Now the environment should be all set to implement the Snakemake workflow.
 Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
 The file should contain the following columns: 
 
-- `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`
-- `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately
-- `filtering_method`, whose values should be one of "manual" or "miQC"
-- `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`
+- `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`.
+- `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately.
+- `filtering_method`, whose values should be one of "manual" or "miQC". For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information document](./processing-information.md).
+- `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object, each library ID should have a unique `filepath`.
 
 ## Running the workflow
 
@@ -146,6 +146,7 @@ The parameters found under the `Processing parameters` section of the config fil
 #### Filtering parameters
 
 There are two types of filtering methods that can be specified in the project metadata file, [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual` filtering.
+For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information document](./processing-information.md).
 Below are the parameters required to run either of the filtering methods.
 
 | Parameter        | Description | Default value |
@@ -161,6 +162,7 @@ Below are the parameters required to run either of the filtering methods.
 #### Dimensionality reduction and clustering parameters
 
 In the core workflow, PCA and UMAP results are calculated and stored, and the PCA coordinates are used for graph-based clustering.
+For more details on how the workflow performs [dimensionality reduction](./processing-information.md#dimensionality-reduction) and [clustering](./processing-information.md#clustering) see the document on [workflow processing information](./processing-information.md).
 Below are the parameters required to run the dimensionality reduction and clustering steps of the workflow.
 
 | Parameter        | Description | Default value |

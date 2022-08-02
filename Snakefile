@@ -1,14 +1,22 @@
 import pandas as pd
 
-configfile: os.path.join(workflow.basedir, "config.yaml")
+configfile: "config.yaml"
 
 # getting the samples information
-samples_information = pd.read_csv(config["project_metadata"], sep='\t', index_col=False)
-
-# get a list of the sample and library ids
-SAMPLES = list(samples_information['sample_id'])
-LIBRARY_ID = list(samples_information['library_id'])
-FILTERING_METHOD = list(samples_information['filtering_method'])
+if os.path.exists(config['project_metadata']):
+  samples_information = pd.read_csv(config['project_metadata'], sep='\t', index_col=False)
+  
+  # get a list of the sample and library ids
+  SAMPLES = list(samples_information['sample_id'])
+  LIBRARY_ID = list(samples_information['library_id'])
+  FILTERING_METHOD = list(samples_information['filtering_method'])
+else:
+  # If the metadata file is missing, warn and fill with empty lists
+  print(f"Warning: Project metadata file '{config['project_metadata']}' is missing.")
+  samples_information = None
+  SAMPLES = list()
+  LIBRARY_ID = list()
+  FILTERING_METHOD = list()
 
 rule target:
     input:
@@ -28,11 +36,24 @@ def get_input_rds_files(wildcards):
     lib_info = samples_information.set_index('library_id')
     return lib_info.loc[wildcards.library_id]['filepath']
 
+# Rule used for building conda & renv environment
+rule build_renv:
+    input: workflow.source_path("renv.lock")
+    output: "renv/.snakemake_timestamp"
+    conda: "envs/scpca-renv.yaml"
+    shell:
+      """
+      Rscript -e "renv::restore('{input}')"
+      date -u -Iseconds  > {output}
+      """
+
+
 rule filter_data:
     input:
         get_input_rds_files
     output:
         downstream_filtered_rds = temp(os.path.join(config["results_dir"], "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"))
+    conda: "envs/scpca-renv.yaml"
     shell:
         "Rscript --vanilla {workflow.basedir}/01-filter-sce.R"
         "  --sample_sce_filepath {input}"
@@ -55,6 +76,7 @@ rule normalize_data:
         "{basename}_downstream_processed_sce.rds"
     output:
         temp("{basename}_downstream_processed_normalized_sce.rds")
+    conda: "envs/scpca-renv.yaml"
     shell:
         "Rscript --vanilla {workflow.basedir}/02-normalize-sce.R"
         "  --sce {input}"
@@ -67,6 +89,7 @@ rule dimensionality_reduction:
         "{basename}_downstream_processed_normalized_sce.rds"
     output:
         temp("{basename}_downstream_processed_normalized_reduced_sce.rds")
+    conda: "envs/scpca-renv.yaml"
     shell:
         "Rscript --vanilla {workflow.basedir}/03-dimension-reduction.R"
         "  --sce {input}"
@@ -81,6 +104,7 @@ rule clustering:
         "{basename}_downstream_processed_normalized_reduced_sce.rds"
     output:
         "{basename}_processed_sce.rds"
+    conda: "envs/scpca-renv.yaml"
     shell:
         "Rscript --vanilla {workflow.basedir}/04-clustering.R"
         "  --sce {input}"
@@ -96,6 +120,7 @@ rule generate_report:
         processed_sce =  "{basedir}/{library_id}_{filtering_method}_processed_sce.rds"
     output:
         "{basedir}/{library_id}_{filtering_method}_core_analysis_report.html"
+    conda: "envs/scpca-renv.yaml"
     shell:
         """
         Rscript -e \

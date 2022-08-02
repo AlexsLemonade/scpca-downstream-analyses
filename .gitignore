@@ -8,3 +8,5 @@
 
 # ignore hidden snakemake logs
 .snakemake
+# ignore timestamps
+.snakemake_timestamp

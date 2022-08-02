@@ -1,18 +1,18 @@
 # ScPCA downstream analyses
 
 This repository stores workflows used for performing downstream analyses on quantified single-cell and single-nuclei gene expression data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/).
-More specifically, the repository currently contains a core workflow that performs initial pre-processing of gene expression data. 
-Future development will include addition of optional workflows for extended data analyses to be applied to datasets after running the core workflow. 
+More specifically, the repository currently contains a core workflow that performs initial pre-processing of gene expression data.
+Future development will include addition of optional workflows for extended data analyses to be applied to datasets after running the core workflow.
 
-The core workflow takes as input the gene expression data for each library being processed and performs the following steps: 
+The core workflow takes as input the gene expression data for each library being processed and performs the following steps:
 
 1. [Filtering](./processing-information.md#filtering-low-quality-cells): Each library is filtered to remove any low quality cells.
 Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g. minimum number of UMI counts).
 In addition to removing low quality cells, genes found in a low percentage of cells in a library are removed.
-2. [Normalization](./processing-information.md#normalization) and [dimensionality reduction](./processing-information.md#dimensionality-reduction): Cells are normalized using the [deconvolution method](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP). 
-Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow. 
-3. [Clustering](./processing-information.md#clustering): Cells are assigned to cell clusters using graph-based clustering. 
-Louvain clustering is performed using the [`bluster::NNGraphParam()`](https://rdrr.io/github/LTLA/bluster/man/NNGraphParam-class.html) function using the default nearest neighbors parameter of 10. 
+2. Normalization and dimensionality reduction: Cells are normalized using the [deconvolution method](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP).
+Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow.
+3. Clustering: Cells are assigned to cell clusters using graph-based clustering.
+Louvain clustering is performed using the [`bluster::NNGraphParam()`](https://rdrr.io/github/LTLA/bluster/man/NNGraphParam-class.html) function using the default nearest neighbors parameter of 10.
 The type of graph based clustering and number of nearest neighbors parameter can be altered if desired.
 Cluster assignments are stored in the `SingleCellExperiment` object returned by the workflow.
 
@@ -21,21 +21,33 @@ To run the core downstream analyses workflow on your own sample data, you will n
 1. Single-cell gene expression data stored as `SingleCellExperiment` objects (see more on this in the ["Input data format" section](#input-data-format))
 2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format))
 3. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
-4. Local installation of R and Snakemake (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
+4. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
-Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow. 
+Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
+If you are using conda, dependencies can be installed as [part of the initial setup](#snakemakeconda-installation).
 
 # The core downstream analyses workflow
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Input data format](#input-data-format)
 - [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
+  - [1) Clone the repository](#1-clone-the-repository)
+  - [2) Install Snakemake](#2-install-snakemake)
+  - [3) Additional dependencies](#3-additional-dependencies)
+    - [Snakemake/conda installation](#snakemakeconda-installation)
+    - [Independent installation](#independent-installation)
 - [Metadata file format](#metadata-file-format)
 - [Running the workflow](#running-the-workflow)
+  - [Project-specific parameters](#project-specific-parameters)
+  - [Processing parameters](#processing-parameters)
+    - [Filtering parameters](#filtering-parameters)
+    - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
+- [Expected output](#expected-output)
+- [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -75,25 +87,61 @@ Therefore, you will also need to install Snakemake before running the pipeline.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
-As described in the Snakemake instructions, the recommended way to install snakemake is using the conda package manager. 
-After installing [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html), you can follow the below steps to install snakemake:
+As described in the Snakemake instructions, the recommended way to install snakemake is using the conda package manager.
+After installing [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (we recommend the Miniconda installation), you can follow the steps below to install Snakemake in an isolated environment:
 
 ```
 conda install -n base -c conda-forge mamba
 conda activate base
-mamba create -c conda-forge -c bioconda -n snakemake snakemake
+mamba create -n snakemake -c conda-forge -c bioconda snakemake
 conda activate snakemake
 ```
 
-Note that `pandoc` must also be installed and in your path to successfully run the `Snakefile`.
-Therefore, if you are using snakemake in a separate environment then pandoc must also be in that environment.
-See [pandoc's installation instructions](https://pandoc.org/installing.html) for more information.
+### 3) Additional dependencies
+
+To run the Snakemake workflow, you will need to have R version 4.1 installed, as well as the `renv` package and pandoc.
+This can be done independently, or you can use Snakemake's conda integration to set up an R environment that the workflow will use.
+If you are on an Apple Silicon (M1/Arm) Mac, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
+
+#### Snakemake/conda installation
+
+Snakemake can also handle the dependencies by creating its own conda environemnts, which we have provided as an option.
+To create the necessary environment, which includes an isolated version of R, pandoc, and the `renv` package installation, run the following command:
+
+```
+snakemake --use-conda --conda-create-envs-only -c1 build_renv
+```
+
+If you are on an Apple Silicon (M1/Arm) Mac, you will need a slightly different command, which forces the installation of the Intel version of R, which is required for Bioconductor packages:
+```
+CONDA_SUBDIR=osx-64 snakemake --use-conda --conda-create-envs-only -c1 build_renv
+```
+
+This installation may take up to an hour, as all of the R packages will likely have to be compiled from scratch.
+However, this should be a one-time cost, and ensures that you have all of the tools for the workflow installed and ready.
+
+To use the environment you have just created, you will need to run Snakemake with the `--use-conda` flag each time.
+
+
+#### Independent installation
+
+After confirming that you have R version 4.1 (the Intel version if you are on a Mac) installed, you will want to make sure that all of the R packages are installed as well.
+First install the `renv` package by your preferred method.
+Then, from within the `scpca-downstream-analyses` directory, run the following command to install all of the additional required packages:
+
+```
+Rscript -e "renv::restore()"
+```
+
+Note that pandoc must also be installed and in your path to successfully run the `Snakefile`.
+You can install pandoc system-wide by following [pandoc's instructions](https://pandoc.org/installing.html), or you can add it to your conda environment with `mamba install pandoc`.
+
 
 ## Metadata file format
 
 Now the environment should be all set to implement the Snakemake workflow.
 Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
-The file should contain the following columns: 
+The file should contain the following columns:
 
 - `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`.
 - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately.
@@ -106,7 +154,7 @@ We have provided a [configuration file](https://snakemake.readthedocs.io/en/stab
 
 ### Project-specific parameters
 
-There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow. 
+There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow.
 These parameters are specific to the project or dataset being processed.
 These include the following parameters:
 
@@ -116,28 +164,38 @@ These include the following parameters:
 | `project_metadata` | relative path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
 
-The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html). 
+The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
-If `--cores` is given without a number, all available cores are used to run the workflow. 
+If `--cores` is given without a number, all available cores are used to run the workflow.
 The below code is an example of running the Snakemake workflow using the project-specific parameters.
 
 ```
 snakemake --cores 2 \
+  --use-conda \
   --config results_dir="relative path to relevant results directory" \
   project_metadata="relative path to your-project-metadata.TSV" \
   mito_file="full path to your-mito-file.txt"
 ```
 
+**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
+
+
 You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
 The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
 
-**Note:** To run the workflow while located outside of this directory, you will need to provide the full path to the Snakefile in this directory at the command line using the `-s` flag as in the following example: 
+**Note:** To run the workflow while located outside of this directory, you will need to provide the paths to the Snakefile in this directory at the command line using the `-s` argument, and to the config file you are using with the `--configfile` argument as in the following example:
 
 ```
 snakemake --cores 2 \
+ --use-conda \
  -s "path to snakemake file" \
+ --configfile "path to config.yaml" \
  --config project_metadata="path to project metadata"
 ```
+
+
+
+
 
 ### Processing parameters
 
@@ -175,6 +233,7 @@ These parameters can also be modified by manually updating the `config.yaml` fil
 
 ```
 snakemake --cores 2 \
+  --use-conda \
   --config seed=2021 \
   cluster_type="louvain" \
   nearest_neighbors=10

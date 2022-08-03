@@ -101,8 +101,25 @@ conda activate snakemake
 
 To run the Snakemake workflow, you will need to have R version 4.1 installed, as well as the `renv` package and pandoc.
 This can be done independently, or you can use Snakemake's conda integration to set up an R environment that the workflow will use.
-If you are on an Apple Silicon (M1/Arm) Mac, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
 
+
+#### Apple Silicon installations
+
+If you are on an Apple Silicon (M1/M2/Arm) Mac, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
+Clicking [this link](https://cran.r-project.org/bin/macosx/base/R-4.1.3.pkg) will download the Intel version of R, version 4.1.3, and you can install R following installation instructions.
+You will also need to install `gfortan`, a Fortran compiler, to facilitate building certain R packages.
+Clicking [this link](https://mac.r-project.org/tools/gfortran-8.2-Mojave.dmg) will download the `gfortran` compiler, and again follow the installation instructions to install it.
+
+If you experience library-related errors when proceeding to next steps that indicate R can't find the Fortra compiler (whle building your conda environment (#snakemakeconda-installation) or independently setting up (#independentinstallation)), you will want to create the file and/or add the following lines to the file `~/.R/Makevars`:
+
+```
+FC  = /usr/local/gfortran/bin/gfortran
+F77 = /usr/local/gfortran/bin/gfortran
+FLIBS = -L/usr/local/gfortran/lib/gcc
+```
+
+These lines will ensure that R can find the newly-installed `gfortran` compiler.
+If you need to take these steps, you may need to restart R/terminal to proceed with your setup.
 
 
 #### Snakemake/conda installation
@@ -114,7 +131,7 @@ To create the necessary environment, which includes an isolated version of R, pa
 snakemake --use-conda --conda-create-envs-only -c1 build_renv
 ```
 
-If you are on an Apple Silicon (M1/Arm) Mac, you will need a slightly different command, which forces the installation of the Intel version of R, which is required for Bioconductor packages:
+If you are on an Apple Silicon (M1/M2/Arm) Mac, you will need a slightly different command, which forces the installation of the Intel version of R, which is required for Bioconductor packages:
 ```
 CONDA_SUBDIR=osx-64 snakemake --use-conda --conda-create-envs-only -c1 build_renv
 ```
@@ -137,13 +154,6 @@ Rscript -e "renv::restore()"
 
 Note that pandoc must also be installed and in your path to successfully run the `Snakefile`.
 You can install pandoc system-wide by following [pandoc's instructions](https://pandoc.org/installing.html), or you can add it to your conda environment with `mamba install pandoc`.
-
-
-### Instructions for Apple Silicon users
-
-The core downstream scPCA analysis pipeline, which includes filtering, normalization, and dimension reduction, is implemented using a Snakemake workflow.
-Therefore, you will first need to install Snakemake before running the pipeline.
-If you are working on an Apple Silicon (M1 or M2 chip) Mac, there are a few extra installs you will need.
 
 
 

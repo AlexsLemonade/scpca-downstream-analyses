@@ -6,7 +6,7 @@ This documentation contains detailed information on the processing that occurs d
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Filtering low quality cells](#filtering-low-quality-cells)
+- [Filtering low-quality cells](#filtering-low-quality-cells)
 - [Normalization](#normalization)
 - [Dimensionality reduction](#dimensionality-reduction)
 - [Clustering](#clustering)
@@ -14,8 +14,8 @@ This documentation contains detailed information on the processing that occurs d
 
 ## Filtering low-quality cells
 
-The first step in the pipeline includes filtering and removal of low quality cells from each input library. 
-There are two different methods that can be implemented to perform filtering of low quality cells in the core analysis workflow, which include:
+The first step in the pipeline includes filtering and removal of low-quality cells from each input library. 
+There are two different methods that can be implemented to perform filtering of low-quality cells in the core analysis workflow, which include:
 
 1. `miQC` - This is the recommended filtering method, which employs [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html), a package that predicts low-quality cells by jointly modeling proportion of reads belonging to mitochondrial genes and number of unique genes detected.
 If using the `miQC` option for filtering, cells above the maximum probability of a cell being compromised as calculated by `miQC` are removed. 

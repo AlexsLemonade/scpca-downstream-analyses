@@ -40,6 +40,7 @@ If you are using conda, dependencies can be installed as [part of the initial se
   - [3) Additional dependencies](#3-additional-dependencies)
     - [Snakemake/conda installation](#snakemakeconda-installation)
     - [Independent installation](#independent-installation)
+      - [Apple Silicon installations](#apple-silicon-installations)
 - [Metadata file format](#metadata-file-format)
 - [Running the workflow](#running-the-workflow)
   - [Project-specific parameters](#project-specific-parameters)
@@ -101,7 +102,7 @@ conda activate snakemake
 
 To run the Snakemake workflow, you will need to have R version 4.1 installed, as well as the `renv` package and pandoc.
 This can be done independently, or you can use Snakemake's conda integration to set up an R environment that the workflow will use.
-If you are on an Apple Silicon (M1/Arm) Mac, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
+
 
 #### Snakemake/conda installation
 
@@ -112,7 +113,7 @@ To create the necessary environment, which includes an isolated version of R, pa
 snakemake --use-conda --conda-create-envs-only -c1 build_renv
 ```
 
-If you are on an Apple Silicon (M1/Arm) Mac, you will need a slightly different command, which forces the installation of the Intel version of R, which is required for Bioconductor packages:
+If you are on an Apple Silicon (M1/M2/Arm) Mac, you will need a slightly different command, which forces the installation of the Intel version of R, which is required for Bioconductor packages:
 ```
 CONDA_SUBDIR=osx-64 snakemake --use-conda --conda-create-envs-only -c1 build_renv
 ```
@@ -136,6 +137,25 @@ Rscript -e "renv::restore()"
 Note that pandoc must also be installed and in your path to successfully run the `Snakefile`.
 You can install pandoc system-wide by following [pandoc's instructions](https://pandoc.org/installing.html), or you can add it to your conda environment with `mamba install pandoc`.
 
+##### Apple Silicon installations
+
+If you are on an Apple Silicon (M1/M2/Arm) Mac and are not using Snakemake and `conda` to handle dependencies, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
+Clicking [this link](https://cran.r-project.org/bin/macosx/base/R-4.1.3.pkg) will download the Intel version of R, version 4.1.3, and you can install R following installation instructions.
+You will also need to install `gfortan`, a Fortran compiler, to facilitate building certain R packages.
+Clicking [this link](https://mac.r-project.org/tools/gfortran-8.2-Mojave.dmg) will download the `gfortran` compiler, and again follow the installation instructions to install it.
+
+If you experience library-related errors that indicate R can't find the Fortran compiler while setting up `renv`, you will want to create the file and/or add the following lines to the file `~/.R/Makevars`:
+
+```
+FC  = /usr/local/gfortran/bin/gfortran
+F77 = /usr/local/gfortran/bin/gfortran
+FLIBS = -L/usr/local/gfortran/lib/gcc
+```
+
+These lines will ensure that R can find the newly-installed `gfortran` compiler.
+If you need to take these steps, you may need to restart R/terminal to proceed with your setup.
+
+
 
 ## Metadata file format
 
@@ -146,7 +166,7 @@ The file should contain the following columns:
 - `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`.
 - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately.
 - `filtering_method`, the specified filtering method which can be one of "manual" or "miQC". For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./processing-information.md).
-- `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object. 
+- `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object.
 Each library ID should have a unique `filepath`.
 
 ## Running the workflow

@@ -40,6 +40,7 @@ If you are using conda, dependencies can be installed as [part of the initial se
   - [3) Additional dependencies](#3-additional-dependencies)
     - [Snakemake/conda installation](#snakemakeconda-installation)
     - [Independent installation](#independent-installation)
+      - [Apple Silicon installations](#apple-silicon-installations)
 - [Metadata file format](#metadata-file-format)
 - [Running the workflow](#running-the-workflow)
   - [Project-specific parameters](#project-specific-parameters)
@@ -103,25 +104,6 @@ To run the Snakemake workflow, you will need to have R version 4.1 installed, as
 This can be done independently, or you can use Snakemake's conda integration to set up an R environment that the workflow will use.
 
 
-#### Apple Silicon installations
-
-If you are on an Apple Silicon (M1/M2/Arm) Mac and are not using Snakemake and `conda` to handle dependencies, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
-Clicking [this link](https://cran.r-project.org/bin/macosx/base/R-4.1.3.pkg) will download the Intel version of R, version 4.1.3, and you can install R following installation instructions.
-You will also need to install `gfortan`, a Fortran compiler, to facilitate building certain R packages.
-Clicking [this link](https://mac.r-project.org/tools/gfortran-8.2-Mojave.dmg) will download the `gfortran` compiler, and again follow the installation instructions to install it.
-
-If you experience library-related errors when proceeding to next steps that indicate R can't find the Fortran compiler (while [building your conda environment](#snakemakeconda-installation) or [independently setting up](#independent-installation)), you will want to create the file and/or add the following lines to the file `~/.R/Makevars`:
-
-```
-FC  = /usr/local/gfortran/bin/gfortran
-F77 = /usr/local/gfortran/bin/gfortran
-FLIBS = -L/usr/local/gfortran/lib/gcc
-```
-
-These lines will ensure that R can find the newly-installed `gfortran` compiler.
-If you need to take these steps, you may need to restart R/terminal to proceed with your setup.
-
-
 #### Snakemake/conda installation
 
 Snakemake can also handle the dependencies by creating its own conda environemnts, which we have provided as an option.
@@ -154,6 +136,24 @@ Rscript -e "renv::restore()"
 
 Note that pandoc must also be installed and in your path to successfully run the `Snakefile`.
 You can install pandoc system-wide by following [pandoc's instructions](https://pandoc.org/installing.html), or you can add it to your conda environment with `mamba install pandoc`.
+
+##### Apple Silicon installations
+
+If you are on an Apple Silicon (M1/M2/Arm) Mac and are not using Snakemake and `conda` to handle dependencies, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
+Clicking [this link](https://cran.r-project.org/bin/macosx/base/R-4.1.3.pkg) will download the Intel version of R, version 4.1.3, and you can install R following installation instructions.
+You will also need to install `gfortan`, a Fortran compiler, to facilitate building certain R packages.
+Clicking [this link](https://mac.r-project.org/tools/gfortran-8.2-Mojave.dmg) will download the `gfortran` compiler, and again follow the installation instructions to install it.
+
+If you experience library-related errors that indicate R can't find the Fortran compiler (while [building your conda environment](#snakemakeconda-installation) or [independently setting up](#independent-installation)), you will want to create the file and/or add the following lines to the file `~/.R/Makevars`:
+
+```
+FC  = /usr/local/gfortran/bin/gfortran
+F77 = /usr/local/gfortran/bin/gfortran
+FLIBS = -L/usr/local/gfortran/lib/gcc
+```
+
+These lines will ensure that R can find the newly-installed `gfortran` compiler.
+If you need to take these steps, you may need to restart R/terminal to proceed with your setup.
 
 
 

@@ -12,7 +12,7 @@ labels: release
 
 - [ ] Are all of the issues planned for this release resolved? If there are any issues that are unresolved, mark this issue as blocked by those on ZenHub.
 - [ ] Test that the workflow is in good working order:
-  - If making additions to the core workflow, test the workflow using `snakemake --cores 2 --use-conda`
+  - If making additions to the core workflow, test the workflow using the example data with `snakemake --cores 2 --use-conda`
 - [ ] File a PR from the `development` branch to the `main` branch. This should include all of the changes that will be associated with the next release.
 
 ### Creating a release

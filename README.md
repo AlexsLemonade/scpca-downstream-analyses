@@ -193,10 +193,10 @@ snakemake --cores 2 \
  --config project_metadata="path to project metadata"
 ```
 
-We have also included sample data in the `sample-data` directory for testing purposes.
+We have also included example data in the `example-data` directory for testing purposes.
 The sample `_filtered.rds` was taken from the [example output of the `scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md#example-output). 
-The `config.yaml` file points to this sample data by default.
-Therefore, if you would like to test this workflow using the sample data, you can run snakemake with just the `--cores` and `--use_conda` flags as in the following example:
+The `config.yaml` file points to this example data by default.
+Therefore, if you would like to test this workflow using the example data, you can run snakemake with just the `--cores` and `--use_conda` flags as in the following example:
 
 ```
 snakemake --cores 2 --use-conda

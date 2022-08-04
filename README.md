@@ -178,8 +178,7 @@ snakemake --cores 2 \
   mito_file="full path to your-mito-file.txt"
 ```
 
-**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
-
+**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag. 
 
 You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
 The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
@@ -194,8 +193,14 @@ snakemake --cores 2 \
  --config project_metadata="path to project metadata"
 ```
 
+We have also included sample data in the `sample-data` directory for testing purposes.
+The sample `_filtered.rds` was taken from the [example output of the `scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md#example-output). 
+The `config.yaml` file points to this sample data by default.
+Therefore, if you would like to test this workflow using the sample data, you can run snakemake with just the `--cores` and `--use_conda` flags as in the following example:
 
-
+```
+snakemake --cores 2 --use-conda
+```
 
 
 ### Processing parameters

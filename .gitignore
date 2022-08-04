@@ -10,3 +10,7 @@
 .snakemake
 # ignore timestamps
 .snakemake_timestamp
+
+# ignore files relevant to specific projects
+/project-metadata/gawad-library-metadata.tsv
+gawad-config.yaml

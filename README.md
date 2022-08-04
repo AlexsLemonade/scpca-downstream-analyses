@@ -144,7 +144,7 @@ Clicking [this link](https://cran.r-project.org/bin/macosx/base/R-4.1.3.pkg) wil
 You will also need to install `gfortan`, a Fortran compiler, to facilitate building certain R packages.
 Clicking [this link](https://mac.r-project.org/tools/gfortran-8.2-Mojave.dmg) will download the `gfortran` compiler, and again follow the installation instructions to install it.
 
-If you experience library-related errors that indicate R can't find the Fortran compiler (while [building your conda environment](#snakemakeconda-installation) or [independently setting up](#independent-installation)), you will want to create the file and/or add the following lines to the file `~/.R/Makevars`:
+If you experience library-related errors that indicate R can't find the Fortran compiler while setting up `renv`, you will want to create the file and/or add the following lines to the file `~/.R/Makevars`:
 
 ```
 FC  = /usr/local/gfortran/bin/gfortran

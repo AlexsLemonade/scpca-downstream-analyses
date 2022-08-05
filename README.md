@@ -194,7 +194,7 @@ snakemake --cores 2 \
 ```
 
 We have also included example data in the `example-data` directory for testing purposes.
-The sample `_filtered.rds` was taken from the [example output of the `scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md#example-output). 
+The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md). 
 The `config.yaml` file points to this example data by default.
 Therefore, if you would like to test this workflow using the example data, you can run snakemake with just the `--cores` and `--use_conda` flags as in the following example:
 
@@ -245,7 +245,7 @@ snakemake --cores 2 \
   nearest_neighbors=10
 ```
 
-**Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
+**Note:** For Data Lab staff members working on development, the default `aml-config.yaml` file as well as the relevant project metadata file (both found in the `project-specific-files` directory) have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
 The workflow can still be run from inside the directory that holds this repository without modifying any parameters, just by specifying the number of cores as in `snakemake --cores 2`.
 
 ## Expected output

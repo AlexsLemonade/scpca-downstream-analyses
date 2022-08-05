@@ -6,7 +6,7 @@
 # file paths
 results_dir: "/shared/scpca/gawad_data/scpca_processed_output"
 mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
-project_metadata: "project-metadata/aml-library-metadata.tsv"
+project_metadata: "project-specific-files/aml-library-metadata.tsv"
 
 ### Processing parameters
 # The below are parameters that are utilized to specify parameters specific to processing an individual library through the workflow.

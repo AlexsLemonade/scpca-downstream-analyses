@@ -265,8 +265,14 @@ snakemake --cores 2 \
   nearest_neighbors=10
 ```
 
-**Note:** For Data Lab staff members working on development, the default `aml-config.yaml` file as well as the relevant project metadata file (both found in the `project-specific-files` directory) have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
-The workflow can still be run from inside the directory that holds this repository without modifying any parameters, just by specifying the number of cores as in `snakemake --cores 2`.
+**Note:** For Data Lab staff members working on development, the `project-specific-files` directory holds the files needed if testing with the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`. 
+The directory holds the`aml-config.yaml` file as well as the relevant project metadata file, `aml-library-metadata.tsv`.
+To run the workflow using the shared data, use the following command:
+
+```
+snakemake --cores 2 \
+  --configfile project-specific-files/aml-config.yaml`
+```
 
 ## Expected output
 

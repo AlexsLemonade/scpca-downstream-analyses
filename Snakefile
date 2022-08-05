@@ -5,7 +5,7 @@ configfile: "config.yaml"
 # getting the samples information
 if os.path.exists(config['project_metadata']):
   samples_information = pd.read_csv(config['project_metadata'], sep='\t', index_col=False)
-  
+
   # get a list of the sample and library ids
   SAMPLES = list(samples_information['sample_id'])
   LIBRARY_ID = list(samples_information['library_id'])
@@ -43,7 +43,7 @@ rule build_renv:
     conda: "envs/scpca-renv.yaml"
     shell:
       """
-      Rscript -e "renv::restore('{input}')"
+      Rscript --no-site-file --no-environ -e "renv::restore('{input}')"
       date -u -Iseconds  > {output}
       """
 
@@ -55,7 +55,8 @@ rule filter_data:
         downstream_filtered_rds = temp(os.path.join(config["results_dir"], "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"))
     conda: "envs/scpca-renv.yaml"
     shell:
-        "Rscript --vanilla {workflow.basedir}/01-filter-sce.R"
+        "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
+        " Rscript --no-site-file --no-environ {workflow.basedir}/01-filter-sce.R"
         "  --sample_sce_filepath {input}"
         "  --sample_id {wildcards.sample_id}"
         "  --library_id {wildcards.library_id}"
@@ -78,7 +79,8 @@ rule normalize_data:
         temp("{basename}_downstream_processed_normalized_sce.rds")
     conda: "envs/scpca-renv.yaml"
     shell:
-        "Rscript --vanilla {workflow.basedir}/02-normalize-sce.R"
+        "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
+        " Rscript --no-site-file --no-environ '{workflow.basedir}/02-normalize-sce.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --output_filepath {output}"
@@ -91,7 +93,8 @@ rule dimensionality_reduction:
         temp("{basename}_downstream_processed_normalized_reduced_sce.rds")
     conda: "envs/scpca-renv.yaml"
     shell:
-        "Rscript --vanilla {workflow.basedir}/03-dimension-reduction.R"
+        "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
+        " Rscript --no-site-file --no-environ '{workflow.basedir}/03-dimension-reduction.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --top_n {config[n_genes_pca]}"
@@ -106,7 +109,8 @@ rule clustering:
         "{basename}_processed_sce.rds"
     conda: "envs/scpca-renv.yaml"
     shell:
-        "Rscript --vanilla {workflow.basedir}/04-clustering.R"
+        "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
+        " Rscript --no-site-file --no-environ '{workflow.basedir}/04-clustering.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --cluster_type {config[cluster_type]}"
@@ -123,7 +127,8 @@ rule generate_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript -e \
+        R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
+        Rscript --no-site-file --no-environ -e \
         "rmarkdown::render('{workflow.basedir}/core-analysis-report-template.Rmd', \
                            clean = TRUE, \
                            output_file = '{output}', \

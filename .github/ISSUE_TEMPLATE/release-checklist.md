@@ -19,5 +19,5 @@ labels: release
 - [ ] On the [releases page](https://github.com/AlexsLemonade/scpca-downstream-analyses/releases), choose `Draft a new release`.
 - [ ] In `Choose a tag`, type a new release number using semantic versioning (vX.X.X) (you did update the title of this issue to match, right?), then click `Create a new tag: vX.X.X on publish`.
 - [ ] Write a description of the major changes in this release. You may want to start with the auto-generated release notes to save time.
-- [ ] Optional: If not all issues have been addressed, save a draft to return to later.
+- [ ] **Optional**: If not all issues have been addressed, save a draft to return to later.
 - [ ] Publish the release!

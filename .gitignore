@@ -10,3 +10,6 @@
 .snakemake
 # ignore timestamps
 .snakemake_timestamp
+
+# ignore example results directory
+/example-results/

@@ -43,6 +43,7 @@ rule build_renv:
     conda: "envs/scpca-renv.yaml"
     shell:
       """
+      R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
       Rscript --no-site-file --no-environ -e "renv::restore('{input}')"
       date -u -Iseconds  > {output}
       """
@@ -52,11 +53,12 @@ rule filter_data:
     input:
         get_input_rds_files
     output:
-        downstream_filtered_rds = temp(os.path.join(config["results_dir"], "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"))
+        downstream_filtered_rds = temp(os.path.join(config["results_dir"],
+                                                    "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"))
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript --no-site-file --no-environ {workflow.basedir}/01-filter-sce.R"
+        " Rscript --no-site-file --no-environ '{workflow.basedir}/01-filter-sce.R'"
         "  --sample_sce_filepath {input}"
         "  --sample_id {wildcards.sample_id}"
         "  --library_id {wildcards.library_id}"

@@ -6,7 +6,7 @@
 # file paths
 results_dir: "example-data/"
 mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
-project_metadata: "project-metadata/sample-library-metadata.tsv"
+project_metadata: "project-metadata/example-library-metadata.tsv"
 
 ### Processing parameters
 # The below are parameters that are utilized to specify parameters specific to processing an individual library through the workflow.

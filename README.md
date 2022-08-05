@@ -216,7 +216,7 @@ snakemake --cores 2 \
 We have also included example data in the `example-data` directory for testing purposes.
 The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md). 
 The `config.yaml` file points to this example data by default.
-Therefore, if you would like to test this workflow using the example data, you can run snakemake with just the `--cores` and `--use_conda` flags as in the following example:
+Therefore, if you would like to test this workflow using the example data, you can run snakemake with just the `--cores` and `--use-conda` flags as in the following example:
 
 ```
 snakemake --cores 2 --use-conda

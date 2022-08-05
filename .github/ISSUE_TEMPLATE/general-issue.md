@@ -1,10 +1,9 @@
+---
+name: General Issues
+about: General issues related to scpca-downstream-analyses
+---
+
 _Please label your issue as either `enhancement`, `visualization`, `bug`, or `documentation`._
-
-_If filing an issue for a new release use the release checklist template_
-(Use the 'Preview' view to click on the link below)
-<a href="?expand=1&template=release-checklist.md"> Release Checklist Issue template </a>
-
-For all other issues, delete the above text and this line and use the template below.
 
 **Please provide some background on the proposed additions or changes.**
 <!--Include a clear and concise description of why the changes are needed.

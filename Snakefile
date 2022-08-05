@@ -44,7 +44,7 @@ rule build_renv:
     shell:
       """
       R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
-      Rscript --no-site-file --no-environ -e "renv::restore('{input}')"
+      Rscript -e "renv::restore('{input}')"
       date -u -Iseconds  > {output}
       """
 
@@ -58,7 +58,7 @@ rule filter_data:
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript --no-site-file --no-environ '{workflow.basedir}/01-filter-sce.R'"
+        " Rscript '{workflow.basedir}/01-filter-sce.R'"
         "  --sample_sce_filepath {input}"
         "  --sample_id {wildcards.sample_id}"
         "  --library_id {wildcards.library_id}"
@@ -82,7 +82,7 @@ rule normalize_data:
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript --no-site-file --no-environ '{workflow.basedir}/02-normalize-sce.R'"
+        " Rscript '{workflow.basedir}/02-normalize-sce.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --output_filepath {output}"
@@ -96,7 +96,7 @@ rule dimensionality_reduction:
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript --no-site-file --no-environ '{workflow.basedir}/03-dimension-reduction.R'"
+        " Rscript '{workflow.basedir}/03-dimension-reduction.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --top_n {config[n_genes_pca]}"
@@ -112,7 +112,7 @@ rule clustering:
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript --no-site-file --no-environ '{workflow.basedir}/04-clustering.R'"
+        " Rscript '{workflow.basedir}/04-clustering.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --cluster_type {config[cluster_type]}"
@@ -130,7 +130,7 @@ rule generate_report:
     shell:
         """
         R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
-        Rscript --no-site-file --no-environ -e \
+        Rscript -e \
         "rmarkdown::render('{workflow.basedir}/core-analysis-report-template.Rmd', \
                            clean = TRUE, \
                            output_file = '{output}', \

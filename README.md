@@ -274,6 +274,9 @@ snakemake --cores 2 \
   --configfile project-specific-files/aml-config.yaml`
 ```
 
+Also note that new changes should be merged through a pull request to the `development` branch. 
+Changes will be pushed to the `main` branch once changes are ready for a new release (per the [release checklist document](.github/ISSUE_TEMPLATE/release-checklist.md)).
+
 ## Expected output
 
 For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary html report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.

@@ -1,5 +1,5 @@
-## Read in SingleCellExperiment RDS object that has been normalized and has both
-## PCA and UMAP embeddings.
+## Read in SingleCellExperiment RDS object that has been normalized and has PCA
+## embeddings.
 ## This script performs graph based clustering across a range of specified 
 ## nearest neighbors values and outputs a SCE with the cluster assignments 
 ## stored in the colData, as well as a separate data frame with cluster validity
@@ -11,7 +11,7 @@
 #   --sce "example-results/sample01/library01_miQC_processed_sce.rds" \
 #   --seed 2021 \
 #   --cluster_type "louvain" \
-#   --nearest_neighbors_range c(5:25) \
+#   --nearest_neighbors_range 5:25 \
 #   --nearest_neighbors_increment 5 \
 #   --output_sce_filepath "example-results/sample01/library01_miQC_processed_sce.rds" \
 #   --output_stats_filepath "example-results/sample01/library01_cluster_stats.tsv"
@@ -71,7 +71,7 @@ option_list <- list(
     help = "path to output RDS file containing SCE with cluster assignments added"
   ),
   optparse::make_option(
-    c("-o", "--output_stats_filepath"),
+    c("--output_stats_filepath"),
     type = "character",
     default = NULL,
     help = "path to output RDS file containing a data frame with cluster stats"
@@ -79,6 +79,7 @@ option_list <- list(
   optparse::make_option(
     c("--project_root"),
     type = "character",
+    default = NULL,
     help = "the path to the root directory for the R project and where the `utils` folder lives."
   )
 )
@@ -123,12 +124,21 @@ if (!opt$cluster_type %in% c("louvain", "walktrap")) {
 }
 
 # Make sure the output sce file is provided and ends in rds 
-if (!is.null(opt$output_sce_filepath)){
-  if(!(stringr::str_ends(opt$output_sce_filepath, ".rds"))){
+if (!is.null(opt$output_sce_filepath)) {
+  if (!(stringr::str_ends(
+    opt$output_sce_filepath,
+    stringr::regex("\\.rds", ignore_case = TRUE)
+  ))) {
     stop("output file name must end in .rds")
   }
 } else {
-  stop("--output_filepath (-o) must be provided.")
+  stop("--output_sce_filepath (-o) must be provided.")
+}
+
+# Make sure the output directory exists 
+output_sce_dir <- dirname(opt$output_sce_filepath)
+if(!dir.exists(output_sce_dir)){
+  dir.create(output_sce_dir, recursive = TRUE)
 }
 
 #### Read in data and check formatting -----------------------------------------

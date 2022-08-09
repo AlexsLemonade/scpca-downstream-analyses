@@ -1,6 +1,9 @@
-## Read in SingleCellExperiment RDS object that has been normalized and has both PCA and UMAP embeddings.
-## This script performs graph based clustering, by default Louvain, 
-## and outputs a SCE with the cluster assignments stored in the colData. 
+## Read in SingleCellExperiment RDS object that has been normalized and has both
+## PCA and UMAP embeddings.
+## This script performs graph based clustering across a range of specified 
+## nearest neighbors values and outputs a SCE with the cluster assignments 
+## stored in the colData, as well as a separate data frame with cluster validity
+## and stability statistics.
 
 # Command line usage:
 
@@ -119,12 +122,7 @@ if (!opt$cluster_type %in% c("louvain", "walktrap")) {
   stop("--cluster_type (-c) must be either louvain or walktrap.")
 }
 
-# Check that `nearest_neighbors` is an integer
-if (opt$nearest_neighbors_range %% 1 != 0){
-  stop("The --nearest_neighbors (-n) argument value must be an integer.")
-}
-
-# make sure that output file is provided and ends in rds 
+# Make sure the output sce file is provided and ends in rds 
 if (!is.null(opt$output_sce_filepath)){
   if(!(stringr::str_ends(opt$output_sce_filepath, ".rds"))){
     stop("output file name must end in .rds")
@@ -138,7 +136,7 @@ if (!is.null(opt$output_sce_filepath)){
 # Read in normalized sce object
 sce <- readr::read_rds(opt$sce)
 
-# check that data contains an SCE with PCA results 
+# Check that the input data contains an SCE with PCA results 
 if(is(sce,"SingleCellExperiment")){
   if(!"PCA" %in% reducedDimNames(sce)) {
     stop("PCA results are not found in the provided SingleCellExperiment object.")
@@ -149,12 +147,12 @@ if(is(sce,"SingleCellExperiment")){
 
 #### Perform clustering --------------------------------------------------------
 
-# perform clustering
+# Perform graph-based clustering
 sce <- graph_clustering(normalized_sce = sce,
                         params_range = opt$nearest_neighbors_range,
                         cluster_type = opt$cluster_type)
 
-# write output SCE file
+# Write output SCE file
 readr::write_rds(sce, opt$output_sce_filepath)
 
 ### Calculate cluster validity stats -------------------------------------------
@@ -177,8 +175,10 @@ summary_stability_stats_df <- get_cluster_stability_summary(sce, opt$nearest_nei
 
 ### Combine and save stats data frame ------------------------------------------
 
+# Combined the summary stats data frames
 combined_stats_df <- summary_validity_stats_df %>%
-  dplyr::inner_join(summary_stability_stats_df, by = c("cluster_names_column", "param_value", "cluster_type"))
+  dplyr::inner_join(summary_stability_stats_df, 
+                    by = c("cluster_names_column", "param_value", "cluster_type"))
 
-# write output file
+# Write output file
 readr::write_tsv(combined_stats_df, opt$output_stats_filepath)

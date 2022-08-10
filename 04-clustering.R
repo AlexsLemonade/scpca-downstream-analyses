@@ -1,6 +1,6 @@
 ## Read in SingleCellExperiment RDS object that has been normalized and has both PCA and UMAP embeddings.
-## This script performs graph based clustering, by default Louvain, 
-## and outputs a SCE with the cluster assignments stored in the colData. 
+## This script performs graph based clustering, by default Louvain,
+## and outputs a SCE with the cluster assignments stored in the colData.
 
 # Command line usage:
 
@@ -12,15 +12,8 @@
 
 ## Set up -------------------------------------------------------------
 
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
+# Check R and Bioconductor versions
+check_r_bioc_versions()
 
 library(optparse)
 
@@ -77,7 +70,7 @@ if(is.null(opt$project_root)){
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 
-# source in clustering functions 
+# source in clustering functions
 source(file.path(project_root, "utils", "clustering-functions.R"))
 
 # Load project
@@ -98,7 +91,7 @@ if (!file.exists(opt$sce)){
   stop(paste(opt$sce, "does not exist."))
 }
 
-# Check that clustering type is valid 
+# Check that clustering type is valid
 if (!opt$cluster_type %in% c("louvain", "walktrap")) {
   stop("--cluster_type (-c) must be either louvain or walktrap.")
 }
@@ -108,7 +101,7 @@ if (opt$nearest_neighbors %% 1 != 0){
   stop("The --nearest_neighbors (-n) argument value must be an integer.")
 }
 
-# make sure that output file is provided and ends in rds 
+# make sure that output file is provided and ends in rds
 if (!is.null(opt$output_filepath)){
   if(!(stringr::str_ends(opt$output_filepath, ".rds"))){
     stop("output file name must end in .rds")
@@ -122,7 +115,7 @@ if (!is.null(opt$output_filepath)){
 # Read in normalized sce object
 sce <- readr::read_rds(opt$sce)
 
-# check that data contains an SCE with PCA results 
+# check that data contains an SCE with PCA results
 if(is(sce,"SingleCellExperiment")){
   if(!"PCA" %in% reducedDimNames(sce)) {
     stop("PCA results are not found in the provided SingleCellExperiment object.")

@@ -16,15 +16,9 @@
 
 ## Set up -------------------------------------------------------------
 
-# Check that R version is at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
+# Check R and Bioconductor versions
+setup_renv()
+check_r_bioc_versions()
 
 ## Command line arguments/options
 
@@ -159,7 +153,7 @@ library(cowplot)
 library(scuttle)
 library(tryCatchLog)
 
-# source filtering functions 
+# source filtering functions
 source(file.path(project_root, "utils", "filtering-functions.R"))
 
 ## Set the seed
@@ -190,20 +184,20 @@ if (is.null(sce_qc$detected)) {
 
 # Perform filtering based on specified method
 if (opt$filtering_method == "manual") {
-  
-  # manually filter the cells 
+
+  # manually filter the cells
   filtered_sce <- manual_cell_filtering(sce = sce_qc,
                                         mito_percent_cutoff = opt$mito_percent_cutoff,
-                                        detected_gene_cutoff = opt$detected_gene_cutoff, 
+                                        detected_gene_cutoff = opt$detected_gene_cutoff,
                                         umi_count_cutoff = opt$umi_count_cutoff)
-  
-  
+
+
 } else if (opt$filtering_method == "miQC") {
-  
+
   model <- NULL
   filtered_sce <- NULL
   model_attempt <- 0
-  
+
   # This can fail in a few ways, so we will wrap the next steps in a while/try loop
   while(model_attempt < 3 &&
         (!is(model, "flexmix") || length(model@components) < 2 ) &&
@@ -212,35 +206,35 @@ if (opt$filtering_method == "manual") {
     try({
       model <- miQC::mixtureModel(sce_qc)
       # filter step can fail too
-      filtered_sce <- 
+      filtered_sce <-
         miQC::filterCells(sce_qc,
                           model = model,
                           posterior_cutoff = opt$prob_compromised_cutoff,
                           verbose = FALSE)
-      
+
       # Save model in metadata for plotting later
       metadata(filtered_sce)$miQC_model <- model
-      
+
       # Include note in metadata re: filtering
       metadata(filtered_sce)$filtering <- "miQC filtered"
       metadata(filtered_sce)$probability_compromised_cutoff <- opt$prob_compromised_cutoff
 
     }, silent = TRUE)
-  } 
-  
+  }
+
   if(is.null(filtered_sce) || is.null(model)) {
-    # if miQC failed after 3 attempts then do manual filtering instead 
+    # if miQC failed after 3 attempts then do manual filtering instead
     warning(glue::glue("
-                       miQC filtering failed for {opt$sample_sce_filepath}. 
+                       miQC filtering failed for {opt$sample_sce_filepath}.
                        Using manual filtering instead.
                        "))
-    
-    # manually filter the cells 
+
+    # manually filter the cells
     filtered_sce <- manual_cell_filtering(sce = sce_qc,
                                           mito_percent_cutoff = opt$mito_percent_cutoff,
-                                          detected_gene_cutoff = opt$detected_gene_cutoff, 
+                                          detected_gene_cutoff = opt$detected_gene_cutoff,
                                           umi_count_cutoff = opt$umi_count_cutoff)
-    
+
   }
 }
 

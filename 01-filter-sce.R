@@ -17,7 +17,6 @@
 ## Set up -------------------------------------------------------------
 
 # Check R and Bioconductor versions
-setup_renv()
 check_r_bioc_versions()
 
 ## Command line arguments/options

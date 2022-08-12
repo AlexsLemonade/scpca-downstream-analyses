@@ -13,8 +13,6 @@
 
 ## Set up -------------------------------------------------------------
 
-# Check R and Bioconductor versions
-check_r_bioc_versions()
 
 ## Command line arguments/options
 
@@ -62,14 +60,18 @@ if(is.null(opt$project_root)){
 
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
+# Check R and Bioconductor versions
+check_r_bioc_versions()
 
 # Load project
 setup_renv(project_filepath = project_root)
 
 ## Load libraries
-library(scater)
-library(scran)
-library(magrittr)
+suppressPackageStartupMessages({
+  library(scater)
+  library(scran)
+  library(magrittr)
+})
 
 ## Set the seed
 set.seed(opt$seed)

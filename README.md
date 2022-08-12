@@ -198,8 +198,7 @@ snakemake --cores 2 \
   mito_file="full path to your-mito-file.txt"
 ```
 
-**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
-
+**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag. 
 
 You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
 The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
@@ -214,8 +213,14 @@ snakemake --cores 2 \
  --config project_metadata="path to project metadata"
 ```
 
+We have also included example data in the `example-data` directory for testing purposes.
+The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md). 
+The `config.yaml` file points to this example data by default.
+Therefore, if you would like to test this workflow using the example data, you can run snakemake with just the `--cores` and `--use-conda` flags as in the following example:
 
-
+```
+snakemake --cores 2 --use-conda
+```
 
 
 ### Processing parameters
@@ -260,8 +265,14 @@ snakemake --cores 2 \
   nearest_neighbors=10
 ```
 
-**Note:** For Data Lab staff members working on development, the default `config.yaml` file as well as the project metadata file have been set up to use the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
-The workflow can still be run from inside the directory that holds this repository without modifying any parameters, just by specifying the number of cores as in `snakemake --cores 2`.
+**Note:** For Data Lab staff members working on development, the `project-specific-files` directory holds the files needed if testing with the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`. 
+The directory holds the`aml-config.yaml` file as well as the relevant project metadata file, `aml-library-metadata.tsv`.
+To run the workflow using the shared data, use the following command:
+
+```
+snakemake --cores 2 \
+  --configfile project-specific-files/aml-config.yaml`
+```
 
 ## Expected output
 

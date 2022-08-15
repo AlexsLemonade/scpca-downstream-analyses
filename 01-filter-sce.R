@@ -130,6 +130,8 @@ if(is.null(opt$project_root)){
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 
+# Load project
+setup_renv(project_filepath = project_root)
 # Check R and Bioconductor versions
 check_r_bioc_versions()
 

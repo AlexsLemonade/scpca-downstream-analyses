@@ -7,7 +7,7 @@
 
 # Command line usage:
 
-# Rscript --vanilla 04-clustering.R \
+# Rscript --vanilla clustering-calculations.R \
 #   --sce "example-results/sample01/library01_miQC_processed_sce.rds" \
 #   --seed 2021 \
 #   --cluster_type "louvain" \
@@ -18,19 +18,15 @@
 
 ## Set up -------------------------------------------------------------
 
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
-
-library(optparse)
+# Check R and Bioconductor versions
+check_r_bioc_versions()
 
 ## Command line arguments/options
+
+# Library needed to declare command line options
+library(optparse)
+
+# Declare command line options
 option_list <- list(
   optparse::make_option(
     c("-i", "--sce"),
@@ -160,6 +156,7 @@ if(is(sce,"SingleCellExperiment")){
 # Perform graph-based clustering
 sce <- graph_clustering(normalized_sce = sce,
                         params_range = opt$nearest_neighbors_range,
+                        step_size = opt$nearest_neighbors_increment,
                         cluster_type = opt$cluster_type)
 
 # Write output SCE file

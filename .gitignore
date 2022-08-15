@@ -1,6 +1,7 @@
-# ignore the `data` and `results` directories and the files within
+# ignore the `data`, `results`, and `example-results` directories and the files within
 /data/
 /results/
+/example-results/
 
 # ignore hidden `DS_Store`
 .DS_Store

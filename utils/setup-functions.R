@@ -19,11 +19,11 @@ setup_renv <- function(project_filepath = here::here(),
   #                     should be restored to what's in the renv.lock file;
   #                     default is TRUE
 
-  # use `renv::load()` to load the project file
-  renv::load(project_filepath)
+  # Source the .Rprofile file in case it was not read at launch
+  source(file.path(project_filepath, ".Rprofile"))
 
   if (restore_packages == TRUE) {
-    # install any necessary packages and dependecies from the renv.lock file
+    # install any necessary packages and dependencies from the renv.lock file
     renv::restore()
   }
 }

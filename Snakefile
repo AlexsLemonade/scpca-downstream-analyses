@@ -53,8 +53,7 @@ rule filter_data:
     input:
         get_input_rds_files
     output:
-        downstream_filtered_rds = temp(os.path.join(config["results_dir"],
-                                                    "{sample_id}/{library_id}_{filtering_method}_downstream_processed_sce.rds"))
+        temp("{config.results_dir}/{sample_id}/{library_id}_{filtering_method}_filtered.rds")
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -63,7 +62,7 @@ rule filter_data:
         "  --sample_id {wildcards.sample_id}"
         "  --library_id {wildcards.library_id}"
         "  --mito_file {config[mito_file]}"
-        "  --output_filepath {output.downstream_filtered_rds}"
+        "  --output_filepath {output}"
         "  --seed {config[seed]}"
         "  --gene_detected_row_cutoff {config[gene_detected_row_cutoff]}"
         "  --gene_means_cutoff {config[gene_means_cutoff]}"
@@ -76,9 +75,9 @@ rule filter_data:
 
 rule normalize_data:
     input:
-        "{basename}_downstream_processed_sce.rds"
+        "{basename}_filtered.rds"
     output:
-        temp("{basename}_downstream_processed_normalized_sce.rds")
+        temp("{basename}_normalized.rds")
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -90,9 +89,9 @@ rule normalize_data:
 
 rule dimensionality_reduction:
     input:
-        "{basename}_downstream_processed_normalized_sce.rds"
+        "{basename}_normalized.rds"
     output:
-        temp("{basename}_downstream_processed_normalized_reduced_sce.rds")
+        temp("{basename}_dimreduced.rds")
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -106,7 +105,7 @@ rule dimensionality_reduction:
 
 rule clustering:
     input:
-        "{basename}_downstream_processed_normalized_reduced_sce.rds"
+        "{basename}_dimreduced.rds"
     output:
         "{basename}_processed_sce.rds"
     conda: "envs/scpca-renv.yaml"

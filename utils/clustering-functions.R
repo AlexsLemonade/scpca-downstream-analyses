@@ -1,4 +1,4 @@
-## Custom functions to be sourced in the clustering R notebook.
+## Custom functions to be sourced when performing clustering.
 
 # #### USAGE
 # This script is intended to be sourced in the script as follows:

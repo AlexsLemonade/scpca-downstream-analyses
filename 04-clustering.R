@@ -12,9 +12,6 @@
 
 ## Set up -------------------------------------------------------------
 
-# Check R and Bioconductor versions
-check_r_bioc_versions()
-
 library(optparse)
 
 ## Command line arguments/options
@@ -69,6 +66,9 @@ if(is.null(opt$project_root)){
 
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
+
+# Check R and Bioconductor versions
+check_r_bioc_versions()
 
 # source in clustering functions
 source(file.path(project_root, "utils", "clustering-functions.R"))

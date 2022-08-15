@@ -16,9 +16,6 @@
 
 ## Set up -------------------------------------------------------------
 
-# Check R and Bioconductor versions
-check_r_bioc_versions()
-
 ## Command line arguments/options
 
 # Library needed to declare command line options
@@ -135,6 +132,8 @@ source(file.path(project_root, "utils", "setup-functions.R"))
 
 # Load project
 setup_renv(project_filepath = project_root)
+# Check R and Bioconductor versions
+check_r_bioc_versions()
 
 # Check that input arguments are valid
 if (!opt$filtering_method %in% c("manual", "miQC")) {
@@ -142,15 +141,16 @@ if (!opt$filtering_method %in% c("manual", "miQC")) {
 }
 
 ## Load libraries
-library(scater)
-library(scran)
-library(ggplot2)
-library(magrittr)
-library(scpcaTools)
-library(SingleCellExperiment)
-library(cowplot)
-library(scuttle)
-library(tryCatchLog)
+suppressPackageStartupMessages({
+  library(scater)
+  library(scran)
+  library(ggplot2)
+  library(magrittr)
+  library(scpcaTools)
+  library(SingleCellExperiment)
+  library(cowplot)
+  library(scuttle)
+})
 
 # source filtering functions
 source(file.path(project_root, "utils", "filtering-functions.R"))

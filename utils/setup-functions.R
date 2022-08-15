@@ -12,18 +12,38 @@ setup_renv <- function(project_filepath = here::here(),
   #
   # Args:
   #   project_filepath: filepath to the project file to be loaded in, the
-  #                     default is the `here::here()` function to identify the 
-  #                     path of the root directory, including whether or not 
+  #                     default is the `here::here()` function to identify the
+  #                     path of the root directory, including whether or not
   #                     there is a .Rproj file present
   #   restore_packages: logical argument to determine whether or not packages
   #                     should be restored to what's in the renv.lock file;
   #                     default is TRUE
-  
+
   # use `renv::load()` to load the project file
   renv::load(project_filepath)
-  
+
   if (restore_packages == TRUE) {
     # install any necessary packages and dependecies from the renv.lock file
     renv::restore()
   }
 }
+
+
+check_r_bioc_versions <- function() {
+
+  # Purpose: Check if R and Bioconductor versions are at appropriate minimums,
+  #  and throw an error if they are not.
+  # No input arguments are required and nothing is returned.
+
+  # Check that R version is at least 4.1
+  if (! (R.version$major == 4 && R.version$minor >= 1)){
+    stop("R version must be at least 4.1.")
+  }
+
+  # Check that Bioconductor version is at least 3.14
+  if (packageVersion("BiocVersion") < 3.14){
+    stop("Bioconductor version is less than 3.14.")
+  }
+
+}
+

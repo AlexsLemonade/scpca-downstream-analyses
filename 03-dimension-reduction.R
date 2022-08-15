@@ -12,15 +12,9 @@
 #   --overwrite "yes"
 
 ## Set up -------------------------------------------------------------
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
 
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
+# Check R and Bioconductor versions
+check_r_bioc_versions()
 
 ## Command line arguments/options
 

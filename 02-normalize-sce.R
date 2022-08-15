@@ -1,7 +1,7 @@
 ## Read in SingleCellExperiment RDS object that has been filtered to remove
 ## cells on the basis of their mitochondrial read percentage and detected genes
 ## and to remove lowly expressed or undetected genes. This script will then
-## normalize the filtered object using functions from the `scran` and `scater` 
+## normalize the filtered object using functions from the `scran` and `scater`
 ## packages.
 
 # Command line usage:
@@ -13,15 +13,8 @@
 
 ## Set up -------------------------------------------------------------
 
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
+# Check R and Bioconductor versions
+check_r_bioc_versions()
 
 ## Command line arguments/options
 
@@ -103,32 +96,32 @@ tryCatch(
     # Cluster similar cells
     qclust <- scran::quickCluster(filtered_sce)
   },
-  error = function(e){ 
+  error = function(e){
     print("Clustering similar cells failed. Skipping this sample.")
   },
   warning = function(w){
     print(paste0("Clustering similar cells failed. Skipping normalization and dimension reduction for filtered sample ", opt$sce))
   }
-  
+
 )
 
 if (exists("qclust")) {
   # Compute sum factors for each cell cluster grouping
   filtered_sce <-
     scran::computeSumFactors(filtered_sce, clusters = qclust)
-  
+
   # Include note in metadata re: clustering
   metadata(filtered_sce)$normalization <- "scater::logNormCounts clustered"
-  
+
 } else if (!exists("qclust")) {
-  
+
   # Include note in metadata re: failed clustering
-  metadata(filtered_sce)$normalization <- "scater::logNormCounts unclustered" 
-  
+  metadata(filtered_sce)$normalization <- "scater::logNormCounts unclustered"
+
   # Keep positive counts for `logNormCounts()`
   filtered_sce <- filtered_sce[, colSums(counts(filtered_sce)) > 0]
 }
-  
+
 # Normalize and log transform
 normalized_sce <- scater::logNormCounts(filtered_sce)
 

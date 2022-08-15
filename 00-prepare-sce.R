@@ -13,18 +13,10 @@
 # Source in set up function
 source(file.path("utils", "setup-functions.R"))
 
-# Load project
+# Load project and check R and Bioconductor versions
 setup_renv()
+check_r_bioc_versions()
 
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
 
 ## Load libraries
 library(magrittr)
@@ -85,7 +77,7 @@ if(opt$input_file_type == "cellranger") {
   sce <-
     DropletUtils::read10xCounts(opt$sample_matrix_filepath)
   metadata <- data.table::fread(opt$sample_metadata_filepath)
-  
+
   if ("emptydrop" %in% colnames(metadata)) {
     # filter out any instances where emptydrop or doublet is `TRUE`
     metadata_filtered <- metadata %>%
@@ -101,7 +93,7 @@ if(opt$input_file_type == "cellranger") {
   }
   # filter using cell barcodes
   sce <- sce[, colData(sce)$Barcode %in% metadata_filtered$Barcode]
-  
+
 }
 
 #### Save output SCE -----------------------------------------------------------

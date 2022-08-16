@@ -89,12 +89,17 @@ Therefore, you will also need to install Snakemake before running the pipeline.
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
 As described in the Snakemake instructions, the recommended way to install snakemake is using the conda package manager.
-After installing [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (we recommend the Miniconda installation), you can follow the steps below to install Snakemake in an isolated environment:
+After installing [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (we recommend the Miniconda installation), you can follow the steps below to set up the bioconda and conda-forge channels and install Snakemake in an isolated environment:
 
 ```
-conda install -n base -c conda-forge mamba
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
+conda install -n base mamba
 conda activate base
-mamba create -n snakemake -c conda-forge -c bioconda snakemake
+mamba create -n snakemake snakemake
 conda activate snakemake
 ```
 
@@ -106,7 +111,7 @@ This can be done independently, or you can use Snakemake's conda integration to 
 
 #### Snakemake/conda installation
 
-Snakemake can also handle the dependencies by creating its own conda environemnts, which we have provided as an option.
+Snakemake can also handle the dependencies by creating its own conda environments, which we have provided as an option.
 To create the necessary environment, which includes an isolated version of R, pandoc, and the `renv` package installation, run the following command:
 
 ```

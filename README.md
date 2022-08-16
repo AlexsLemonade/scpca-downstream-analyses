@@ -198,23 +198,13 @@ snakemake --cores 2 \
   mito_file="full path to your-mito-file.txt"
 ```
 
-**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag. 
+**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
 You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
 The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
 
-**Note:** To run the workflow while located outside of this directory, you will need to provide the paths to the Snakefile in this directory at the command line using the `-s` argument, and to the config file you are using with the `--configfile` argument as in the following example:
-
-```
-snakemake --cores 2 \
- --use-conda \
- -s "path to snakemake file" \
- --configfile "path to config.yaml" \
- --config project_metadata="path to project metadata"
-```
-
 We have also included example data in the `example-data` directory for testing purposes.
-The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md). 
+The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md).
 The `config.yaml` file points to this example data by default.
 Therefore, if you would like to test this workflow using the example data, you can run snakemake with just the `--cores` and `--use-conda` flags as in the following example:
 
@@ -265,7 +255,7 @@ snakemake --cores 2 \
   nearest_neighbors=10
 ```
 
-**Note:** For Data Lab staff members working on development, the `project-specific-files` directory holds the files needed if testing with the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`. 
+**Note:** For Data Lab staff members working on development, the `project-specific-files` directory holds the files needed if testing with the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
 The directory holds the`aml-config.yaml` file as well as the relevant project metadata file, `aml-library-metadata.tsv`.
 To run the workflow using the shared data, use the following command:
 
@@ -274,7 +264,7 @@ snakemake --cores 2 \
   --configfile project-specific-files/aml-config.yaml`
 ```
 
-Also note that new changes should be merged through a pull request to the `development` branch. 
+Also note that new changes should be merged through a pull request to the `development` branch.
 Changes will be pushed to the `main` branch once changes are ready for a new release (per the [release checklist document](.github/ISSUE_TEMPLATE/release-checklist.md)).
 
 ## Expected output

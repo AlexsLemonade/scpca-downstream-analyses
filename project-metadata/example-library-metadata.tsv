@@ -1,0 +1,3 @@
+sample_id	library_id	filtering_method	filepath
+sample01	library01	miQC	example-data/sample01/library01_filtered.rds
+sample02	library02	miQC	example-data/sample02/library02_filtered.rds

@@ -12,15 +12,6 @@
 #   --overwrite "yes"
 
 ## Set up -------------------------------------------------------------
-# Check that R version us at least 4.1
-if (! (R.version$major == 4 && R.version$minor >= 1)){
-  stop("R version must be at least 4.1")
-}
-
-# Check that Bioconductor version is 3.14
-if (packageVersion("BiocVersion") < 3.14){
-  stop("Bioconductor version is less than 3.14")
-}
 
 ## Command line arguments/options
 
@@ -81,6 +72,8 @@ if(is.null(opt$project_root)){
 
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
+# Check R and Bioconductor versions
+check_r_bioc_versions()
 
 # Load project
 setup_renv(project_filepath = project_root)
@@ -96,9 +89,11 @@ if (opt$top_n %% 1 != 0){
 }
 
 ## Load libraries
-library(scater)
-library(scran)
-library(magrittr)
+suppressPackageStartupMessages({
+  library(scater)
+  library(scran)
+  library(magrittr)
+})
 
 ## Set the seed
 set.seed(opt$seed)

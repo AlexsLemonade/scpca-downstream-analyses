@@ -84,6 +84,11 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "the path to the root directory for the R project and where the `utils` folder lives."
+  ),
+  optparse::make_option(
+    c( "--overwrite"),
+    action = "store_true",
+    help = "specifies whether or not to overwrite any existing clustering results"
   )
 )
 
@@ -150,11 +155,22 @@ if(is(sce,"SingleCellExperiment")){
 
 #### Perform clustering --------------------------------------------------------
 
-# Perform graph-based clustering
-sce <- graph_clustering(normalized_sce = sce,
-                        params_range = opt$nearest_neighbors_range,
-                        step_size = opt$nearest_neighbors_increment,
-                        cluster_type = opt$cluster_type)
+# Check for existing clustering results
+if (!is.null(opt$overwrite)) {
+  # Perform graph-based clustering
+  message("Overwriting clustering results.")
+  sce <- graph_clustering(
+    normalized_sce = sce,
+    params_range = opt$nearest_neighbors_range,
+    step_size = opt$nearest_neighbors_increment,
+    cluster_type = opt$cluster_type
+  )
+} else {
+  stop(
+    "Clustering results exist. Skipping clustering steps. If you want to
+    overwrite the existing results, use the --overwrite flag."
+  )
+}
 
 # Write output SCE file
 readr::write_rds(sce, file.path(

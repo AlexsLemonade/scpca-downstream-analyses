@@ -18,9 +18,6 @@
 
 ## Set up -------------------------------------------------------------
 
-# Check R and Bioconductor versions
-check_r_bioc_versions()
-
 ## Command line arguments/options
 
 # Library needed to declare command line options
@@ -32,7 +29,20 @@ option_list <- list(
     c("-i", "--sce"),
     type = "character",
     default = NULL,
-    help = "path to normalized SCE",
+    help = "path to RDS file containing SCE object with log-normalized counts 
+    and PCA embeddings",
+  ),
+  optparse::make_option(
+    c("-r", "--sample_id"),
+    type = "character",
+    default = NULL,
+    help = "name of sample being analyzed",
+  ),
+  optparse::make_option(
+    c("-l", "--library_id"),
+    type = "character",
+    default = NULL,
+    help = "name of library being analyzed",
   ),
   optparse::make_option(
     c("-s", "--seed"),
@@ -51,26 +61,23 @@ option_list <- list(
     c("-n", "--nearest_neighbors_range"),
     type = "integer",
     default = 5:25,
-    help = "Range with number of nearest neighbors to include during graph construction."
+    help = "Range with number of nearest neighbors to include during graph 
+    construction. Can be a range of values, e.g. 5:25, or a single value."
   ),
   optparse::make_option(
     c("-i", "--nearest_neighbors_increment"),
     type = "integer",
     default = 5,
     help = "Increment to use when implementing the range number of nearest 
-    neighbors for calculating the cluster stats."
+    neighbors for calculating the cluster stats. If using a single value for the
+    nearest neighbors range, set to NULL"
   ),
   optparse::make_option(
-    c("-o", "--output_sce_filepath"),
+    c("-o", "--output_directory"),
     type = "character",
     default = NULL,
-    help = "path to output RDS file containing SCE with cluster assignments added"
-  ),
-  optparse::make_option(
-    c("--output_stats_filepath"),
-    type = "character",
-    default = NULL,
-    help = "path to output RDS file containing a data frame with cluster stats"
+    help = "path to output directory that would hold the RDS file containing SCE
+    with cluster assignments added, as well as the TSV files with the clustering stats"
   ),
   optparse::make_option(
     c("--project_root"),
@@ -96,6 +103,9 @@ source(file.path(project_root, "utils", "setup-functions.R"))
 # source in clustering functions 
 source(file.path(project_root, "utils", "clustering-functions.R"))
 
+# Check R and Bioconductor versions
+check_r_bioc_versions()
+
 # Load project
 setup_renv(project_filepath = project_root)
 
@@ -119,22 +129,9 @@ if (!opt$cluster_type %in% c("louvain", "walktrap")) {
   stop("--cluster_type (-c) must be either louvain or walktrap.")
 }
 
-# Make sure the output sce file is provided and ends in rds 
-if (!is.null(opt$output_sce_filepath)) {
-  if (!(stringr::str_ends(
-    opt$output_sce_filepath,
-    stringr::regex("\\.rds", ignore_case = TRUE)
-  ))) {
-    stop("output file name must end in .rds")
-  }
-} else {
-  stop("--output_sce_filepath (-o) must be provided.")
-}
-
 # Make sure the output directory exists 
-output_sce_dir <- dirname(opt$output_sce_filepath)
-if(!dir.exists(output_sce_dir)){
-  dir.create(output_sce_dir, recursive = TRUE)
+if(!dir.exists(opt$output_directory)){
+  dir.create(opt$output_directory, recursive = TRUE)
 }
 
 #### Read in data and check formatting -----------------------------------------
@@ -160,32 +157,57 @@ sce <- graph_clustering(normalized_sce = sce,
                         cluster_type = opt$cluster_type)
 
 # Write output SCE file
-readr::write_rds(sce, opt$output_sce_filepath)
+readr::write_rds(sce, file.path(
+  opt$output_directory,
+  opt$sample_id,
+  paste0(opt$library_id, "_processed_sce_with_clustering.rds")
+))
 
 ### Calculate cluster validity stats -------------------------------------------
 
 # Check the cluster validity stats for each of the clusters in the SCE object
 # and return stats in a data frame
-validity_stats_df <- create_metadata_stats_df(sce, opt$nearest_neighbors_range, 
-                                              opt$nearest_neighbors_increment, opt$cluster_type)
+validity_stats_df <- create_metadata_stats_df(sce, 
+                                              opt$nearest_neighbors_range, 
+                                              opt$nearest_neighbors_increment, 
+                                              opt$cluster_type)
+
+# Write output file with all cluster validity stats
+readr::write_tsv(validity_stats_df,
+                 file.path(
+                   opt$output_directory,
+                   opt$sample_id,
+                   paste0(opt$library_id, "_clustering_all_stats.tsv")
+                 ))
 
 # Summarize the stats and return in a data frame
 summary_validity_stats_df <- summarize_clustering_stats(validity_stats_df) %>%
   dplyr::mutate(param_value = as.numeric(param_value))
 
+# Write output file
+readr::write_tsv(summary_validity_stats_df,
+                 file.path(
+                   opt$output_directory,
+                   opt$sample_id,
+                   paste0(opt$library_id, "_clustering_summary_validity_stats.tsv")
+                 ))
+
 ### Calculate cluster stability stats ------------------------------------------
 
 # Check the cluster stability stats and return the summary ari in a data frame
-summary_stability_stats_df <- get_cluster_stability_summary(sce, opt$nearest_neighbors_range, 
-                                                            opt$nearest_neighbors_increment, opt$cluster_type) %>%
+summary_stability_stats_df <-
+  get_cluster_stability_summary(
+    sce,
+    opt$nearest_neighbors_range,
+    opt$nearest_neighbors_increment,
+    opt$cluster_type
+  ) %>%
   dplyr::mutate(param_value = as.numeric(param_value))
 
-### Combine and save stats data frame ------------------------------------------
-
-# Combined the summary stats data frames
-combined_stats_df <- summary_validity_stats_df %>%
-  dplyr::inner_join(summary_stability_stats_df, 
-                    by = c("cluster_names_column", "param_value", "cluster_type"))
-
 # Write output file
-readr::write_tsv(combined_stats_df, opt$output_stats_filepath)
+readr::write_tsv(combined_stats_df,
+                 file.path(
+                   opt$output_directory,
+                   opt$sample_id,
+                   paste0(opt$library_id, "_clustering_summary_stability_stats.tsv")
+                 ))

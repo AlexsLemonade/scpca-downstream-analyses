@@ -90,6 +90,11 @@ graph_clustering <- function(normalized_sce,
     stop("`params_range` must be an integer.")
   }
   
+  # if params_range is a single value, set step_size to NULL
+  if(length(params_range) == 1) {
+    step_size <- NULL
+  }
+  
   # if a step size exists, then create a sequence of params for clustering 
   if(!is.null(step_size)){
     nn_range <- seq(min(params_range), max(params_range), step_size) 

@@ -9,12 +9,12 @@
 
 # Rscript --vanilla clustering-calculations.R \
 #   --sce "example-results/sample01/library01_miQC_processed_sce.rds" \
+#   --library_id "library01" \
 #   --seed 2021 \
 #   --cluster_type "louvain" \
 #   --nearest_neighbors_range 5:25 \
 #   --nearest_neighbors_increment 5 \
-#   --output_sce_filepath "example-results/sample01/library01_miQC_processed_sce.rds" \
-#   --output_stats_filepath "example-results/sample01/library01_cluster_stats.tsv"
+#   --output_directory "example-results/sample01"
 
 ## Set up -------------------------------------------------------------
 
@@ -31,12 +31,6 @@ option_list <- list(
     default = NULL,
     help = "path to RDS file containing SCE object with log-normalized counts 
     and PCA embeddings",
-  ),
-  optparse::make_option(
-    c("-r", "--sample_id"),
-    type = "character",
-    default = NULL,
-    help = "name of sample being analyzed",
   ),
   optparse::make_option(
     c("-l", "--library_id"),
@@ -139,6 +133,11 @@ if(!dir.exists(opt$output_directory)){
   dir.create(opt$output_directory, recursive = TRUE)
 }
 
+stats_output_dir <- file.path(opt$output_directory, "clustering_stats")
+if(!dir.exists(stats_output_dir)){
+  dir.create(stats_output_dir, recursive = TRUE)
+}
+
 #### Read in data and check formatting -----------------------------------------
 
 # Read in normalized sce object
@@ -175,8 +174,7 @@ if (!is.null(opt$overwrite)) {
 # Write output SCE file
 readr::write_rds(sce, file.path(
   opt$output_directory,
-  opt$sample_id,
-  paste0(opt$library_id, "_processed_sce_with_clustering.rds")
+  paste0(opt$library_id, "_processed_sce_clustering.rds")
 ))
 
 ### Calculate cluster validity stats -------------------------------------------
@@ -191,8 +189,7 @@ validity_stats_df <- create_metadata_stats_df(sce,
 # Write output file with all cluster validity stats
 readr::write_tsv(validity_stats_df,
                  file.path(
-                   opt$output_directory,
-                   opt$sample_id,
+                   stats_output_dir,
                    paste0(opt$library_id, "_clustering_all_stats.tsv")
                  ))
 
@@ -203,8 +200,7 @@ summary_validity_stats_df <- summarize_clustering_stats(validity_stats_df) %>%
 # Write output file
 readr::write_tsv(summary_validity_stats_df,
                  file.path(
-                   opt$output_directory,
-                   opt$sample_id,
+                   stats_output_dir,
                    paste0(opt$library_id, "_clustering_summary_validity_stats.tsv")
                  ))
 
@@ -221,9 +217,8 @@ summary_stability_stats_df <-
   dplyr::mutate(param_value = as.numeric(param_value))
 
 # Write output file
-readr::write_tsv(combined_stats_df,
+readr::write_tsv(summary_stability_stats_df,
                  file.path(
-                   opt$output_directory,
-                   opt$sample_id,
+                   stats_output_dir,
                    paste0(opt$library_id, "_clustering_summary_stability_stats.tsv")
                  ))

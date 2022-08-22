@@ -18,6 +18,7 @@ fi
 # install packages required for renv
 Rscript --vanilla -e \
   "
+   .libPaths()
    Sys.unsetenv('R_LIBS_USER')
    install.packages(c('jsonlite', 'purrr'), repos = 'https://cloud.r-project.org')
    source('.Rprofile')

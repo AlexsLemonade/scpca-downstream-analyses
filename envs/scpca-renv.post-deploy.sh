@@ -17,7 +17,9 @@ fi
 
 # install packages required for renv
 Rscript --vanilla -e \
-  "install.packages(c('jsonlite', 'purrr'), repos = 'https://cloud.r-project.org')
+  "
+   Sys.unsetenv('R_LIBS_USER')
+   install.packages(c('jsonlite', 'purrr'), repos = 'https://cloud.r-project.org')
    source('.Rprofile')
    renv::restore()
   " &> rinstall_log.txt

@@ -145,7 +145,7 @@ You can install pandoc system-wide by following [pandoc's instructions](https://
 ##### Apple Silicon installations
 
 If you are on an Apple Silicon (M1/M2/Arm) Mac and are not using Snakemake and `conda` to handle dependencies, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
-Clicking [this link](https://cran.r-project.org/bin/macosx/base/R-4.2.1.pkg) will download the Intel version of R, version 4.2.1, and you can install R following installation instructions.
+Clicking [this link](https://cran.r-project.org/bin/macosx/base/R-4.2.1.pkg) will download the Intel version of R, version 4.2.1, and you can install R by following the installation instructions.
 You will also need to install `gfortan`, a Fortran compiler, to facilitate building certain R packages.
 Clicking [this link](https://mac.r-project.org/tools/gfortran-8.2-Mojave.dmg) will download the `gfortran` compiler, and again follow the installation instructions to install it.
 

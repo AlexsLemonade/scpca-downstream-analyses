@@ -20,7 +20,7 @@ Rscript --vanilla -e \
   "
    .libPaths()
    Sys.unsetenv('R_LIBS_USER')
-   install.packages(c('jsonlite', 'purrr'), repos = 'https://cloud.r-project.org')
+   install.packages(c('jsonlite', 'purrr', 'rlang', 'magrittr'), repos = 'https://cloud.r-project.org')
    source('.Rprofile')
    renv::restore()
   " &> rinstall_log.txt

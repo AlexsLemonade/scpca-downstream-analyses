@@ -7,7 +7,7 @@ if [[ "$(uname)" == 'Darwin' && "$(uname -m)" == 'arm64' ]]; then
     conda env config vars set CONDA_SUBDIR=osx-64
   else
     # Error if CONDA_SUBDIR was not set
-    echo 'BioConductor is not compatible with arm64, rerun with CONDA_SUBDIR=osx-64' >&2
+    echo 'Bioconductor is not compatible with arm64, rerun with CONDA_SUBDIR=osx-64' >&2
     echo ' e.g.: CONDA_SUBDIR=osx-64 snakemake --use-conda --conda-create-envs-only -c1 build_renv' >&2
     exit 1
   fi

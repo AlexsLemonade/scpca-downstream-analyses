@@ -35,14 +35,14 @@ check_r_bioc_versions <- function() {
   #  and throw an error if they are not.
   # No input arguments are required and nothing is returned.
 
-  # Check that R version is at least 4.1
-  if (! (R.version$major == 4 && R.version$minor >= 1)){
-    stop("R version must be at least 4.1.")
+  # Check that R version is at least 4.2
+  if (! (R.version$major == 4 && R.version$minor >= 2)){
+    stop("R version must be at least 4.2.")
   }
 
-  # Check that Bioconductor version is at least 3.14
-  if (packageVersion("BiocVersion") < 3.14){
-    stop("Bioconductor version is less than 3.14.")
+  # Check that Bioconductor version is at least 3.15
+  if (packageVersion("BiocVersion") < 3.15){
+    stop("Bioconductor version is less than 3.15.")
   }
 
 }

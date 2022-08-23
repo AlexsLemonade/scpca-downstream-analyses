@@ -53,7 +53,7 @@ rule filter_data:
     input:
         get_input_rds_files
     output:
-        temp(os.path.join(config['results_dir'], "/{sample_id}/{library_id}_{filtering_method}_filtered.rds"))
+        temp(os.path.join(config['results_dir'], "{sample_id}/{library_id}_{filtering_method}_filtered.rds"))
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"

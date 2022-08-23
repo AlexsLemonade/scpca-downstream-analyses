@@ -1,9 +1,9 @@
-## Read in SingleCellExperiment RDS object that has been normalized and has PCA
-## embeddings.
 ## This script performs graph based clustering across a range of specified 
 ## nearest neighbors values and outputs a SCE with the cluster assignments 
 ## stored in the colData, as well as a separate data frame with cluster validity
 ## and stability statistics.
+## Read in SingleCellExperiment RDS object that has been normalized and has PCA
+## embeddings.
 
 # Command line usage:
 
@@ -59,7 +59,7 @@ option_list <- list(
     construction. Can be a range of values, e.g. 5:25, or a single value."
   ),
   optparse::make_option(
-    c("-i", "--nearest_neighbors_increment"),
+    c("--nearest_neighbors_increment"),
     type = "integer",
     default = 5,
     help = "Increment to use when implementing the range number of nearest 
@@ -144,7 +144,7 @@ if(is(sce,"SingleCellExperiment")){
     stop("PCA results are not found in the provided SingleCellExperiment object.")
   }
 } else {
-  stop("file specified by --sce (-s) must contain a SingleCellExperiment object.")
+  stop("file specified by --sce (-i) must contain a SingleCellExperiment object.")
 }
 
 #### Perform clustering --------------------------------------------------------
@@ -174,7 +174,7 @@ validity_stats_df <- create_metadata_stats_df(sce,
 readr::write_tsv(validity_stats_df,
                  file.path(
                    stats_output_dir,
-                   paste0(opt$library_id, "_clustering_all_stats.tsv")
+                   paste0(opt$library_id, "_clustering_all_validity_stats.tsv")
                  ))
 
 # Summarize the stats and return in a data frame

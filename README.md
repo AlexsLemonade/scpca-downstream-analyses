@@ -112,16 +112,14 @@ This can be done independently, or you can use Snakemake's conda integration to 
 #### Snakemake/conda installation
 
 Snakemake can also handle the dependencies by creating its own conda environments, which we have provided as an option.
-To create the necessary environment, which includes an isolated version of R, pandoc, and the `renv` package installation, run the following command:
+To create the necessary environment, which includes an isolated version of R, pandoc, and the `renv` package installation, run the following command from the base of the repository:
 
 ```
-snakemake --use-conda --conda-create-envs-only -c1 build_renv
+bash setup_envs.sh
 ```
 
-If you are on an Apple Silicon (M1/M2/Arm) Mac, you will need a slightly different command, which forces the installation of the Intel version of R, which is required for Bioconductor packages:
-```
-CONDA_SUBDIR=osx-64 snakemake --use-conda --conda-create-envs-only -c1 build_renv
-```
+This script will use Snakemake to install all necessary components for the workflow in an isoloated Conda enviroment.
+If you are on an Apple Silicon (M1/M2/Arm) Mac, this should properly handle setting up R to use an Intel-based build for compatibiity with Bioconductor packages.
 
 This installation may take up to an hour, as all of the R packages will likely have to be compiled from scratch.
 However, this should be a one-time cost, and ensures that you have all of the tools for the workflow installed and ready.
@@ -131,7 +129,8 @@ To use the environment you have just created, you will need to run Snakemake wit
 
 #### Independent installation
 
-After confirming that you have R version 4.2 (the Intel version if you are on a Mac) installed, you will want to make sure that all of the R packages are installed as well.
+If you do not want to use conda, you can perform all installations manually.
+After confirming that you have R version 4.2 installed (the Intel version is required if you are on an Apple Silicon Mac; see below), you will want to make sure that all of the R packages are installed as well.
 First install the `renv` package by your preferred method.
 Then, from within the `scpca-downstream-analyses` directory, run the following command to install all of the additional required packages:
 

@@ -1,5 +1,12 @@
 #!/bin/bash
+#
+# Sets up conda environments for snakemake
+# On Apple Silicon devices, uses Intel R for Bioconductor compatibility
+
 set -euo pipefail
+
+# Run from the script file location
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # If on OSX with Apple Silicon, build the Intel version of R
 if [[ "$(uname)" == 'Darwin' && "$(uname -m)" == 'arm64' ]]; then

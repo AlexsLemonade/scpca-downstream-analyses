@@ -1,4 +1,4 @@
-## Custom functions to be sourced in the clustering R notebook.
+## Custom functions to be sourced when performing clustering.
 
 # #### USAGE
 # This script is intended to be sourced in the script as follows:
@@ -88,6 +88,11 @@ graph_clustering <- function(normalized_sce,
   # check that params_range is an integer
   if(!is.integer(params_range)){
     stop("`params_range` must be an integer.")
+  }
+  
+  # if params_range is a single value, set step_size to NULL
+  if(length(params_range) == 1) {
+    step_size <- NULL
   }
   
   # if a step size exists, then create a sequence of params for clustering 

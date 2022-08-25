@@ -61,10 +61,10 @@ option_list <- list(
   optparse::make_option(
     c("--nearest_neighbors_increment"),
     type = "integer",
-    default = 5,
+    default = 1,
     help = "Increment to use when implementing the range number of nearest 
     neighbors for calculating the cluster stats. If using a single value for the
-    nearest neighbors range, set to NULL"
+    nearest neighbors range, set to 1"
   ),
   optparse::make_option(
     c("-o", "--output_directory"),
@@ -154,21 +154,49 @@ if(is(sce,"SingleCellExperiment")){
 
 #### Perform clustering --------------------------------------------------------
 
-# Check for existing clustering results
-if (!is.null(opt$overwrite)) {
-  # Perform graph-based clustering
-  message("Overwriting clustering results.")
-  sce <- graph_clustering(
-    normalized_sce = sce,
-    params_range = opt$nearest_neighbors_range,
-    step_size = opt$nearest_neighbors_increment,
-    cluster_type = opt$cluster_type
-  )
+# If opt$nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
+if(length(opt$nearest_neighbors_range) == 1) {
+  opt$nearest_neighbors_increment <- 1
+}
+# If a nearest neighbors increment exists, then create a sequence for clustering 
+if(!(opt$nearest_neighbors_increment == 1)){
+  nn_range <- seq(min(opt$nearest_neighbors_range), 
+                  max(opt$nearest_neighbors_range), 
+                  opt$nearest_neighbors_increment) 
+  # If no nearest neighbors increment has been input then the provided range is 
+  # directly used for clustering 
 } else {
-  stop(
-    "Clustering results exist. Skipping clustering steps. If you want to
+  nn_range <- opt$nearest_neighbors_range
+}
+
+# Check for existing clustering results
+for (i in nn_range) {
+  cluster_column_name <- paste(opt$cluster_type, i, sep = "_")
+  
+  if (!is.null(colData(sce)[[cluster_column_name]])) {
+    if (!is.null(opt$overwrite)) {
+      # Perform graph-based clustering
+      message("Overwriting clustering results.")
+      sce <- graph_clustering(
+        normalized_sce = sce,
+        params_range = opt$nearest_neighbors_range,
+        step_size = opt$nearest_neighbors_increment,
+        cluster_type = opt$cluster_type
+      )
+    } else {
+      stop(
+        "Clustering results exist. Skipping clustering steps. If you want to
     overwrite the existing results, use the --overwrite flag."
-  )
+      )
+    }
+  } else if (is.null(colData(sce)[[cluster_column_name]])) {
+    sce <- graph_clustering(
+      normalized_sce = sce,
+      params_range = opt$nearest_neighbors_range,
+      step_size = opt$nearest_neighbors_increment,
+      cluster_type = opt$cluster_type
+    )
+  }
 }
 
 # Write output SCE file

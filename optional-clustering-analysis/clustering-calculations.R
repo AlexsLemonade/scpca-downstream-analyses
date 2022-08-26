@@ -184,9 +184,9 @@ for (i in nn_range) {
         cluster_type = opt$cluster_type
       )
     } else {
-      stop(
-        "Clustering results exist. Skipping clustering steps. If you want to
-    overwrite the existing results, use the --overwrite flag."
+      message(
+        paste0("Clustering results exist for ", cluster_column_name, ". Skipping clustering steps. If you want to
+    overwrite the existing results, use the --overwrite flag.")
       )
     }
   } else if (is.null(colData(sce)[[cluster_column_name]])) {

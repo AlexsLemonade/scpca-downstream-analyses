@@ -170,33 +170,32 @@ if(!(opt$nearest_neighbors_increment == 1)){
 }
 
 # Check for existing clustering results
-for (i in nn_range) {
-  cluster_column_name <- paste(opt$cluster_type, i, sep = "_")
+cluster_column_names <- paste(opt$cluster_type, nn_range, sep = "_")
+existing_columns <- intersect(cluster_column_names, colnames(colData(sce)))
+
+if(length(existing_columns) != 0){
   
-  if (!is.null(colData(sce)[[cluster_column_name]])) {
-    if (!is.null(opt$overwrite)) {
-      # Perform graph-based clustering
-      message("Overwriting clustering results.")
-      sce <- graph_clustering(
-        normalized_sce = sce,
-        params_range = opt$nearest_neighbors_range,
-        step_size = opt$nearest_neighbors_increment,
-        cluster_type = opt$cluster_type
-      )
-    } else {
-      message(
-        paste0("Clustering results exist for ", cluster_column_name, ". Skipping clustering steps. If you want to
-    overwrite the existing results, use the --overwrite flag.")
-      )
-    }
-  } else if (is.null(colData(sce)[[cluster_column_name]])) {
+  if(!is.null(opt$overwrite)){
+    # Perform graph-based clustering
+    message("Overwriting clustering results.")
     sce <- graph_clustering(
       normalized_sce = sce,
       params_range = opt$nearest_neighbors_range,
       step_size = opt$nearest_neighbors_increment,
-      cluster_type = opt$cluster_type
+      cluster_type = opt$cluster_type)
+  } else {
+    message(
+      glue::glue("
+      Clustering results exist for {cluster_column_names}.")
     )
+    stop("Skipping clustering steps. If you want to overwrite the existing results, use the --overwrite flag.")
   }
+} else {
+  sce <- graph_clustering(
+    normalized_sce = sce,
+    params_range = opt$nearest_neighbors_range,
+    step_size = opt$nearest_neighbors_increment,
+    cluster_type = opt$cluster_type)
 }
 
 # Write output SCE file

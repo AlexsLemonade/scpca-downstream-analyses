@@ -1,0 +1,174 @@
+---
+params:
+  library: Library
+  processed_sce: "../results/scpca_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
+  stats_dir: "../results/scpca_processed_data/SCPCS000216/clustering_stats"
+  cluster_type: "louvain"
+  nearest_neighbors_range: 5:25
+  nearest_neighbors_increment: 5
+  project_root: NULL
+  mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
+  date: !r Sys.Date()
+
+title: "`r glue::glue('Clustering analysis report for {params$library}')`"
+author: "CCDL"
+date: "`r params$date`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+---
+
+This notebook will look at additional clustering parameters on the expression of
+the genes in a single sample of the dataset of interest, from an unbiased approach.
+
+## Set Up
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE
+)
+
+# If project root is not provided use here::here() 
+if (is.null(params$project_root)) {
+  project_root <- here::here()
+} else {
+  project_root <- params$project_root
+} 
+
+# Source in set up function
+source(file.path(project_root, "utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "clustering-functions.R"))
+
+# Load project
+setup_renv(project_filepath = project_root)
+
+# Set theme for plotting
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+```{r}
+# Load libraries
+library(readr)
+library(SingleCellExperiment)
+library(dplyr)
+library(miQC)
+library(ggpubr)
+library(scater)
+```
+
+```{r}
+# Read in SCE object
+processed_sce <- read_rds(file.path(params$processed_sce))
+```
+
+## Plots
+
+## Clustering results for `r params$library`
+
+Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment. 
+Here clustering was performed using `r params$cluster_type` clustering with a nearest neighbors value of `r params$nearest_neighbors`.
+
+```{r}
+# If param$nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
+if(length(params$nearest_neighbors_range) == 1) {
+  nearest_neighbors_increment <- 1
+}
+# If a nearest neighbors increment exists, then create a sequence for clustering 
+if(!(params$nearest_neighbors_increment == 1)){
+  nn_range <- seq(min(params$nearest_neighbors_range), 
+                  max(params$nearest_neighbors_range), 
+                  params$nearest_neighbors_increment) 
+  # If no nearest neighbors increment has been input then the provided range is 
+  # directly used for clustering 
+} else {
+  nn_range <- params$nearest_neighbors_range
+}
+
+# Grab column name with clustering results
+cluster_column_names <- paste(params$cluster_type, nn_range, sep = "_")
+existing_columns <- intersect(cluster_column_names, colnames(colData(processed_sce)))
+
+# Plot
+plotReducedDim(processed_sce, dimred = "UMAP", colour_by = existing_columns) +
+  theme_bw() +
+  labs(
+    caption = paste0(
+      stringr::str_to_title(params$cluster_type),
+      " clustering with nearest neighbors value ",
+      params$nearest_neighbors_range
+    )
+  ) +
+  guides(col = guide_legend("Cluster assignment")) +
+  theme(text = element_text(size = 14),
+        plot.caption = element_text(hjust = 0.5))
+```
+
+## Plot cluster validity stats
+
+```{r fig.height = 9.5}
+# Grab the cluster validity stats data frame
+all_validity_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_all_validity_stats.tsv")
+))
+```
+
+#### Purity plots
+
+```{r fig.height=10}
+# Plot individual cluster purity stats
+purity_plots <- plot_cluster_purity(all_validity_stats_df)
+
+purity_plots
+```
+
+#### Silhouette width plots
+
+```{r fig.height=10}
+# Plot individual cluster silhouette width stats
+silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df)
+
+silhouette_plots
+```
+
+### Summary plots
+
+```{r}
+# Grab the cluster validity stats summary data frame
+summary_validity_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_summary_validity_stats.tsv")
+))
+
+# purity summary plot
+plot_avg_validity_stats(summary_validity_stats_df, "avg_purity")
+
+#silhouette width summary plot
+plot_avg_validity_stats(summary_validity_stats_df, "avg_width")
+```
+
+## Plot cluster stability
+
+```{r}
+# Grab the cluster stability stats summary data frame
+summary_stability_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_summary_stability_stats.tsv")
+))
+
+# plot cluster stability ARI values
+plot_cluster_stability_ari(summary_stability_stats_df)
+```
+
+## Session info
+<details>
+<summary>R session information</summary>
+```{r}
+sessionInfo()
+```

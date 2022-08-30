@@ -287,7 +287,7 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   return(validity_summary_df)
 }
 
-plot_cluster_purity <- function(cluster_validity_df) {
+plot_cluster_purity <- function(cluster_validity_df, num_col) {
   
   # Purpose: Generate a plot displaying the cluster purity stats of the clusters
   # in the SingleCellExperiment object
@@ -295,6 +295,7 @@ plot_cluster_purity <- function(cluster_validity_df) {
   # Args:
   #   clustered_validity_df: data.frame with cluster validity stats associated
   #                          with their relevant cluster names
+  #   num_col: number of columns to use when facetting
   
   # prepare data frame for plotting
   metadata <- cluster_validity_df %>%
@@ -335,20 +336,21 @@ plot_cluster_purity <- function(cluster_validity_df) {
     labs(title = unique(metadata$cluster_type),
          x = "Cluster Assignment",
          color = legend_title) +
-    facet_wrap( ~ param_value, scale="free") + 
+    facet_wrap( ~ param_value, scale="free", ncol = num_col) + 
     theme_bw() +
     theme(text = element_text(size = 22))
   
   return(plot)
 }
 
-plot_cluster_silhouette_width <- function(cluster_validity_df) {
+plot_cluster_silhouette_width <- function(cluster_validity_df, num_col) {
   # Purpose: Calculate and return a data frame with the validity stats of the
   # clusters in the SingleCellExperiment object
   
   # Args:
   #   clustered_validity_df: data.frame with cluster validity stats associated
   #                          with their relevant cluster names
+  #   num_col: number of columns to use when facetting
   
   # prepare data frame for plotting
   metadata <- cluster_validity_df %>%
@@ -365,7 +367,7 @@ plot_cluster_silhouette_width <- function(cluster_validity_df) {
     geom_hline(yintercept = 0, linetype = 'dotted') +
     labs(title = unique(metadata$cluster_type),
          x = "Cluster Assignment") +
-    facet_wrap( ~ param_value, scale="free_x") +
+    facet_wrap( ~ param_value, scale="free_x", ncol = num_col) +
     stat_summary(
       aes(group = cluster_param_assignment),
       color = "red",
@@ -379,7 +381,7 @@ plot_cluster_silhouette_width <- function(cluster_validity_df) {
       },
       geom = "pointrange",
       position = position_dodge(width = 0.9),
-      size = 1
+      size = 0.5
     ) +
     theme_bw() +
     theme(text = element_text(size = 22))
@@ -511,6 +513,10 @@ plot_cluster_stability_ari <- function(ari_plotting_df) {
   # Args:
   #   ari_plotting_df: data frame with ARI values for plotting
   
+  # set params as factors
+  ari_plotting_df <- ari_plotting_df %>%
+    dplyr::mutate(param_value = as.factor(param_value))
+  
   # set params range
   params_range <- sort(unique(ari_plotting_df$param_value))
   
@@ -581,4 +587,23 @@ plot_summary_cluster_stability_ari <- function(ari_df_list) {
     theme(text = element_text(size = 9))
   
   return(ari_summary_plot)
+}
+
+define_nn_range <- function(nearest_neighbors_range, neareast_neigbors_increment){
+  # If param$nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
+  if(length(params$nearest_neighbors_range) == 1) {
+    nearest_neighbors_increment <- 1
+  }
+  # If a nearest neighbors increment exists, then create a sequence for clustering 
+  if(!(params$nearest_neighbors_increment == 1)){
+    nn_range <- seq(min(params$nearest_neighbors_range), 
+                    max(params$nearest_neighbors_range), 
+                    params$nearest_neighbors_increment) 
+    # If no nearest neighbors increment has been input then the provided range is 
+    # directly used for clustering 
+  } else {
+    nn_range <- params$nearest_neighbors_range
+  }
+  
+  return(nn_range)
 }

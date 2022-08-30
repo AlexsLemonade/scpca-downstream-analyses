@@ -1,13 +1,12 @@
 ---
 params:
   library: Library
-  processed_sce: "../results/scpca_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
+  processed_sce: "../results/scpca_processed_data/SCPCS000216/SCPCL000290_processed_sce_clustering.rds"
   stats_dir: "../results/scpca_processed_data/SCPCS000216/clustering_stats"
   cluster_type: "louvain"
   nearest_neighbors_range: 5:25
   nearest_neighbors_increment: 5
   project_root: NULL
-  mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
   date: !r Sys.Date()
 
 title: "`r glue::glue('Clustering analysis report for {params$library}')`"
@@ -69,10 +68,10 @@ processed_sce <- read_rds(file.path(params$processed_sce))
 
 ## Plots
 
-## Clustering results for `r params$library`
+## UMAP plot results for `r params$library`
 
 Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment. 
-Here clustering was performed using `r params$cluster_type` clustering with a nearest neighbors value of `r params$nearest_neighbors`.
+Here clustering was performed using `r params$cluster_type` clustering.
 
 ```{r}
 # If param$nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
@@ -94,24 +93,35 @@ if(!(params$nearest_neighbors_increment == 1)){
 cluster_column_names <- paste(params$cluster_type, nn_range, sep = "_")
 existing_columns <- intersect(cluster_column_names, colnames(colData(processed_sce)))
 
-# Plot
-plotReducedDim(processed_sce, dimred = "UMAP", colour_by = existing_columns) +
-  theme_bw() +
-  labs(
-    caption = paste0(
-      stringr::str_to_title(params$cluster_type),
-      " clustering with nearest neighbors value ",
-      params$nearest_neighbors_range
-    )
-  ) +
-  guides(col = guide_legend("Cluster assignment")) +
-  theme(text = element_text(size = 14),
-        plot.caption = element_text(hjust = 0.5))
+# Check length of `existing_columns`
+if(length(existing_columns) == 0){
+  stop("There are no existing clustering results, therefore a report cannot be generated.")
+}
+
+# Set number of columns for plotting and use this to define figure heights
+num_col <- 2
+figure_height <- max(ceiling(length(existing_columns)/num_col) * 5, 4)
+
+knitr::opts_chunk$set(
+  fig.height = figure_height
+)
+```
+
+```{r}
+# Plot UMAP coordinatates
+plot_list <- existing_columns %>%
+  purrr::map(
+    ~ plotReducedDim(processed_sce, dimred = "UMAP", colour_by = .x) +
+      theme_bw() +
+      theme(text = element_text(size = 8))
+  )
+
+cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
 ```
 
 ## Plot cluster validity stats
 
-```{r fig.height = 9.5}
+```{r}
 # Grab the cluster validity stats data frame
 all_validity_stats_df <- readr::read_tsv(file.path(
   params$stats_dir,
@@ -121,23 +131,29 @@ all_validity_stats_df <- readr::read_tsv(file.path(
 
 #### Purity plots
 
-```{r fig.height=10}
+```{r}
 # Plot individual cluster purity stats
-purity_plots <- plot_cluster_purity(all_validity_stats_df)
+purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col)
 
-purity_plots
+purity_plots + theme(text = element_text(size = 8))
 ```
 
 #### Silhouette width plots
 
-```{r fig.height=10}
+```{r}
 # Plot individual cluster silhouette width stats
-silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df)
+silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df, num_col)
 
-silhouette_plots
+silhouette_plots + theme(text = element_text(size = 8))
 ```
 
 ### Summary plots
+
+```{r}
+knitr::opts_chunk$set(
+  fig.height = 6
+)
+```
 
 ```{r}
 # Grab the cluster validity stats summary data frame

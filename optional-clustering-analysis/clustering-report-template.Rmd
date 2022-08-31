@@ -66,13 +66,6 @@ library(scater)
 processed_sce <- read_rds(file.path(params$processed_sce))
 ```
 
-## Plots
-
-## UMAP plot results for `r params$library`
-
-Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment. 
-Here clustering was performed using `r params$cluster_type` clustering.
-
 ```{r}
 # Define the nearest neighbors range of values
 nn_range <- define_nn_range(params$nearest_neighbors_range, params$nearest_neighbors_increment)
@@ -83,9 +76,62 @@ existing_columns <- intersect(cluster_column_names, colnames(colData(processed_s
 
 # Check length of `existing_columns`
 if(length(existing_columns) == 0){
-  stop("There are no existing clustering results, therefore a report cannot be generated.")
+  stop("There are no existing clustering results in the SCE object, therefore a report cannot be generated.")
 }
+```
 
+```{r}
+# Read in the cluster validity stats data frame
+all_validity_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_all_validity_stats.tsv")
+))
+
+# Read in the cluster validity stats summary data frame
+summary_validity_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_summary_validity_stats.tsv")
+))
+
+# Read in the cluster stability stats summary data frame
+summary_stability_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_summary_stability_stats.tsv")
+))
+```
+
+```{r}
+# Function to check that clustering results exist in the files that were read in
+stats_column_check <- function(existing_columns, df_column){
+  missing_columns <- setdiff(existing_columns, df_column)
+  if(length(missing_columns) != 0){
+    missing_columns_print <- paste(missing_columns, collapse = ", ")
+    stop(glue::glue("The clustering statistics cannot be found for {missing_columns_print}"))
+    }
+  }
+stats_column_check(existing_columns, all_validity_stats_df$cluster_names_column)
+stats_column_check(existing_columns, summary_validity_stats_df$cluster_names_column)
+stats_column_check(existing_columns, summary_stability_stats_df$cluster_names_column)
+
+# Subset dataframes to include only specified clustering results
+all_validity_stats_df <- all_validity_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+
+summary_validity_stats_df <- summary_validity_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+
+summary_stability_stats_df <- summary_stability_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+```
+
+## Plots
+
+## UMAP plot results for `r params$library`
+
+Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment. 
+Here clustering was performed using `r params$cluster_type` clustering.
+
+```{r}
 # Set number of columns for plotting and use this to define figure heights
 num_col <- 2
 figure_height <- max(ceiling(length(existing_columns)/num_col) * 5, 4)
@@ -99,9 +145,10 @@ knitr::opts_chunk$set(
 # Plot UMAP coordinates
 plot_list <- existing_columns %>%
   purrr::map(
-    ~ plotReducedDim(processed_sce, dimred = "UMAP", colour_by = .x) +
+    ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x, point_size = 0.1, point_alpha = 0.3) +
       theme_bw() +
-      theme(text = element_text(size = 8))
+      guides(color = guide_legend(override.aes = list(size = 1))) +
+      theme(text = element_text(size = 12))
   )
 
 cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
@@ -109,29 +156,13 @@ cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
 
 ## Plot cluster validity stats
 
-```{r}
-# Grab the cluster validity stats data frame
-all_validity_stats_df <- readr::read_tsv(file.path(
-  params$stats_dir,
-  paste0(params$library, "_clustering_all_validity_stats.tsv")
-))
-
-# Check that the clustering results exist
-if(!(any(existing_columns %in% all_validity_stats_df$cluster_names_column))){
-  stop("The clustering results cannot be found in the all validity stats file.")
-} else {
-  all_validity_stats_df <- all_validity_stats_df %>%
-    dplyr::filter(cluster_names_column %in% existing_columns)
-}
-```
-
 #### Purity plots
 
 ```{r}
 # Plot individual cluster purity stats
 purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col)
 
-purity_plots + theme(text = element_text(size = 8))
+purity_plots + theme(text = element_text(size = 12), legend.text = element_text(size=12))
 ```
 
 #### Silhouette width plots
@@ -140,7 +171,7 @@ purity_plots + theme(text = element_text(size = 8))
 # Plot individual cluster silhouette width stats
 silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df, num_col)
 
-silhouette_plots + theme(text = element_text(size = 8))
+silhouette_plots + theme(text = element_text(size = 12), legend.text = element_text(size=12))
 ```
 
 ### Summary plots
@@ -157,27 +188,13 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
-# Grab the cluster validity stats summary data frame
-summary_validity_stats_df <- readr::read_tsv(file.path(
-  params$stats_dir,
-  paste0(params$library, "_clustering_summary_validity_stats.tsv")
-))
-
-# Check that the clustering results exist
-if(!(any(existing_columns %in% summary_validity_stats_df$cluster_names_column))){
-  stop("The clustering results cannot be found in the all validity stats file.")
-} else {
-  summary_validity_stats_df <- summary_validity_stats_df %>%
-    dplyr::filter(cluster_names_column %in% existing_columns)
-}
-```
-
-```{r}
 # purity summary plot
-plot_avg_validity_stats(summary_validity_stats_df, "avg_purity")
+plot_avg_validity_stats(summary_validity_stats_df, "avg_purity") +
+  theme(text = element_text(size = 12), legend.text = element_text(size=12))
 
 #silhouette width summary plot
-plot_avg_validity_stats(summary_validity_stats_df, "avg_width")
+plot_avg_validity_stats(summary_validity_stats_df, "avg_width") + 
+  theme(text = element_text(size = 12), legend.text = element_text(size=12))
 ```
 
 ## Plot cluster stability

@@ -589,20 +589,30 @@ plot_summary_cluster_stability_ari <- function(ari_df_list) {
   return(ari_summary_plot)
 }
 
-define_nn_range <- function(nearest_neighbors_range, neareast_neigbors_increment){
-  # If param$nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
-  if(length(params$nearest_neighbors_range) == 1) {
+define_nn_range <- function(nearest_neighbors_range, nearest_neighbors_increment = NULL){
+  # Purpose: Define a nearest neighbors range sequence with the provided
+  # range and increment values
+  
+  # Args:
+  #   nearest_neighbors_range: range with number of nearest neighbors to include 
+  #                            when calculating/plotting the clustering results;
+  #                            can be a range of values, e.g. 5:25, or a single value.
+  #   nearest_neighbors_increment: increment to use when implementing the range 
+  #                                number of nearest neighbors for cluster stats.
+  
+  # If nearest_neighbors_range is a single value, set nearest_neighbors_increment to 1
+  if(length(nearest_neighbors_range) == 1) {
     nearest_neighbors_increment <- 1
   }
   # If a nearest neighbors increment exists, then create a sequence for clustering 
-  if(!(params$nearest_neighbors_increment == 1)){
-    nn_range <- seq(min(params$nearest_neighbors_range), 
-                    max(params$nearest_neighbors_range), 
-                    params$nearest_neighbors_increment) 
+  if(!(nearest_neighbors_increment == 1)){
+    nn_range <- seq(min(nearest_neighbors_range), 
+                    max(nearest_neighbors_range), 
+                    nearest_neighbors_increment) 
     # If no nearest neighbors increment has been input then the provided range is 
     # directly used for clustering 
   } else {
-    nn_range <- params$nearest_neighbors_range
+    nn_range <- nearest_neighbors_range
   }
   
   return(nn_range)

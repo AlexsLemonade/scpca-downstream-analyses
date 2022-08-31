@@ -154,20 +154,8 @@ if(is(sce,"SingleCellExperiment")){
 
 #### Perform clustering --------------------------------------------------------
 
-# If opt$nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
-if(length(opt$nearest_neighbors_range) == 1) {
-  opt$nearest_neighbors_increment <- 1
-}
-# If a nearest neighbors increment exists, then create a sequence for clustering 
-if(!(opt$nearest_neighbors_increment == 1)){
-  nn_range <- seq(min(opt$nearest_neighbors_range), 
-                  max(opt$nearest_neighbors_range), 
-                  opt$nearest_neighbors_increment) 
-  # If no nearest neighbors increment has been input then the provided range is 
-  # directly used for clustering 
-} else {
-  nn_range <- opt$nearest_neighbors_range
-}
+# Define nearest neighbors range of values
+nn_range <- define_nn_range(opt$nearest_neighbors_range, opt$nearest_neighbors_increment)
 
 # Check for existing clustering results
 cluster_column_names <- paste(opt$cluster_type, nn_range, sep = "_")

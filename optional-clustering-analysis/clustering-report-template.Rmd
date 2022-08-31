@@ -74,20 +74,8 @@ Below is a UMAP plot where each cell has been colored based on the cell's cluste
 Here clustering was performed using `r params$cluster_type` clustering.
 
 ```{r}
-# If param$nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
-if(length(params$nearest_neighbors_range) == 1) {
-  nearest_neighbors_increment <- 1
-}
-# If a nearest neighbors increment exists, then create a sequence for clustering 
-if(!(params$nearest_neighbors_increment == 1)){
-  nn_range <- seq(min(params$nearest_neighbors_range), 
-                  max(params$nearest_neighbors_range), 
-                  params$nearest_neighbors_increment) 
-  # If no nearest neighbors increment has been input then the provided range is 
-  # directly used for clustering 
-} else {
-  nn_range <- params$nearest_neighbors_range
-}
+# Define the nearest neighbors range of values
+nn_range <- define_nn_range(params$nearest_neighbors_range, params$nearest_neighbors_increment)
 
 # Grab column name with clustering results
 cluster_column_names <- paste(params$cluster_type, nn_range, sep = "_")
@@ -108,7 +96,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
-# Plot UMAP coordinatates
+# Plot UMAP coordinates
 plot_list <- existing_columns %>%
   purrr::map(
     ~ plotReducedDim(processed_sce, dimred = "UMAP", colour_by = .x) +
@@ -127,6 +115,14 @@ all_validity_stats_df <- readr::read_tsv(file.path(
   params$stats_dir,
   paste0(params$library, "_clustering_all_validity_stats.tsv")
 ))
+
+# Check that the clustering results exist
+if(!(any(existing_columns %in% all_validity_stats_df$cluster_names_column))){
+  stop("The clustering results cannot be found in the all validity stats file.")
+} else {
+  all_validity_stats_df <- all_validity_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+}
 ```
 
 #### Purity plots
@@ -150,8 +146,13 @@ silhouette_plots + theme(text = element_text(size = 8))
 ### Summary plots
 
 ```{r}
+# Set number of rows for plotting and use this to define figure widths
+num_row <- 1
+figure_width <- max(ceiling(length(existing_columns)/num_row) * 2, 2)
+
 knitr::opts_chunk$set(
-  fig.height = 6
+  fig.height = 6,
+  fig.width = figure_width
 )
 ```
 
@@ -162,6 +163,16 @@ summary_validity_stats_df <- readr::read_tsv(file.path(
   paste0(params$library, "_clustering_summary_validity_stats.tsv")
 ))
 
+# Check that the clustering results exist
+if(!(any(existing_columns %in% summary_validity_stats_df$cluster_names_column))){
+  stop("The clustering results cannot be found in the all validity stats file.")
+} else {
+  summary_validity_stats_df <- summary_validity_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+}
+```
+
+```{r}
 # purity summary plot
 plot_avg_validity_stats(summary_validity_stats_df, "avg_purity")
 
@@ -178,6 +189,16 @@ summary_stability_stats_df <- readr::read_tsv(file.path(
   paste0(params$library, "_clustering_summary_stability_stats.tsv")
 ))
 
+# Check that the clustering results exist
+if(!(any(existing_columns %in% summary_stability_stats_df$cluster_names_column))){
+  stop("The clustering results cannot be found in the all validity stats file.")
+} else {
+  summary_stability_stats_df <- summary_stability_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+}
+```
+
+```{r}
 # plot cluster stability ARI values
 plot_cluster_stability_ari(summary_stability_stats_df)
 ```

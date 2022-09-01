@@ -62,37 +62,42 @@ kmeans_clustering <- function(normalized_sce,
   
 }
 
-define_nn_range <- function(nearest_neighbors_range, nearest_neighbors_increment = NULL){
+define_nn_range <- function(nearest_neighbors_lowest,
+                            nearest_neighbors_highest,
+                            nearest_neighbors_increment = NULL){
   # Purpose: Define a nearest neighbors range sequence with the provided
   # range and increment values
   
   # Args:
-  #   nearest_neighbors_range: range with number of nearest neighbors to include 
-  #                            when calculating/plotting the clustering results;
-  #                            can be a range of values, e.g. 5:25, or a single value.
+  #   nearest_neighbors_lowest: lowest number of a range of nearest neighbors 
+  #                             values to include when calculating/plotting the 
+  #                             clustering results.
+  #   nearest_neighbors_highest: highest number of a range of nearest neighbors 
+  #                             values to include when calculating/plotting the 
+  #                             clustering results.
   #   nearest_neighbors_increment: increment to use when implementing the range 
   #                                number of nearest neighbors for cluster stats.
   
-  # If nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
-  if(length(nearest_neighbors_range) == 1) {
-    nearest_neighbors_increment <- NULL
-  }
-  # If a nearest neighbors increment exists, then create a sequence for clustering 
-  if(!(nearest_neighbors_increment == 1)){
+  # Define range using the lowest and highest values
+  nearest_neighbors_range <- c(nearest_neighbors_lowest:nearest_neighbors_highest)
+  
+  # If no nearest neighbors increment has been input then the provided range is 
+  # directly used for clustering 
+  if (is.null(nearest_neighbors_increment)) {
+    nn_range <- nearest_neighbors_range
+  } else {
+    # If a nearest neighbors increment exists, then create a sequence for clustering 
     nn_range <- seq(min(nearest_neighbors_range), 
                     max(nearest_neighbors_range), 
                     nearest_neighbors_increment) 
-    # If no nearest neighbors increment has been input then the provided range is 
-    # directly used for clustering 
-  } else {
-    nn_range <- nearest_neighbors_range
   }
   
   return(nn_range)
 }
 
 graph_clustering <- function(normalized_sce,
-                             params_range,
+                             nearest_neighbors_lowest,
+                             nearest_neighbors_highest,
                              step_size = NULL,
                              cluster_type = "walktrap",
                              seed = 2021) {
@@ -101,8 +106,12 @@ graph_clustering <- function(normalized_sce,
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   params_range: the range of numeric parameters to test for clustering, 
-  #     can be a range of values, e.g. c(1:10), or a single value
+  #   nearest_neighbors_lowest: lowest number of a range of nearest neighbors 
+  #                             values to include when calculating/plotting the 
+  #                             clustering results.
+  #   nearest_neighbors_highest: highest number of a range of nearest neighbors 
+  #                             values to include when calculating/plotting the 
+  #                             clustering results.
   #   step_size: if a range of values is provided to `params_range`, 
   #     a numeric value representing the step size to use within the params range of values
   #   cluster_type: the type of graph-based clustering method that is being 
@@ -114,13 +123,18 @@ graph_clustering <- function(normalized_sce,
     stop("normalized_sce must be a SingleCellExperiment object.")
   }
   
-  # check that params_range is an integer
-  if(!is.integer(params_range)){
-    stop("`params_range` must be an integer.")
+  # check that nearest_neighbors_lowest and nearest_neighbors_highest are integers
+  if(!is.integer(nearest_neighbors_lowest)){
+    stop("`nearest_neighbors_lowest` must be an integer.")
+  }
+  if(!is.integer(nearest_neighbors_highest)){
+    stop("`nearest_neighbors_highest` must be an integer.")
   }
   
   # define nearest neighbors range
-  nn_range <- define_nn_range(params_range, step_size)
+  nn_range <- define_nn_range(nearest_neighbors_lowest,
+                              nearest_neighbors_highest,
+                              step_size)
   
   # determine weighting type to use based on graph detection algorithm specified 
   # if louvain is used, use jaccard 
@@ -251,21 +265,18 @@ get_cluster_stats <- function(clustered_sce, cluster_column_name) {
     dplyr::mutate(cluster = factor(clusters))
 }
 
-create_metadata_stats_df <- function(clustered_sce, params_range, step_size, cluster_type) {
+create_metadata_stats_df <- function(clustered_sce, params_range, cluster_type) {
   # Purpose: Calculate and return a data frame with the validity stats of the
   # clusters in the SingleCellExperiment object
   
   # Args:
   #   clustered_sce: SingleCellExperiment object with clustered results
   #   params_range: the range of numeric parameters to test for clustering
-  #   step_size: a numeric value representing the step_size by which to explore
-  #               the params range of values
   #   cluster_type: the type of clustering method performed - can be "kmeans", 
   #                 "walktrap", or "louvain"
   
   # define cluster names
-  param_values <- seq(min(params_range), max(params_range),step_size)
-  cluster_names_column <- paste(cluster_type, param_values, sep = "_")
+  cluster_names_column <- paste(cluster_type, params_range, sep = "_")
   
   # save data.frame to the cluster validity list of data.frames
   cluster_validity_df_list <- cluster_names_column %>% 
@@ -355,9 +366,7 @@ plot_cluster_purity <- function(cluster_validity_df, num_col) {
     labs(title = unique(metadata$cluster_type),
          x = "Cluster Assignment",
          color = legend_title) +
-    facet_wrap( ~ param_value, scale="free", ncol = num_col) + 
-    theme_bw() +
-    theme(text = element_text(size = 22))
+    facet_wrap( ~ param_value, scale="free", ncol = num_col)
   
   return(plot)
 }
@@ -401,9 +410,7 @@ plot_cluster_silhouette_width <- function(cluster_validity_df, num_col) {
       geom = "pointrange",
       position = position_dodge(width = 0.9),
       size = 0.5
-    ) +
-    theme_bw() +
-    theme(text = element_text(size = 22))
+    )
   
   return(plot)
 }                                
@@ -460,18 +467,15 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
                     position = position_dodge2(width = 0.6)) +
     geom_line() +
     ylim(y_range) + 
-    theme_bw() + 
     labs(x = "Parameter value",
          y = gsub("_", " ", measure),
-         color = "Cluster type") +
-    theme(text = element_text(size = 9))
+         color = "Cluster type")
   
   return(summary_plot)
 }
 
 get_cluster_stability_summary <- function(normalized_sce,
                                    params_range,
-                                   step_size,
                                    cluster_type) {
   # Purpose: Calculate and return a data frame of ARI values of the bootstrapping
   # replicates and the associated original clusters stored in the 
@@ -480,8 +484,6 @@ get_cluster_stability_summary <- function(normalized_sce,
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
   #   params_range: the range of numeric parameters to test for clustering
-  #   step_size: a numeric value representing the step_size by which to explore
-  #               the params range of values
   #   cluster_type: the type of clustering method performed - can be "kmeans",
   #                 "walktrap", or "louvain"
   
@@ -489,11 +491,10 @@ get_cluster_stability_summary <- function(normalized_sce,
   pca_matrix <- reducedDim(normalized_sce, "PCA")
   
   # define cluster names
-  param_values <- seq(min(params_range), max(params_range),step_size)
   if (cluster_type == "kmeans") {
-    cluster_names <- paste(cluster_type, param_values, sep = "_")
+    cluster_names <- paste(cluster_type, params_range, sep = "_")
   } else if (cluster_type %in% c("walktrap", "louvain")) {
-    cluster_names <- paste(cluster_type, param_values, sep = "_")
+    cluster_names <- paste(cluster_type, params_range, sep = "_")
   }
   
   ari_results <- list()
@@ -558,7 +559,6 @@ plot_cluster_stability_ari <- function(ari_plotting_df) {
       position = position_dodge(width = 0.9),
       size = 0.2
     ) +
-    theme_bw() +
     scale_x_discrete(name = "Parameter value",
                      limits = params_range)
   
@@ -599,11 +599,9 @@ plot_summary_cluster_stability_ari <- function(ari_df_list) {
                     color = "black",
                     position = position_dodge2(width = 0.6)) +
     geom_line() +
-    theme_bw() +
     labs(x = "Parameter value",
          y = "Median ARI",
-         color = "Cluster type") +
-    theme(text = element_text(size = 9))
+         color = "Cluster type")
   
   return(ari_summary_plot)
 }

@@ -1,14 +1,14 @@
 ---
 params:
-  library: Library
-  processed_sce: "../results/scpca_processed_data/SCPCS000216/SCPCL000290_processed_sce_clustering.rds"
-  stats_dir: "../results/scpca_processed_data/SCPCS000216/clustering_stats"
+  library: "library01"
+  processed_sce: "example-results/sample01/library01_processed_sce_clustering.rds"
+  stats_dir: "example-results/sample01/clustering_stats"
   cluster_type: "louvain"
-  nearest_neighbors_range: 5:25
+  nearest_neighbors_lowest: 5
+  nearest_neighbors_highest: 25
   nearest_neighbors_increment: 5
   project_root: NULL
   date: !r Sys.Date()
-
 title: "`r glue::glue('Clustering analysis report for {params$library}')`"
 author: "CCDL"
 date: "`r params$date`"
@@ -19,6 +19,8 @@ output:
     toc_float: true
     number_sections: true
     code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 This notebook will look at additional clustering parameters on the expression of
@@ -39,16 +41,23 @@ if (is.null(params$project_root)) {
   project_root <- params$project_root
 } 
 
+# Tell knitr to knit from the project root to be able to load `renv` properly
+# This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
+knitr::opts_knit$set(root.dir = project_root)
+
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 source(file.path(project_root, "utils", "clustering-functions.R"))
 
-# Load project
-setup_renv(project_filepath = project_root)
-
 # Set theme for plotting
 library(ggplot2)
-theme_set(theme_bw())
+theme_set(theme_bw() + theme(text = element_text(size = 14),
+                             legend.text = element_text(size = 15)))
+```
+
+```{r}
+# Load project
+setup_renv(project_filepath = project_root)
 ```
 
 ```{r}
@@ -68,7 +77,9 @@ processed_sce <- read_rds(file.path(params$processed_sce))
 
 ```{r}
 # Define the nearest neighbors range of values
-nn_range <- define_nn_range(params$nearest_neighbors_range, params$nearest_neighbors_increment)
+nn_range <- define_nn_range(params$nearest_neighbors_lowest,
+                            params$nearest_neighbors_highest,
+                            params$nearest_neighbors_increment)
 
 # Grab column name with clustering results
 cluster_column_names <- paste(params$cluster_type, nn_range, sep = "_")
@@ -147,8 +158,7 @@ plot_list <- existing_columns %>%
   purrr::map(
     ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x, point_size = 0.1, point_alpha = 0.3) +
       theme_bw() +
-      guides(color = guide_legend(override.aes = list(size = 1))) +
-      theme(text = element_text(size = 12))
+      guides(color = guide_legend(override.aes = list(size = 1)))
   )
 
 cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
@@ -162,7 +172,7 @@ cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
 # Plot individual cluster purity stats
 purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col)
 
-purity_plots + theme(text = element_text(size = 12), legend.text = element_text(size=12))
+purity_plots
 ```
 
 #### Silhouette width plots
@@ -171,7 +181,7 @@ purity_plots + theme(text = element_text(size = 12), legend.text = element_text(
 # Plot individual cluster silhouette width stats
 silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df, num_col)
 
-silhouette_plots + theme(text = element_text(size = 12), legend.text = element_text(size=12))
+silhouette_plots
 ```
 
 ### Summary plots
@@ -189,12 +199,10 @@ knitr::opts_chunk$set(
 
 ```{r}
 # purity summary plot
-plot_avg_validity_stats(summary_validity_stats_df, "avg_purity") +
-  theme(text = element_text(size = 12), legend.text = element_text(size=12))
+plot_avg_validity_stats(summary_validity_stats_df, "avg_purity")
 
 #silhouette width summary plot
-plot_avg_validity_stats(summary_validity_stats_df, "avg_width") + 
-  theme(text = element_text(size = 12), legend.text = element_text(size=12))
+plot_avg_validity_stats(summary_validity_stats_df, "avg_width")
 ```
 
 ## Plot cluster stability

@@ -23,8 +23,8 @@ output:
 
 This notebook will plot the output of the 
 `optional-clustering-analysis/clustering-calculations.R` script, which allows 
-for additional clustering parameters to be calculated on the expression of the 
-genes in a single sample of the dataset of interest.
+for additional clustering parameters to be calculated on gene expression data 
+associated with a single sample of the dataset of interest.
 
 ## Set Up
 

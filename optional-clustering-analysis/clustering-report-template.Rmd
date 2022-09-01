@@ -21,8 +21,10 @@ output:
     code_folding: hide
 ---
 
-This notebook will look at additional clustering parameters on the expression of
-the genes in a single sample of the dataset of interest, from an unbiased approach.
+This notebook will plot the output of the 
+`optional-clustering-analysis/clustering-calculations.R` script, which allows 
+for additional clustering parameters to be calculated on the expression of the 
+genes in a single sample of the dataset of interest.
 
 ## Set Up
 
@@ -128,7 +130,8 @@ summary_stability_stats_df <- summary_stability_stats_df %>%
 
 ## UMAP plot results for `r params$library`
 
-Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment. 
+Below is a UMAP plot for each clustering parameter, where each cell has been 
+colored based on the cell's cluster assignment. 
 Here clustering was performed using `r params$cluster_type` clustering.
 
 ```{r}
@@ -156,7 +159,17 @@ cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
 
 ## Plot cluster validity stats
 
+Below are plots that display the validity results of each of the cluster assignments.
+
 #### Purity plots
+
+The purity plots below represent each cell as the proportion of neighboring 
+cells that are assigned to the same cluster.
+Well-separated clusters should show little over-lapping between member and 
+neighboring cells, and therefore high purity values for all member cells.
+The cluster purity range is `0` to `1`, therefore purity values that are
+consistently greater than `0.9` indicate that most cells in each cluster are 
+primarily surrounded by other cells belonging to the same cluster.
 
 ```{r}
 # Plot individual cluster purity stats
@@ -167,6 +180,16 @@ purity_plots + theme(text = element_text(size = 12), legend.text = element_text(
 
 #### Silhouette width plots
 
+The silhouette width plots below represent how well-separated each of the 
+clusters are.
+For each cell, the average distance to all cells in the same cluster and the 
+average distance to all cells in another cluster, are calculated. 
+The silhouette width for each cell is defined as the difference between these 
+two values divided by their maximum.
+Therefore, cells will ideally have large positive silhouette widths, as this 
+would mean that the cells of one cluster are well-separated from other clusters.
+The silhouette width range is `-1` to `1`.
+
 ```{r}
 # Plot individual cluster silhouette width stats
 silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df, num_col)
@@ -175,6 +198,12 @@ silhouette_plots + theme(text = element_text(size = 12), legend.text = element_t
 ```
 
 ### Summary plots
+
+The summary plots below represent a calculated average for each type of cluster 
+validity statistic, cluster purity and silhouette width, across each of the 
+cluster parameters.
+Again, ideally you would expect high cluster purity values and large positive
+silhouette width values.
 
 ```{r}
 # Set number of rows for plotting and use this to define figure widths
@@ -198,6 +227,16 @@ plot_avg_validity_stats(summary_validity_stats_df, "avg_width") +
 ```
 
 ## Plot cluster stability
+
+The plots below represent how stable the clustering results associated with each
+of the clustering parameters appear to be when using bootstrap replicates.
+Ideally, bootstrap replicates would be highly consistent with the original 
+dataset, as this would mean that clusters are likely to be stable despite small 
+changes to upstream processing and overall would mean that they can be reproduced.
+We use summary adjusted Rand Index (ARI) values in the plots below to represent 
+the average calculated cluster stability values.
+The range here is `0` to `1`, where clusters would ideally have ARI values that
+are closer to 1, as this would mean greater cluster stability.
 
 ```{r}
 # Grab the cluster stability stats summary data frame

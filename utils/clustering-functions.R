@@ -62,6 +62,35 @@ kmeans_clustering <- function(normalized_sce,
   
 }
 
+define_nn_range <- function(nearest_neighbors_range, nearest_neighbors_increment = NULL){
+  # Purpose: Define a nearest neighbors range sequence with the provided
+  # range and increment values
+  
+  # Args:
+  #   nearest_neighbors_range: range with number of nearest neighbors to include 
+  #                            when calculating/plotting the clustering results;
+  #                            can be a range of values, e.g. 5:25, or a single value.
+  #   nearest_neighbors_increment: increment to use when implementing the range 
+  #                                number of nearest neighbors for cluster stats.
+  
+  # If nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
+  if(length(nearest_neighbors_range) == 1) {
+    nearest_neighbors_increment <- NULL
+  }
+  # If a nearest neighbors increment exists, then create a sequence for clustering 
+  if(!(nearest_neighbors_increment == 1)){
+    nn_range <- seq(min(nearest_neighbors_range), 
+                    max(nearest_neighbors_range), 
+                    nearest_neighbors_increment) 
+    # If no nearest neighbors increment has been input then the provided range is 
+    # directly used for clustering 
+  } else {
+    nn_range <- nearest_neighbors_range
+  }
+  
+  return(nn_range)
+}
+
 graph_clustering <- function(normalized_sce,
                              params_range,
                              step_size = NULL,
@@ -90,18 +119,8 @@ graph_clustering <- function(normalized_sce,
     stop("`params_range` must be an integer.")
   }
   
-  # if params_range is a single value, set step_size to NULL
-  if(length(params_range) == 1) {
-    step_size <- NULL
-  }
-  
-  # if a step size exists, then create a sequence of params for clustering 
-  if(!is.null(step_size)){
-    nn_range <- seq(min(params_range), max(params_range), step_size) 
-    # if no step size has been input then the params range is directly used for clustering 
-  } else {
-    nn_range <- params_range
-  }
+  # define nearest neighbors range
+  nn_range <- define_nn_range(params_range, step_size)
   
   # determine weighting type to use based on graph detection algorithm specified 
   # if louvain is used, use jaccard 
@@ -587,33 +606,4 @@ plot_summary_cluster_stability_ari <- function(ari_df_list) {
     theme(text = element_text(size = 9))
   
   return(ari_summary_plot)
-}
-
-define_nn_range <- function(nearest_neighbors_range, nearest_neighbors_increment = NULL){
-  # Purpose: Define a nearest neighbors range sequence with the provided
-  # range and increment values
-  
-  # Args:
-  #   nearest_neighbors_range: range with number of nearest neighbors to include 
-  #                            when calculating/plotting the clustering results;
-  #                            can be a range of values, e.g. 5:25, or a single value.
-  #   nearest_neighbors_increment: increment to use when implementing the range 
-  #                                number of nearest neighbors for cluster stats.
-  
-  # If nearest_neighbors_range is a single value, set nearest_neighbors_increment to 1
-  if(length(nearest_neighbors_range) == 1) {
-    nearest_neighbors_increment <- 1
-  }
-  # If a nearest neighbors increment exists, then create a sequence for clustering 
-  if(!(nearest_neighbors_increment == 1)){
-    nn_range <- seq(min(nearest_neighbors_range), 
-                    max(nearest_neighbors_range), 
-                    nearest_neighbors_increment) 
-    # If no nearest neighbors increment has been input then the provided range is 
-    # directly used for clustering 
-  } else {
-    nn_range <- nearest_neighbors_range
-  }
-  
-  return(nn_range)
 }

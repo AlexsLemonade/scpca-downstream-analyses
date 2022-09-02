@@ -50,6 +50,7 @@ source(file.path(project_root, "utils", "setup-functions.R"))
 source(file.path(project_root, "utils", "clustering-functions.R"))
 
 # Set theme for plotting
+library(dplyr)
 library(ggplot2)
 theme_set(theme_bw() + theme(text = element_text(size = 14),
                              legend.text = element_text(size = 15)))
@@ -64,7 +65,6 @@ setup_renv(project_filepath = project_root)
 # Load libraries
 library(readr)
 library(SingleCellExperiment)
-library(dplyr)
 library(miQC)
 library(ggpubr)
 library(scater)

@@ -12,8 +12,8 @@
 #   --library_id "library01" \
 #   --seed 2021 \
 #   --cluster_type "louvain" \
-#   --nearest_neighbors_lowest 5
-#   --nearest_neighbors_highest 25 \
+#   --nearest_neighbors_min 5
+#   --nearest_neighbors_max 25 \
 #   --nearest_neighbors_increment 5 \
 #   --output_directory "example-results/sample01"
 
@@ -53,17 +53,17 @@ option_list <- list(
     help = "Method used for clustering. Can be either louvain or walktrap.",
   ),
   optparse::make_option(
-    c("-n", "--nearest_neighbors_lowest"),
+    c("-n", "--nearest_neighbors_min"),
     type = "integer",
     default = 5,
-    help = "The lowest number of a range of nearest neighbors values to include 
+    help = "The minimum number of a range of nearest neighbors values to include 
     during graph construction. Default is 5."
   ),
   optparse::make_option(
-    c("--nearest_neighbors_highest"),
+    c("--nearest_neighbors_max"),
     type = "integer",
     default = 25,
-    help = "The highest number of a range of nearest neighbors values to include 
+    help = "The maximum number of a range of nearest neighbors values to include 
     during graph construction. Default is 25."
   ),
   optparse::make_option(
@@ -163,8 +163,8 @@ if(is(sce,"SingleCellExperiment")){
 #### Perform clustering --------------------------------------------------------
 
 # Define nearest neighbors range of values
-nn_range <- define_nn_range(opt$nearest_neighbors_lowest,
-                            opt$nearest_neighbors_highest,
+nn_range <- define_nn_range(opt$nearest_neighbors_min,
+                            opt$nearest_neighbors_max,
                             opt$nearest_neighbors_increment)
 
 # Check for existing clustering results
@@ -178,8 +178,8 @@ if(length(existing_columns) != 0){
     message("Overwriting clustering results.")
     sce <- graph_clustering(
       normalized_sce = sce,
-      nearest_neighbors_lowest = as.integer(opt$nearest_neighbors_lowest),
-      nearest_neighbors_highest = as.integer(opt$nearest_neighbors_highest),
+      nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
+      nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
       step_size = opt$nearest_neighbors_increment,
       cluster_type = opt$cluster_type)
   } else {
@@ -192,8 +192,8 @@ if(length(existing_columns) != 0){
 } else {
   sce <- graph_clustering(
     normalized_sce = sce,
-    nearest_neighbors_lowest = as.integer(opt$nearest_neighbors_lowest),
-    nearest_neighbors_highest = as.integer(opt$nearest_neighbors_highest),
+    nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
+    nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
     step_size = opt$nearest_neighbors_increment,
     cluster_type = opt$cluster_type)
 }

@@ -62,42 +62,42 @@ kmeans_clustering <- function(normalized_sce,
   
 }
 
-define_nn_range <- function(nearest_neighbors_lowest,
-                            nearest_neighbors_highest,
+define_nn_range <- function(nearest_neighbors_min,
+                            nearest_neighbors_max,
                             nearest_neighbors_increment = NULL){
   # Purpose: Define a nearest neighbors range sequence with the provided
   # range and increment values
   
   # Args:
-  #   nearest_neighbors_lowest: lowest number of a range of nearest neighbors 
-  #                             values to include when calculating/plotting the 
-  #                             clustering results.
-  #   nearest_neighbors_highest: highest number of a range of nearest neighbors 
-  #                             values to include when calculating/plotting the 
-  #                             clustering results.
+  #   nearest_neighbors_min: minimum number of a range of nearest neighbors 
+  #                          values to include when calculating/plotting the 
+  #                          clustering results.
+  #   nearest_neighbors_max: maximum number of a range of nearest neighbors 
+  #                          values to include when calculating/plotting the 
+  #                          clustering results.
   #   nearest_neighbors_increment: increment to use when implementing the range 
   #                                number of nearest neighbors for cluster stats.
   
-  # Define range using the lowest and highest values
-  nearest_neighbors_range <- c(nearest_neighbors_lowest:nearest_neighbors_highest)
+  # Define range using the min and max values
+  nearest_neighbors_range <- c(nearest_neighbors_min:nearest_neighbors_max)
   
   # If no nearest neighbors increment has been input then the provided range is 
-  # directly used for clustering 
+  # directly used for clustering and nearest neighbors increment is set to 1
   if (is.null(nearest_neighbors_increment)) {
-    nn_range <- nearest_neighbors_range
-  } else {
-    # If a nearest neighbors increment exists, then create a sequence for clustering 
-    nn_range <- seq(min(nearest_neighbors_range), 
-                    max(nearest_neighbors_range), 
-                    nearest_neighbors_increment) 
+    nearest_neighbors_increment <- 1
   }
+  nn_range <- seq(
+    min(nearest_neighbors_range),
+    max(nearest_neighbors_range),
+    nearest_neighbors_increment
+  ) 
   
   return(nn_range)
 }
 
 graph_clustering <- function(normalized_sce,
-                             nearest_neighbors_lowest,
-                             nearest_neighbors_highest,
+                             nearest_neighbors_min,
+                             nearest_neighbors_max,
                              step_size = NULL,
                              cluster_type = "walktrap",
                              seed = 2021) {
@@ -106,12 +106,12 @@ graph_clustering <- function(normalized_sce,
   
   # Args:
   #   normalized_sce: normalized SingleCellExperiment object
-  #   nearest_neighbors_lowest: lowest number of a range of nearest neighbors 
-  #                             values to include when calculating/plotting the 
-  #                             clustering results.
-  #   nearest_neighbors_highest: highest number of a range of nearest neighbors 
-  #                             values to include when calculating/plotting the 
-  #                             clustering results.
+  #   nearest_neighbors_min: minimum number of a range of nearest neighbors 
+  #                          values to include when calculating/plotting the 
+  #                          clustering results.
+  #   nearest_neighbors_max: maximum number of a range of nearest neighbors 
+  #                          values to include when calculating/plotting the 
+  #                          clustering results.
   #   step_size: if a range of values is provided to `params_range`, 
   #     a numeric value representing the step size to use within the params range of values
   #   cluster_type: the type of graph-based clustering method that is being 
@@ -123,17 +123,17 @@ graph_clustering <- function(normalized_sce,
     stop("normalized_sce must be a SingleCellExperiment object.")
   }
   
-  # check that nearest_neighbors_lowest and nearest_neighbors_highest are integers
-  if(!is.integer(nearest_neighbors_lowest)){
-    stop("`nearest_neighbors_lowest` must be an integer.")
+  # check that nearest_neighbors_min and nearest_neighbors_max are integers
+  if(!is.integer(nearest_neighbors_min)){
+    stop("`nearest_neighbors_min` must be an integer.")
   }
-  if(!is.integer(nearest_neighbors_highest)){
-    stop("`nearest_neighbors_highest` must be an integer.")
+  if(!is.integer(nearest_neighbors_max)){
+    stop("`nearest_neighbors_max` must be an integer.")
   }
   
   # define nearest neighbors range
-  nn_range <- define_nn_range(nearest_neighbors_lowest,
-                              nearest_neighbors_highest,
+  nn_range <- define_nn_range(nearest_neighbors_min,
+                              nearest_neighbors_max,
                               step_size)
   
   # determine weighting type to use based on graph detection algorithm specified 

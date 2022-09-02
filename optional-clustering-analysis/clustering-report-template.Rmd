@@ -4,8 +4,8 @@ params:
   processed_sce: "example-results/sample01/library01_processed_sce_clustering.rds"
   stats_dir: "example-results/sample01/clustering_stats"
   cluster_type: "louvain"
-  nearest_neighbors_lowest: 5
-  nearest_neighbors_highest: 25
+  nearest_neighbors_min: 5
+  nearest_neighbors_max: 25
   nearest_neighbors_increment: 5
   project_root: NULL
   date: !r Sys.Date()
@@ -48,12 +48,6 @@ knitr::opts_knit$set(root.dir = project_root)
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 source(file.path(project_root, "utils", "clustering-functions.R"))
-
-# Set theme for plotting
-library(dplyr)
-library(ggplot2)
-theme_set(theme_bw() + theme(text = element_text(size = 14),
-                             legend.text = element_text(size = 15)))
 ```
 
 ```{r}
@@ -68,6 +62,12 @@ library(SingleCellExperiment)
 library(miQC)
 library(ggpubr)
 library(scater)
+library(dplyr)
+
+# Set theme for plotting
+library(ggplot2)
+theme_set(theme_bw() + theme(text = element_text(size = 14),
+                             legend.text = element_text(size = 15)))
 ```
 
 ```{r}
@@ -77,8 +77,8 @@ processed_sce <- read_rds(file.path(params$processed_sce))
 
 ```{r}
 # Define the nearest neighbors range of values
-nn_range <- define_nn_range(params$nearest_neighbors_lowest,
-                            params$nearest_neighbors_highest,
+nn_range <- define_nn_range(params$nearest_neighbors_min,
+                            params$nearest_neighbors_max,
                             params$nearest_neighbors_increment)
 
 # Grab column name with clustering results
@@ -143,12 +143,14 @@ Below is a UMAP plot where each cell has been colored based on the cell's cluste
 Here clustering was performed using `r params$cluster_type` clustering.
 
 ```{r}
-# Set number of columns for plotting and use this to define figure heights
+# Set number of columns for plotting and use this to define figure heights 
+# and widths
 num_col <- 2
-figure_height <- max(ceiling(length(existing_columns)/num_col) * 5, 4)
+figure_dim <- max(ceiling(length(existing_columns)/num_col) * 5, 4)
 
 knitr::opts_chunk$set(
-  fig.height = figure_height
+  fig.height = figure_dim,
+  fig.width = figure_dim
 )
 ```
 
@@ -156,7 +158,8 @@ knitr::opts_chunk$set(
 # Plot UMAP coordinates
 plot_list <- existing_columns %>%
   purrr::map(
-    ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x, point_size = 0.1, point_alpha = 0.3) +
+    ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x,
+                     point_size = 0.1, point_alpha = 0.5) +
       theme_bw() +
       guides(color = guide_legend(override.aes = list(size = 1)))
   )
@@ -170,7 +173,8 @@ cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
 
 ```{r}
 # Plot individual cluster purity stats
-purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col)
+purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col) + 
+  guides(color = guide_legend(override.aes = list(size = 1)))
 
 purity_plots
 ```
@@ -206,22 +210,6 @@ plot_avg_validity_stats(summary_validity_stats_df, "avg_width")
 ```
 
 ## Plot cluster stability
-
-```{r}
-# Grab the cluster stability stats summary data frame
-summary_stability_stats_df <- readr::read_tsv(file.path(
-  params$stats_dir,
-  paste0(params$library, "_clustering_summary_stability_stats.tsv")
-))
-
-# Check that the clustering results exist
-if(!(any(existing_columns %in% summary_stability_stats_df$cluster_names_column))){
-  stop("The clustering results cannot be found in the all validity stats file.")
-} else {
-  summary_stability_stats_df <- summary_stability_stats_df %>%
-    dplyr::filter(cluster_names_column %in% existing_columns)
-}
-```
 
 ```{r}
 # plot cluster stability ARI values

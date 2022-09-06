@@ -66,8 +66,8 @@ library(dplyr)
 
 # Set theme for plotting
 library(ggplot2)
-theme_set(theme_bw() + theme(text = element_text(size = 16),
-                             legend.text = element_text(size = 17)))
+theme_set(theme_bw() + theme(text = element_text(size = 17),
+                             legend.text = element_text(size = 16)))
 point_size <- 0.7
 ```
 

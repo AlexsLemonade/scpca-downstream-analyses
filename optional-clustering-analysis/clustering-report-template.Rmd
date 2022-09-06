@@ -66,8 +66,9 @@ library(dplyr)
 
 # Set theme for plotting
 library(ggplot2)
-theme_set(theme_bw() + theme(text = element_text(size = 14),
-                             legend.text = element_text(size = 15)))
+theme_set(theme_bw() + theme(text = element_text(size = 16),
+                             legend.text = element_text(size = 17)))
+point_size <- 0.7
 ```
 
 ```{r}
@@ -159,8 +160,10 @@ knitr::opts_chunk$set(
 plot_list <- existing_columns %>%
   purrr::map(
     ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x,
-                     point_size = 0.1, point_alpha = 0.5) +
+                     point_size = 0.4, point_alpha = 0.5) +
       theme_bw() +
+      theme(text = element_text(size = 14),
+            legend.text = element_text(size = 14)) +
       guides(color = guide_legend(override.aes = list(size = 1)))
   )
 
@@ -173,7 +176,7 @@ cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
 
 ```{r}
 # Plot individual cluster purity stats
-purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col) + 
+purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col, point_size) + 
   guides(color = guide_legend(override.aes = list(size = 1)))
 
 purity_plots
@@ -183,7 +186,7 @@ purity_plots
 
 ```{r}
 # Plot individual cluster silhouette width stats
-silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df, num_col)
+silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df, num_col, point_size)
 
 silhouette_plots
 ```
@@ -213,7 +216,7 @@ plot_avg_validity_stats(summary_validity_stats_df, "avg_width")
 
 ```{r}
 # plot cluster stability ARI values
-plot_cluster_stability_ari(summary_stability_stats_df)
+plot_cluster_stability_ari(summary_stability_stats_df, point_size)
 ```
 
 ## Session info

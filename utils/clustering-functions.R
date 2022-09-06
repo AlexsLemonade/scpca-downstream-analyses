@@ -78,19 +78,16 @@ define_nn_range <- function(nearest_neighbors_min,
   #   nearest_neighbors_increment: increment to use when implementing the range 
   #                                number of nearest neighbors for cluster stats.
   
-  # Define range using the min and max values
-  nearest_neighbors_range <- c(nearest_neighbors_min:nearest_neighbors_max)
-  
   # If no nearest neighbors increment has been input then the provided range is 
   # directly used for clustering and nearest neighbors increment is set to 1
   if (is.null(nearest_neighbors_increment)) {
     nearest_neighbors_increment <- 1
   }
   nn_range <- seq(
-    min(nearest_neighbors_range),
-    max(nearest_neighbors_range),
+    nearest_neighbors_min,
+    nearest_neighbors_max,
     nearest_neighbors_increment
-  ) 
+  )
   
   return(nn_range)
 }
@@ -317,7 +314,7 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   return(validity_summary_df)
 }
 
-plot_cluster_purity <- function(cluster_validity_df, num_col) {
+plot_cluster_purity <- function(cluster_validity_df, num_col, point_size) {
   
   # Purpose: Generate a plot displaying the cluster purity stats of the clusters
   # in the SingleCellExperiment object
@@ -326,6 +323,7 @@ plot_cluster_purity <- function(cluster_validity_df, num_col) {
   #   clustered_validity_df: data.frame with cluster validity stats associated
   #                          with their relevant cluster names
   #   num_col: number of columns to use when facetting
+  #   point_size: desired size of each plotted point
   
   # prepare data frame for plotting
   metadata <- cluster_validity_df %>%
@@ -345,7 +343,7 @@ plot_cluster_purity <- function(cluster_validity_df, num_col) {
   # plot the cluster validity data frames
   plot <-
     ggplot(metadata, aes(x = cluster, y = purity, colour = color_scale)) +
-    ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.2) +
+    ggbeeswarm::geom_quasirandom(method = "smiley", size = point_size) +
     scale_color_manual(values = c("yes" = "gray",
                                   "no" = "red")) +
     stat_summary(
@@ -371,7 +369,7 @@ plot_cluster_purity <- function(cluster_validity_df, num_col) {
   return(plot)
 }
 
-plot_cluster_silhouette_width <- function(cluster_validity_df, num_col) {
+plot_cluster_silhouette_width <- function(cluster_validity_df, num_col, point_size) {
   # Purpose: Calculate and return a data frame with the validity stats of the
   # clusters in the SingleCellExperiment object
   
@@ -379,6 +377,7 @@ plot_cluster_silhouette_width <- function(cluster_validity_df, num_col) {
   #   clustered_validity_df: data.frame with cluster validity stats associated
   #                          with their relevant cluster names
   #   num_col: number of columns to use when facetting
+  #   point_size: desired size of each plotted point
   
   # prepare data frame for plotting
   metadata <- cluster_validity_df %>%
@@ -391,7 +390,7 @@ plot_cluster_silhouette_width <- function(cluster_validity_df, num_col) {
   # plot the cluster validity data frames
   plot <-
     ggplot(metadata, aes(x = cluster, y = width)) +
-    ggbeeswarm::geom_quasirandom(method = "pseudorandom", size = 0.2) +
+    ggbeeswarm::geom_quasirandom(method = "pseudorandom", size = point_size) +
     geom_hline(yintercept = 0, linetype = 'dotted') +
     labs(title = unique(metadata$cluster_type),
          x = "Cluster Assignment") +
@@ -525,13 +524,14 @@ get_cluster_stability_summary <- function(normalized_sce,
   return(plot_ari_df)
 }
 
-plot_cluster_stability_ari <- function(ari_plotting_df) {
+plot_cluster_stability_ari <- function(ari_plotting_df, point_size) {
   # Purpose: Plot the ARI values of the bootstrapping replicates and the 
   # associated original clusters stored in the SingleCellExperiment object for 
   # the specified clustering parameters
   
   # Args:
   #   ari_plotting_df: data frame with ARI values for plotting
+  #   point_size: desired size of each plotted point
   
   # set params as factors
   ari_plotting_df <- ari_plotting_df %>%
@@ -543,7 +543,7 @@ plot_cluster_stability_ari <- function(ari_plotting_df) {
   plot <-
     ggplot(ari_plotting_df, aes(x = param_value, y = ARI, group = param_value)) +
     geom_violin() +
-    ggforce::geom_sina(size = 0.2) +
+    ggforce::geom_sina(size = point_size) +
     stat_summary(
       aes(group = param_value),
       color = "red",

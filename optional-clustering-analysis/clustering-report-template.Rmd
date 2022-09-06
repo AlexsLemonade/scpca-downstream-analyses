@@ -8,6 +8,7 @@ params:
   nearest_neighbors_max: 25
   nearest_neighbors_increment: 5
   project_root: NULL
+  point_size: 0.7
   date: !r Sys.Date()
 title: "`r glue::glue('Clustering analysis report for {params$library}')`"
 author: "CCDL"
@@ -68,7 +69,7 @@ library(dplyr)
 library(ggplot2)
 theme_set(theme_bw() + theme(text = element_text(size = 17),
                              legend.text = element_text(size = 16)))
-point_size <- 0.7
+point_size <- params$point_size
 ```
 
 ```{r}

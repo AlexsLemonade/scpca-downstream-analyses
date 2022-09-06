@@ -314,7 +314,7 @@ summarize_clustering_stats <- function(cluster_validity_df) {
   return(validity_summary_df)
 }
 
-plot_cluster_purity <- function(cluster_validity_df, num_col, point_size) {
+plot_cluster_purity <- function(cluster_validity_df, num_col, point_size = 0.7) {
   
   # Purpose: Generate a plot displaying the cluster purity stats of the clusters
   # in the SingleCellExperiment object
@@ -323,7 +323,7 @@ plot_cluster_purity <- function(cluster_validity_df, num_col, point_size) {
   #   clustered_validity_df: data.frame with cluster validity stats associated
   #                          with their relevant cluster names
   #   num_col: number of columns to use when facetting
-  #   point_size: desired size of each plotted point
+  #   point_size: desired size of each plotted point; default is 0.7
   
   # prepare data frame for plotting
   metadata <- cluster_validity_df %>%
@@ -369,7 +369,7 @@ plot_cluster_purity <- function(cluster_validity_df, num_col, point_size) {
   return(plot)
 }
 
-plot_cluster_silhouette_width <- function(cluster_validity_df, num_col, point_size) {
+plot_cluster_silhouette_width <- function(cluster_validity_df, num_col, point_size = 0.7) {
   # Purpose: Calculate and return a data frame with the validity stats of the
   # clusters in the SingleCellExperiment object
   
@@ -377,7 +377,7 @@ plot_cluster_silhouette_width <- function(cluster_validity_df, num_col, point_si
   #   clustered_validity_df: data.frame with cluster validity stats associated
   #                          with their relevant cluster names
   #   num_col: number of columns to use when facetting
-  #   point_size: desired size of each plotted point
+  #   point_size: desired size of each plotted point; default is 0.7
   
   # prepare data frame for plotting
   metadata <- cluster_validity_df %>%
@@ -524,14 +524,14 @@ get_cluster_stability_summary <- function(normalized_sce,
   return(plot_ari_df)
 }
 
-plot_cluster_stability_ari <- function(ari_plotting_df, point_size) {
+plot_cluster_stability_ari <- function(ari_plotting_df, point_size = 0.7) {
   # Purpose: Plot the ARI values of the bootstrapping replicates and the 
   # associated original clusters stored in the SingleCellExperiment object for 
   # the specified clustering parameters
   
   # Args:
   #   ari_plotting_df: data frame with ARI values for plotting
-  #   point_size: desired size of each plotted point
+  #   point_size: desired size of each plotted point; default is 0.7
   
   # set params as factors
   ari_plotting_df <- ari_plotting_df %>%

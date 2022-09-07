@@ -21,10 +21,7 @@ output:
     code_folding: hide
 ---
 
-This notebook will plot the output of the 
-`optional-clustering-analysis/clustering-calculations.R` script, which allows 
-for additional types of clustering across a range of parameters to be calculated
-on gene expression data associated with a single sample of the dataset of interest.
+This notebook will plot the output of the `optional-clustering-analysis/clustering-calculations.R` script, which allows for additional types of clustering across a range of parameters to be calculated on gene expression data associated with a single sample of the dataset of interest.
 
 ## Set Up
 
@@ -130,9 +127,7 @@ summary_stability_stats_df <- summary_stability_stats_df %>%
 
 ## UMAP plot results for `r params$library`
 
-Below is a set of UMAP plots, where each panel corresponds to clustering 
-performed with a given clustering parameter and each cell is colored based on
-the cell's cluster assignment. 
+Below is a set of UMAP plots, where each panel corresponds to clustering performed with a given clustering parameter and each cell is colored based on the cell's cluster assignment.
 Here clustering was performed using `r params$cluster_type` clustering.
 
 ```{r}
@@ -161,20 +156,14 @@ cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
 ## Evaluating clustering
 
 Below we evaluate the clustering results across each of the parameters tested. 
-We will look at the cluster purity, silhouette width, and cluster stability for 
-each clustering type and nearest neighbors value used.
-For a more in depth discussion on these metrics and how they can be used to 
-identify the optimal clustering results, see the [advanced clustering chapter in Orchestrating Single Cell Analysis](http://bioconductor.org/books/3.15/OSCA.advanced/clustering-redux.html#motivation).
+We will look at the cluster purity, silhouette width, and cluster stability for each clustering type and nearest neighbors value used.
+For a more in depth discussion on these metrics and how they can be used to identify the optimal clustering results, see the [advanced clustering chapter in Orchestrating Single Cell Analysis](http://bioconductor.org/books/3.15/OSCA.advanced/clustering-redux.html#motivation).
 
 #### Purity plots
 
-The purity plots below represent each cell as the proportion of neighboring 
-cells that are assigned to the same cluster.
-Well-separated clusters should show little overlap between member and 
-neighboring cells, and therefore high purity values for all member cells.
-The cluster purity range is `0` to `1`. Therefore purity values that are
-consistently greater than `0.9` indicate that most cells in each cluster are 
-primarily surrounded by other cells belonging to the same cluster.
+The purity plots below represent each cell as the proportion of neighboring cells that are assigned to the same cluster.
+Well-separated clusters should show little overlap between member and neighboring cells, and therefore high purity values for all member cells.
+The cluster purity range is `0` to `1`. Therefore purity values that are consistently greater than `0.9` indicate that most cells in each cluster are primarily surrounded by other cells belonging to the same cluster.
 
 ```{r}
 # Plot individual cluster purity stats
@@ -185,14 +174,10 @@ purity_plots + theme(text = element_text(size = 12), legend.text = element_text(
 
 #### Silhouette width plots
 
-The silhouette width plots below represent how well-separated each of the 
-clusters are.
-For each cell, the average distance to all cells in the same cluster and the 
-average distance to all cells in another cluster, are calculated. 
-The silhouette width for each cell is defined as the difference between these 
-two values divided by their maximum.
-Therefore, cells will ideally have large positive silhouette widths, as this 
-would mean that the cells of one cluster are well-separated from other clusters.
+The silhouette width plots below represent how well-separated each of the clusters are.
+For each cell, the average distance to all cells in the same cluster and the average distance to all cells in another cluster, are calculated.
+The silhouette width for each cell is defined as the difference between these two values divided by their maximum.
+Therefore, cells will ideally have large positive silhouette widths, as this would mean that the cells of one cluster are well-separated from other clusters.
 The silhouette width range is `-1` to `1`.
 
 ```{r}
@@ -204,11 +189,8 @@ silhouette_plots + theme(text = element_text(size = 12), legend.text = element_t
 
 ### Summary plots
 
-The summary plots below represent a calculated average for each type of the 
-clustering metrics, cluster purity and silhouette width, across each of the 
-parameters tested.
-Again, robust clusters should yield high cluster purity values and large positive
-silhouette width values.
+The summary plots below represent a calculated average for each type of the clustering metrics, cluster purity and silhouette width, across each of the parameters tested.
+Again, robust clusters should yield high cluster purity values and large positive silhouette width values.
 
 ```{r}
 # Set number of rows for plotting and use this to define figure widths
@@ -233,16 +215,11 @@ plot_avg_validity_stats(summary_validity_stats_df, "avg_width") +
 
 ## Plot cluster stability
 
-The plots below represent the stability of the clustering results associated 
-with each of the clustering parameters.
-Here, cells within each dataset are sampled using bootstrapping and the sampled
-cells are re-clustered. 
-The new clustering assignments are compared to the original assignment by
-obtaining an adjusted rand index, and this process is repeated 20 times.
-Clustering results with high stability would reveal that clustering after each 
-bootstrap replicate is consistent with the original clustering results.
-We use summary adjusted Rand Index (ARI) values in the plots below to represent 
-the average calculated cluster stability values.
+The plots below represent the stability of the clustering results associated with each of the clustering parameters.
+Here, cells within each dataset are sampled using bootstrapping and the sampled cells are re-clustered. 
+The new clustering assignments are compared to the original assignment by obtaining an adjusted rand index, and this process is repeated 20 times.
+Clustering results with high stability would reveal that clustering after each bootstrap replicate is consistent with the original clustering results.
+We use summary adjusted Rand Index (ARI) values in the plots below to represent the average calculated cluster stability values.
 The range here is `0` to `1`, where stable clusters have values closer to 1.
 
 ```{r}

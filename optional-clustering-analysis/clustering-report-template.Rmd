@@ -1,0 +1,251 @@
+---
+params:
+  library: "library01"
+  processed_sce: "example-results/sample01/library01_processed_sce_clustering.rds"
+  stats_dir: "example-results/sample01/clustering_stats"
+  cluster_type: "louvain"
+  nearest_neighbors_min: 5
+  nearest_neighbors_max: 25
+  nearest_neighbors_increment: 5
+  project_root: NULL
+  point_size: 0.7
+  date: !r Sys.Date()
+title: "`r glue::glue('Clustering analysis report for {params$library}')`"
+author: "CCDL"
+date: "`r params$date`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+This notebook will plot the output of the `optional-clustering-analysis/clustering-calculations.R` script, which allows for additional types of clustering across a range of parameters to be calculated on gene expression data associated with a single sample of the dataset of interest.
+
+## Set Up
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE
+)
+
+# If project root is not provided use here::here() 
+if (is.null(params$project_root)) {
+  project_root <- here::here()
+} else {
+  project_root <- params$project_root
+} 
+
+# Tell knitr to knit from the project root to be able to load `renv` properly
+# This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
+knitr::opts_knit$set(root.dir = project_root)
+
+# Source in set up function
+source(file.path(project_root, "utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "clustering-functions.R"))
+```
+
+```{r}
+# Load project
+setup_renv(project_filepath = project_root)
+```
+
+```{r}
+# Load libraries
+library(readr)
+library(SingleCellExperiment)
+library(miQC)
+library(ggpubr)
+library(scater)
+library(dplyr)
+
+# Set theme for plotting
+library(ggplot2)
+theme_set(theme_bw() + theme(text = element_text(size = 17),
+                             legend.text = element_text(size = 16)))
+point_size <- params$point_size
+```
+
+```{r}
+# Read in SCE object
+processed_sce <- read_rds(file.path(params$processed_sce))
+```
+
+```{r}
+# Define the nearest neighbors range of values
+nn_range <- define_nn_range(params$nearest_neighbors_min,
+                            params$nearest_neighbors_max,
+                            params$nearest_neighbors_increment)
+
+# Grab column name with clustering results
+cluster_column_names <- paste(params$cluster_type, nn_range, sep = "_")
+existing_columns <- intersect(cluster_column_names, colnames(colData(processed_sce)))
+
+# Check length of `existing_columns`
+if(length(existing_columns) == 0){
+  stop("There are no existing clustering results in the SCE object, therefore a report cannot be generated.")
+}
+```
+
+```{r}
+# Read in the cluster validity stats data frame
+all_validity_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_all_validity_stats.tsv")
+))
+
+# Read in the cluster validity stats summary data frame
+summary_validity_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_summary_validity_stats.tsv")
+))
+
+# Read in the cluster stability stats summary data frame
+summary_stability_stats_df <- readr::read_tsv(file.path(
+  params$stats_dir,
+  paste0(params$library, "_clustering_summary_stability_stats.tsv")
+))
+```
+
+```{r}
+# Function to check that clustering results exist in the files that were read in
+stats_column_check <- function(existing_columns, df_column){
+  missing_columns <- setdiff(existing_columns, df_column)
+  if(length(missing_columns) != 0){
+    missing_columns_print <- paste(missing_columns, collapse = ", ")
+    stop(glue::glue("The clustering statistics cannot be found for {missing_columns_print}"))
+    }
+  }
+stats_column_check(existing_columns, all_validity_stats_df$cluster_names_column)
+stats_column_check(existing_columns, summary_validity_stats_df$cluster_names_column)
+stats_column_check(existing_columns, summary_stability_stats_df$cluster_names_column)
+
+# Subset dataframes to include only specified clustering results
+all_validity_stats_df <- all_validity_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+
+summary_validity_stats_df <- summary_validity_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+
+summary_stability_stats_df <- summary_stability_stats_df %>%
+    dplyr::filter(cluster_names_column %in% existing_columns)
+```
+
+## Plots
+
+## UMAP plot results for `r params$library`
+
+Below is a set of UMAP plots, where each panel corresponds to clustering performed with a given clustering parameter and each cell is colored based on the cell's cluster assignment.
+Here clustering was performed using `r params$cluster_type` clustering.
+
+```{r}
+# Set number of columns for plotting and use this to define figure heights 
+# and widths
+num_col <- 2
+figure_dim <- max(ceiling(length(existing_columns)/num_col) * 5, 4)
+
+knitr::opts_chunk$set(
+  fig.height = figure_dim,
+  fig.width = figure_dim
+)
+```
+
+```{r}
+# Plot UMAP coordinates
+plot_list <- existing_columns %>%
+  purrr::map(
+    ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x,
+                     point_size = 0.4, point_alpha = 0.5) +
+      theme_bw() +
+      theme(text = element_text(size = 14),
+            legend.text = element_text(size = 14)) +
+      guides(color = guide_legend(override.aes = list(size = 1)))
+  )
+
+cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
+```
+
+## Evaluating clustering
+
+Below we evaluate the clustering results across each of the parameters tested. 
+We will look at the cluster purity, silhouette width, and cluster stability for each clustering type and nearest neighbors value used.
+For a more in depth discussion on these metrics and how they can be used to identify the optimal clustering results, see the [advanced clustering chapter in Orchestrating Single Cell Analysis](http://bioconductor.org/books/3.15/OSCA.advanced/clustering-redux.html#motivation).
+
+#### Purity plots
+
+The purity plots below represent each cell as the proportion of neighboring cells that are assigned to the same cluster.
+Well-separated clusters should show little overlap between member and neighboring cells, and therefore high purity values for all member cells.
+The cluster purity range is `0` to `1`. Therefore purity values that are consistently greater than `0.9` indicate that most cells in each cluster are primarily surrounded by other cells belonging to the same cluster.
+
+```{r}
+# Plot individual cluster purity stats
+purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col, point_size) + 
+  guides(color = guide_legend(override.aes = list(size = 1)))
+
+purity_plots
+```
+
+#### Silhouette width plots
+
+The silhouette width plots below represent how well-separated each of the clusters are.
+For each cell, the average distance to all cells in the same cluster and the average distance to all cells in another cluster, are calculated.
+The silhouette width for each cell is defined as the difference between these two values divided by their maximum.
+Therefore, cells will ideally have large positive silhouette widths, as this would mean that the cells of one cluster are well-separated from other clusters.
+The silhouette width range is `-1` to `1`.
+
+```{r}
+# Plot individual cluster silhouette width stats
+silhouette_plots <- plot_cluster_silhouette_width(all_validity_stats_df, num_col, point_size)
+
+silhouette_plots
+```
+
+### Summary plots
+
+The summary plots below represent a calculated average for each type of the clustering metrics, cluster purity and silhouette width, across each of the parameters tested.
+Again, robust clusters should yield high cluster purity values and large positive silhouette width values.
+
+```{r}
+# Set number of rows for plotting and use this to define figure widths
+num_row <- 1
+figure_width <- max(ceiling(length(existing_columns)/num_row) * 2, 2)
+
+knitr::opts_chunk$set(
+  fig.height = 6,
+  fig.width = figure_width
+)
+```
+
+```{r}
+# purity summary plot
+plot_avg_validity_stats(summary_validity_stats_df, "avg_purity")
+
+#silhouette width summary plot
+plot_avg_validity_stats(summary_validity_stats_df, "avg_width")
+```
+
+## Plot cluster stability
+
+The plots below represent the stability of the clustering results associated with each of the clustering parameters.
+Here, cells within each dataset are sampled using bootstrapping and the sampled cells are re-clustered. 
+The new clustering assignments are compared to the original assignment by obtaining an adjusted rand index, and this process is repeated 20 times.
+Clustering results with high stability would reveal that clustering after each bootstrap replicate is consistent with the original clustering results.
+We use summary adjusted Rand Index (ARI) values in the plots below to represent the average calculated cluster stability values.
+The range here is `0` to `1`, where stable clusters have values closer to 1.
+
+```{r}
+# plot cluster stability ARI values
+plot_cluster_stability_ari(summary_stability_stats_df, point_size)
+```
+
+## Session info
+<details>
+<summary>R session information</summary>
+```{r}
+sessionInfo()
+```

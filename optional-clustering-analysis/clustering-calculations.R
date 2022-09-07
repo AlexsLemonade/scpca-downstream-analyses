@@ -12,7 +12,8 @@
 #   --library_id "library01" \
 #   --seed 2021 \
 #   --cluster_type "louvain" \
-#   --nearest_neighbors_range 5:25 \
+#   --nearest_neighbors_min 5
+#   --nearest_neighbors_max 25 \
 #   --nearest_neighbors_increment 5 \
 #   --output_directory "example-results/sample01"
 
@@ -52,11 +53,18 @@ option_list <- list(
     help = "Method used for clustering. Can be either louvain or walktrap.",
   ),
   optparse::make_option(
-    c("-n", "--nearest_neighbors_range"),
+    c("-n", "--nearest_neighbors_min"),
     type = "integer",
-    default = 5:25,
-    help = "Range with number of nearest neighbors to include during graph 
-    construction. Can be a range of values, e.g. 5:25, or a single value."
+    default = 5,
+    help = "The minimum number of a range of nearest neighbors values to include 
+    during graph construction. Default is 5."
+  ),
+  optparse::make_option(
+    c("--nearest_neighbors_max"),
+    type = "integer",
+    default = 25,
+    help = "The maximum number of a range of nearest neighbors values to include 
+    during graph construction. Default is 25."
   ),
   optparse::make_option(
     c("--nearest_neighbors_increment"),
@@ -154,20 +162,10 @@ if(is(sce,"SingleCellExperiment")){
 
 #### Perform clustering --------------------------------------------------------
 
-# If opt$nearest_neighbors_range is a single value, set nearest_neighbors_increment to NULL
-if(length(opt$nearest_neighbors_range) == 1) {
-  opt$nearest_neighbors_increment <- 1
-}
-# If a nearest neighbors increment exists, then create a sequence for clustering 
-if(!(opt$nearest_neighbors_increment == 1)){
-  nn_range <- seq(min(opt$nearest_neighbors_range), 
-                  max(opt$nearest_neighbors_range), 
-                  opt$nearest_neighbors_increment) 
-  # If no nearest neighbors increment has been input then the provided range is 
-  # directly used for clustering 
-} else {
-  nn_range <- opt$nearest_neighbors_range
-}
+# Define nearest neighbors range of values
+nn_range <- define_nn_range(opt$nearest_neighbors_min,
+                            opt$nearest_neighbors_max,
+                            opt$nearest_neighbors_increment)
 
 # Check for existing clustering results
 cluster_column_names <- paste(opt$cluster_type, nn_range, sep = "_")
@@ -180,7 +178,8 @@ if(length(existing_columns) != 0){
     message("Overwriting clustering results.")
     sce <- graph_clustering(
       normalized_sce = sce,
-      params_range = opt$nearest_neighbors_range,
+      nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
+      nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
       step_size = opt$nearest_neighbors_increment,
       cluster_type = opt$cluster_type)
   } else {
@@ -193,7 +192,8 @@ if(length(existing_columns) != 0){
 } else {
   sce <- graph_clustering(
     normalized_sce = sce,
-    params_range = opt$nearest_neighbors_range,
+    nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
+    nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
     step_size = opt$nearest_neighbors_increment,
     cluster_type = opt$cluster_type)
 }
@@ -209,8 +209,7 @@ readr::write_rds(sce, file.path(
 # Check the cluster validity stats for each of the clusters in the SCE object
 # and return stats in a data frame
 validity_stats_df <- create_metadata_stats_df(sce, 
-                                              opt$nearest_neighbors_range, 
-                                              opt$nearest_neighbors_increment, 
+                                              nn_range, 
                                               opt$cluster_type)
 
 # Write output file with all cluster validity stats
@@ -237,8 +236,7 @@ readr::write_tsv(summary_validity_stats_df,
 summary_stability_stats_df <-
   get_cluster_stability_summary(
     sce,
-    opt$nearest_neighbors_range,
-    opt$nearest_neighbors_increment,
+    nn_range,
     opt$cluster_type
   ) %>%
   dplyr::mutate(param_value = as.numeric(param_value))

@@ -1,10 +1,10 @@
 # Optional Clustering Analysis
 
-This directory includes a clustering analysis workflow that can be implemented after users have successfully ran the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file.
+This directory includes a clustering analysis workflow that can help users identify the optimal clustering method and parameters for each library in their dataset. 
+Libraries are unique, which means that the optimal clustering is likely to be library-dependent.
+The clustering analysis workflow provided here can be used to explore different methods of clustering and test a range of parameter values for a given clustering method in order to identify the optimal clustering for each library.
 
-The clustering analysis workflow can be used to explore different types of clustering and test a range of parameter values for a given type of clustering.
-Libraries are unique, which means that the optimal clustering is going to be library-dependent.
-Exploring clustering types and parameters can be helpful in choosing the optimal clustering for each library.
+**The clustering analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file.**
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -22,7 +22,8 @@ There are two main steps of this clustering analysis workflow:
 
 1. **Cluster Calculations**: clustering results are calculated for the provided type of graph-based clustering, and range of nearest neighbor values.
 Cluster validity and stability results are also calculated.
-2. **Cluster Plots**: once clustering results are calculated and stored in the `SingleCellExperiment` object, each of the results are associated with UMAP plots, as well as cluster validity and stability plots to represent the reliability of each set of clustering results.
+2. **Cluster Plots**: once clustering results are calculated and stored in the `SingleCellExperiment` object, the results from each of the clustering methods tested are displayed in a UMAP plot.
+Additionally, metrics associated with each of the clustering results such as silhouette width, cluster purity, and cluster stability are calculated and plotted.
 The plots are displayed in a html report for ease of reference.
 
 **Note** that the same [software requirements for the core workflow](https://github.com/AlexsLemonade/scpca-downstream-analyses/tree/development#3-additional-dependencies) are also required for this clustering workflow.

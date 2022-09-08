@@ -105,7 +105,7 @@ conda activate snakemake
 
 ### 3) Additional dependencies
 
-To run the Snakemake workflow, you will need to have R version 4.1 installed, as well as the `renv` package and pandoc.
+To run the Snakemake workflow, you will need to have R version 4.2 installed, as well as the `renv` package and pandoc.
 This can be done independently, or you can use Snakemake's conda integration to set up an R environment that the workflow will use.
 
 

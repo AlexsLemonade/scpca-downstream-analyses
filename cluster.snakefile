@@ -33,7 +33,11 @@ rule target:
         expand(os.path.join(config["results_dir"], "{sample}/clustering_stats/{library}_clustering_summary_stability_stats.tsv"),
                zip,
                sample = SAMPLES,
-               library = LIBRARY_ID)
+               library = LIBRARY_ID),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_optional_clustering_report.html"),
+               zip,
+               sample = SAMPLES,
+               library = LIBRARY_ID)       
 
 
 def get_input_rds_files(wildcards):
@@ -63,3 +67,26 @@ rule calculate_clustering:
         "  --nearest_neighbors_increment {config[nearest_neighbors_increment]}"
         "  --project_root {workflow.basedir}"
         "  --overwrite {config[overwrite_results]}"
+        
+rule generate_cluster_report:
+    input:
+        processed_sce = os.path.join(config['results_dir'], "{sample_id}/{library_id}_processed_sce_clustering.rds")
+    output:
+        os.path.join(config['results_dir'], "{sample_id}/{library_id}_optional_clustering_report.html")
+    conda: "envs/scpca-renv.yaml"
+    shell:
+        """
+        R_PROFILE_USER='.Rprofile' \
+        Rscript -e \
+        "rmarkdown::render('{workflow.basedir}/clustering-report-template.Rmd', \
+                           clean = TRUE, \
+                           output_file = '{output}', \
+                           params = list(library = '{wildcards.library_id}', \
+                                         processed_sce = '{input.processed_sce}', \
+                                         stats_dir = '{config[results_dir]}{wildcards.sample_id}/clustering_stats', \
+                                         cluster_type = '{config[cluster_type]}', \
+                                         nearest_neighbors_min = {config[nearest_neighbors_min]}, \
+                                         nearest_neighbors_max = {config[nearest_neighbors_max]}, \
+                                         nearest_neighbors_increment = {config[nearest_neighbors_increment]}), \
+                           envir = new.env())"
+        """

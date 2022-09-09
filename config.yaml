@@ -7,6 +7,7 @@
 results_dir: "example-results/"
 mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
 project_metadata: "project-metadata/example-library-metadata.tsv"
+clustering_project_metadata: "project-metadata/example-library-metadata-clustering.tsv"
 
 ### Processing parameters
 # The below are parameters that are utilized to specify parameters specific to processing an individual library through the workflow.
@@ -32,3 +33,7 @@ n_genes_pca: 2000 # The `n` number of highly variable genes to subset for PCA
 # clustering parameters
 cluster_type: "louvain"
 nearest_neighbors: 10
+nearest_neighbors_min: 5 # The minimum value to use for a range of neareast neighbors values for exploration
+nearest_neighbors_max: 25 # The maximum value to use for a range of neareast neighbors values for exploration
+nearest_neighbors_increment: 5 # The increment to use when implementing the range number of nearest neighbors for cluster stats
+overwrite_results: TRUE # A binary value indicating whether or not to overwrite any existing clustering results

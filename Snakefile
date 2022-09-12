@@ -44,7 +44,7 @@ rule build_renv:
     shell:
       """
       R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
-      Rscript -e "renv::restore('{input}')"
+      Rscript -e "renv::restore(lockfile = '{input}')"
       date -u -Iseconds  > {output}
       """
 

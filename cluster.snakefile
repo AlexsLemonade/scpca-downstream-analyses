@@ -3,8 +3,8 @@ import pandas as pd
 configfile: "config.yaml"
 
 # getting the samples information
-if os.path.exists(config['clustering_project_metadata']):
-  samples_information = pd.read_csv(config['clustering_project_metadata'], sep='\t', index_col=False)
+if os.path.exists(config['project_metadata']):
+  samples_information = pd.read_csv(config['project_metadata'], sep='\t', index_col=False)
 
   # get a list of the sample and library ids
   SAMPLES = list(samples_information['sample_id'])
@@ -45,10 +45,10 @@ rule calculate_clustering:
     input:
         get_input_rds_files
     output:
-        os.path.join(config['results_dir'], "{sample_id}/{library_id}_processed_sce_clustering.rds"),
-        os.path.join(config['results_dir'], "{sample_id}/clustering_stats/{library_id}_clustering_all_validity_stats.tsv"),
-        os.path.join(config['results_dir'], "{sample_id}/clustering_stats/{library_id}_clustering_summary_validity_stats.tsv"),
-        os.path.join(config['results_dir'], "{sample_id}/clustering_stats/{library_id}_clustering_summary_stability_stats.tsv")
+        "{base_dir}/{sample_id}/{library_id}_processed_sce_clustering.rds",
+        "{base_dir}/{sample_id}/clustering_stats/{library_id}_clustering_all_validity_stats.tsv",
+        "{base_dir}/{sample_id}/clustering_stats/{library_id}_clustering_summary_validity_stats.tsv",
+        "{base_dir}/{sample_id}/clustering_stats/{library_id}_clustering_summary_stability_stats.tsv"
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -56,7 +56,7 @@ rule calculate_clustering:
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --cluster_type {config[cluster_type]}"
-        "  --output_directory {config[results_dir]}/{wildcards.sample_id}"
+        "  --output_directory {wildcards.base_dir}/{wildcards.sample_id}"
         "  --seed {config[seed]}"
         "  --nearest_neighbors_min {config[nearest_neighbors_min]}"
         "  --nearest_neighbors_max {config[nearest_neighbors_max]}"

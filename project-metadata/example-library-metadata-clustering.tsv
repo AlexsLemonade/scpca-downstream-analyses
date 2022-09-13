@@ -1,3 +1,0 @@
-sample_id	library_id	filepath
-sample01	library01	example-results/sample01/library01_miQC_processed_sce.rds
-sample02	library02	example-results/sample02/library02_miQC_processed_sce.rds

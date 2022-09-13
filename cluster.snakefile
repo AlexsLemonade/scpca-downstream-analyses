@@ -70,20 +70,21 @@ rule calculate_clustering:
         
 rule generate_cluster_report:
     input:
-        processed_sce = os.path.join(config['results_dir'], "{sample_id}/{library_id}_processed_sce_clustering.rds")
+        processed_sce = "{base_dir}/{sample_id}/{library_id}_processed_sce_clustering.rds"
     output:
-        os.path.join(config['results_dir'], "{sample_id}/{library_id}_optional_clustering_report.html")
+        "{base_dir}/{sample_id}/{library_id}_optional_clustering_report.html"
     conda: "envs/scpca-renv.yaml"
     shell:
         """
         R_PROFILE_USER='.Rprofile' \
         Rscript -e \
-        "rmarkdown::render('{workflow.basedir}/clustering-report-template.Rmd', \
+        "rmarkdown::render('{workflow.basedir}/optional-clustering-analysis/clustering-report-template.Rmd', \
                            clean = TRUE, \
                            output_file = '{output}', \
+                           output_dir = dirname('{output}'), \
                            params = list(library = '{wildcards.library_id}', \
                                          processed_sce = '{input.processed_sce}', \
-                                         stats_dir = '{config[results_dir]}{wildcards.sample_id}/clustering_stats', \
+                                         stats_dir = '{wildcards.base_dir}/{wildcards.sample_id}/clustering_stats', \
                                          cluster_type = '{config[cluster_type]}', \
                                          nearest_neighbors_min = {config[nearest_neighbors_min]}, \
                                          nearest_neighbors_max = {config[nearest_neighbors_max]}, \

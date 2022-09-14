@@ -122,16 +122,17 @@ rule clustering:
 rule generate_report:
     input:
         pre_processed_sce = get_input_rds_files,
-        processed_sce =  "{basedir}/{library_id}_{filtering_method}_processed_sce.rds"
+        processed_sce =  "{basedir}/{sample_id}/{library_id}_{filtering_method}_processed_sce.rds"
     output:
-        "{basedir}/{library_id}_{filtering_method}_core_analysis_report.html"
+        "{basedir}/{sample_id}/{library_id}_{filtering_method}_core_analysis_report.html"
     conda: "envs/scpca-renv.yaml"
     shell:
         """
         R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
         Rscript -e \
-        "rmarkdown::render('{workflow.basedir}/core-analysis-report-template.Rmd', \
+        "rmarkdown::render('{workflow.basedir}/core-analysis/core-analysis-report-template.Rmd', \
                            clean = TRUE, \
+                           output_dir = '{wildcards.basedir}/{wildcards.sample_id}', \
                            output_file = '{output}', \
                            params = list(library = '{wildcards.library_id}', \
                                          pre_processed_sce = '{input.pre_processed_sce}', \

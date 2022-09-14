@@ -201,7 +201,7 @@ if(length(existing_columns) != 0){
 # Write output SCE file
 readr::write_rds(sce, file.path(
   opt$output_directory,
-  paste0(opt$library_id, "_processed_sce_clustering.rds")
+  paste0(opt$library_id, "_clustered_sce.rds")
 ))
 
 ### Calculate cluster validity stats -------------------------------------------

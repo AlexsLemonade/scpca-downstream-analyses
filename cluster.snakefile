@@ -18,7 +18,7 @@ else:
 
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_processed_sce_clustering.rds"),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_clustered_sce.rds"),
                zip,
                sample = SAMPLES,
                library = LIBRARY_ID),
@@ -35,20 +35,19 @@ rule target:
                sample = SAMPLES,
                library = LIBRARY_ID)
 
-
 def get_input_rds_files(wildcards):
     lib_info = samples_information.set_index('library_id')
-    return lib_info.loc[wildcards.library_id]['filepath']
-
+    filter_method = lib_info.loc[wildcards.library_id]['filtering_method']
+    return f"{wildcards.basedir}/{wildcards.sample_id}/{wildcards.library_id}_{filter_method}_processed_sce.rds"
 
 rule calculate_clustering:
     input:
         get_input_rds_files
     output:
-        "{base_dir}/{sample_id}/{library_id}_processed_sce_clustering.rds",
-        "{base_dir}/{sample_id}/clustering_stats/{library_id}_clustering_all_validity_stats.tsv",
-        "{base_dir}/{sample_id}/clustering_stats/{library_id}_clustering_summary_validity_stats.tsv",
-        "{base_dir}/{sample_id}/clustering_stats/{library_id}_clustering_summary_stability_stats.tsv"
+        "{basedir}/{sample_id}/{library_id}_clustered_sce.rds",
+        "{basedir}/{sample_id}/clustering_stats/{library_id}_clustering_all_validity_stats.tsv",
+        "{basedir}/{sample_id}/clustering_stats/{library_id}_clustering_summary_validity_stats.tsv",
+        "{basedir}/{sample_id}/clustering_stats/{library_id}_clustering_summary_stability_stats.tsv"
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -56,7 +55,7 @@ rule calculate_clustering:
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --cluster_type {config[cluster_type]}"
-        "  --output_directory {wildcards.base_dir}/{wildcards.sample_id}"
+        "  --output_directory {wildcards.basedir}/{wildcards.sample_id}"
         "  --seed {config[seed]}"
         "  --nearest_neighbors_min {config[nearest_neighbors_min]}"
         "  --nearest_neighbors_max {config[nearest_neighbors_max]}"

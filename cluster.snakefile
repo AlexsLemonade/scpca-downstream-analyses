@@ -9,45 +9,34 @@ if os.path.exists(config['project_metadata']):
   # get a list of the sample and library ids
   SAMPLES = list(samples_information['sample_id'])
   LIBRARY_ID = list(samples_information['library_id'])
+  FILTERING_METHOD = list(samples_information['filtering_method'])
 else:
   # If the metadata file is missing, warn and fill with empty lists
   print(f"Warning: Project metadata file '{config['clustering_project_metadata']}' is missing.")
   samples_information = None
   SAMPLES = list()
   LIBRARY_ID = list()
+  FILTERING_METHOD = list()
 
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_clustered_sce.rds"),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filter_method}_clustered_sce.rds"),
                zip,
                sample = SAMPLES,
-               library = LIBRARY_ID),
-        expand(os.path.join(config["results_dir"], "{sample}/clustering_stats/{library}_clustering_all_validity_stats.tsv"),
+               library = LIBRARY_ID,
+               filter_method = FILTERING_METHOD),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filter_method}_clustering_stats"),
                zip,
                sample = SAMPLES,
-               library = LIBRARY_ID),
-        expand(os.path.join(config["results_dir"], "{sample}/clustering_stats/{library}_clustering_summary_validity_stats.tsv"),
-               zip,
-               sample = SAMPLES,
-               library = LIBRARY_ID),
-        expand(os.path.join(config["results_dir"], "{sample}/clustering_stats/{library}_clustering_summary_stability_stats.tsv"),
-               zip,
-               sample = SAMPLES,
-               library = LIBRARY_ID)
-
-def get_input_rds_files(wildcards):
-    lib_info = samples_information.set_index('library_id')
-    filter_method = lib_info.loc[wildcards.library_id]['filtering_method']
-    return f"{wildcards.basedir}/{wildcards.sample_id}/{wildcards.library_id}_{filter_method}_processed_sce.rds"
+               library = LIBRARY_ID,
+               filter_method = FILTERING_METHOD)
 
 rule calculate_clustering:
     input:
-        get_input_rds_files
+        "{basedir}/{sample_id}/{library_id}_{filter_method}_processed_sce.rds"
     output:
-        "{basedir}/{sample_id}/{library_id}_clustered_sce.rds",
-        "{basedir}/{sample_id}/clustering_stats/{library_id}_clustering_all_validity_stats.tsv",
-        "{basedir}/{sample_id}/clustering_stats/{library_id}_clustering_summary_validity_stats.tsv",
-        "{basedir}/{sample_id}/clustering_stats/{library_id}_clustering_summary_stability_stats.tsv"
+        sce = "{basedir}/{sample_id}/{library_id}_{filter_method}_clustered_sce.rds",
+        stats_dir = directory("{basedir}/{sample_id}/{library_id}_{filter_method}_clustering_stats")
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -55,7 +44,8 @@ rule calculate_clustering:
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --cluster_type {config[cluster_type]}"
-        "  --output_directory {wildcards.basedir}/{wildcards.sample_id}"
+        "  --output_directory {output.stats_dir}"
+        "  --output_sce {output.sce}"
         "  --seed {config[seed]}"
         "  --nearest_neighbors_min {config[nearest_neighbors_min]}"
         "  --nearest_neighbors_max {config[nearest_neighbors_max]}"

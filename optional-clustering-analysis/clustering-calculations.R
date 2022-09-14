@@ -15,7 +15,8 @@
 #   --nearest_neighbors_min 5
 #   --nearest_neighbors_max 25 \
 #   --nearest_neighbors_increment 5 \
-#   --output_directory "example-results/sample01"
+#   --output_directory "example-results/sample01" \
+#   --output_sce "example-results/sample01/library01_clustered_sce.rds"
 
 ## Set up -------------------------------------------------------------
 
@@ -78,8 +79,14 @@ option_list <- list(
     c("-o", "--output_directory"),
     type = "character",
     default = NULL,
-    help = "path to output directory that would hold the RDS file containing SCE
-    with cluster assignments added, as well as the TSV files with the clustering stats"
+    help = "path to output directory that would hold the TSV files with the 
+    clustering stats"
+  ),
+  optparse::make_option(
+    c("--output_sce"),
+    type = "character",
+    default = NULL,
+    help = "path to the RDS file containing SCE with cluster assignments added"
   ),
   optparse::make_option(
     c("--project_root"),
@@ -141,11 +148,6 @@ if(!dir.exists(opt$output_directory)){
   dir.create(opt$output_directory, recursive = TRUE)
 }
 
-stats_output_dir <- file.path(opt$output_directory, "clustering_stats")
-if(!dir.exists(stats_output_dir)){
-  dir.create(stats_output_dir, recursive = TRUE)
-}
-
 #### Read in data and check formatting -----------------------------------------
 
 # Read in normalized sce object
@@ -199,10 +201,7 @@ if(length(existing_columns) != 0){
 }
 
 # Write output SCE file
-readr::write_rds(sce, file.path(
-  opt$output_directory,
-  paste0(opt$library_id, "_clustered_sce.rds")
-))
+readr::write_rds(sce, opt$output_sce)
 
 ### Calculate cluster validity stats -------------------------------------------
 
@@ -215,7 +214,7 @@ validity_stats_df <- create_metadata_stats_df(sce,
 # Write output file with all cluster validity stats
 readr::write_tsv(validity_stats_df,
                  file.path(
-                   stats_output_dir,
+                   opt$output_directory,
                    paste0(opt$library_id, "_clustering_all_validity_stats.tsv")
                  ))
 
@@ -226,7 +225,7 @@ summary_validity_stats_df <- summarize_clustering_stats(validity_stats_df) %>%
 # Write output file
 readr::write_tsv(summary_validity_stats_df,
                  file.path(
-                   stats_output_dir,
+                   opt$output_directory,
                    paste0(opt$library_id, "_clustering_summary_validity_stats.tsv")
                  ))
 
@@ -244,6 +243,6 @@ summary_stability_stats_df <-
 # Write output file
 readr::write_tsv(summary_stability_stats_df,
                  file.path(
-                   stats_output_dir,
+                   opt$output_directory,
                    paste0(opt$library_id, "_clustering_summary_stability_stats.tsv")
                  ))

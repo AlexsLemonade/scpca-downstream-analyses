@@ -30,10 +30,11 @@ rule target:
                sample = SAMPLES,
                library = LIBRARY_ID,
                filter_method = FILTERING_METHOD),
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_optional_clustering_report.html"),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filter_method}_optional_clustering_report.html"),
                zip,
                sample = SAMPLES,
-               library = LIBRARY_ID)       
+               library = LIBRARY_ID,
+               filter_method = FILTERING_METHOD)       
 
 rule calculate_clustering:
     input:
@@ -59,9 +60,10 @@ rule calculate_clustering:
         
 rule generate_cluster_report:
     input:
-        processed_sce = "{base_dir}/{sample_id}/{library_id}_processed_sce_clustering.rds"
+        processed_sce = rules.calculate_clustering.output.sce,
+        stats_dir = rules.calculate_clustering.output.stats_dir
     output:
-        "{base_dir}/{sample_id}/{library_id}_optional_clustering_report.html"
+        "{basedir}/{sample_id}/{library_id}_{filter_method}_optional_clustering_report.html"
     conda: "envs/scpca-renv.yaml"
     shell:
         """
@@ -73,7 +75,7 @@ rule generate_cluster_report:
                            output_dir = dirname('{output}'), \
                            params = list(library = '{wildcards.library_id}', \
                                          processed_sce = '{input.processed_sce}', \
-                                         stats_dir = '{wildcards.base_dir}/{wildcards.sample_id}/clustering_stats', \
+                                         stats_dir = '{input.stats_dir}', \
                                          cluster_type = '{config[cluster_type]}', \
                                          nearest_neighbors_min = {config[nearest_neighbors_min]}, \
                                          nearest_neighbors_max = {config[nearest_neighbors_max]}, \

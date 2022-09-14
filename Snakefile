@@ -57,7 +57,7 @@ rule filter_data:
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript '{workflow.basedir}/01-filter-sce.R'"
+        " Rscript '{workflow.basedir}/core-analysis/01-filter-sce.R'"
         "  --sample_sce_filepath {input}"
         "  --sample_id {wildcards.sample_id}"
         "  --library_id {wildcards.library_id}"
@@ -81,7 +81,7 @@ rule normalize_data:
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript '{workflow.basedir}/02-normalize-sce.R'"
+        " Rscript '{workflow.basedir}/core-analysis/02-normalize-sce.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --output_filepath {output}"
@@ -95,7 +95,7 @@ rule dimensionality_reduction:
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript '{workflow.basedir}/03-dimension-reduction.R'"
+        " Rscript '{workflow.basedir}/core-analysis/03-dimension-reduction.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --top_n {config[n_genes_pca]}"
@@ -111,7 +111,7 @@ rule clustering:
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript '{workflow.basedir}/04-clustering.R'"
+        " Rscript '{workflow.basedir}/core-analysis/04-clustering.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --cluster_type {config[cluster_type]}"
@@ -122,16 +122,17 @@ rule clustering:
 rule generate_report:
     input:
         pre_processed_sce = get_input_rds_files,
-        processed_sce =  "{basedir}/{library_id}_{filtering_method}_processed_sce.rds"
+        processed_sce =  "{basedir}/{sample_id}/{library_id}_{filtering_method}_processed_sce.rds"
     output:
-        "{basedir}/{library_id}_{filtering_method}_core_analysis_report.html"
+        "{basedir}/{sample_id}/{library_id}_{filtering_method}_core_analysis_report.html"
     conda: "envs/scpca-renv.yaml"
     shell:
         """
         R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
         Rscript -e \
-        "rmarkdown::render('{workflow.basedir}/core-analysis-report-template.Rmd', \
+        "rmarkdown::render('{workflow.basedir}/core-analysis/core-analysis-report-template.Rmd', \
                            clean = TRUE, \
+                           output_dir = '{wildcards.basedir}/{wildcards.sample_id}', \
                            output_file = '{output}', \
                            params = list(library = '{wildcards.library_id}', \
                                          pre_processed_sce = '{input.pre_processed_sce}', \

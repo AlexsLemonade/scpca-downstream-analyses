@@ -67,14 +67,15 @@ These include the following parameters:
 
 | Parameter        | Description |
 |------------------|-------------|
-| `results_dir` | relative path to the directory where output files will be stored (same as used in the prerequisite core workflow) |
-| `project_metadata` | relative path to your specific project metadata TSV file (same as used in the prerequisite core workflow) |
+| `results_dir` | relative path to the directory where output files will be stored (use the same `results_dir` used in the prerequisite core workflow) |
+| `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
 If `--cores` is given without a number, all available cores are used to run the workflow.
 
 The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory.
+To run tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`.
 The below code is an example of running the clustering workflow using the project-specific parameters.
 
 ```
@@ -96,6 +97,6 @@ Those that are relevant to the clustering workflow are as follows:
 |------------------|-------------|---------------|
 | `nearest_neighbors_min` | the minimum value to use for a range of neareast neighbors values for exploration | 5 |
 | `nearest_neighbors_max` | the maximum value to use for a range of neareast neighbors values for exploration | 25 |
-| `nearest_neighbors_increment` | the increment to use when implementing the range number of nearest neighbors for cluster stats | 5 |
+| `nearest_neighbors_increment` | the increment to use when implementing the range number of nearest neighbors for cluster stats (e.g. a value of 5 with min of 5 and max of 25 will test the nearest neighbors values of 5, 10, 15, 20, and 25) | 5 |
 | `overwrite_results` | a binary value indicating whether or not to overwrite any existing clustering results | `TRUE` |
 

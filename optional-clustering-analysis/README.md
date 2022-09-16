@@ -13,6 +13,9 @@ The clustering analysis workflow provided here can be used to explore different 
 - [Analysis overview](#analysis-overview)
 - [Expected input](#expected-input)
 - [Expected output](#expected-output)
+- [Running the workflow](#running-the-workflow)
+  - [Project-specific parameters](#project-specific-parameters)
+  - [Processing parameters](#processing-parameters)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -51,6 +54,50 @@ For each provided `SingleCellExperiment` RDS file and associated `library_id`, t
 5. A `_clustering_summary_stability_stats.tsv` file with the average adjusted Rand Index (ARI) values across each cluster assignment.
 
 The TSV files will be saved in a subdirectory called `clustering_stats/`.
- 
 
+## Running the workflow
+
+As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the defaults for all parameters needed to run the clustering workflow.
+
+### Project-specific parameters
+
+There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow.
+These parameters are specific to the project or dataset being processed.
+These include the following parameters:
+
+| Parameter        | Description |
+|------------------|-------------|
+| `results_dir` | relative path to the directory where output files will be stored (use the same `results_dir` used in the prerequisite core workflow) |
+| `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
+
+The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
+You must also specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
+If `--cores` is given without a number, all available cores are used to run the workflow.
+If you installed dependencies for the workflow [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to provide the `--use_conda` flag as well.
+
+The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory.
+To run tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`.
+The below code is an example of running the clustering workflow using the project-specific parameters.
+
+```
+snakemake --snakefile cluster.snakefile \ 
+  --cores 2 \
+  --use-conda \
+  --config results_dir="relative path to relevant results directory" \
+  project_metadata="relative path to your-project-metadata.TSV"
+```
+
+**Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
+
+### Processing parameters
+
+The parameters found under the `Processing parameters` section of the config file can be optionally modified.
+Those that are relevant to the clustering workflow are as follows:
+
+| Parameter        | Description | Default value |
+|------------------|-------------|---------------|
+| `nearest_neighbors_min` | the minimum value to use for a range of neareast neighbors values for exploration | 5 |
+| `nearest_neighbors_max` | the maximum value to use for a range of neareast neighbors values for exploration | 25 |
+| `nearest_neighbors_increment` | the increment to use when implementing the range number of nearest neighbors for cluster stats (e.g. a value of 5 with min of 5 and max of 25 will test the nearest neighbors values of 5, 10, 15, 20, and 25) | 5 |
+| `overwrite_results` | a binary value indicating whether or not to overwrite any existing clustering results | `TRUE` |
 

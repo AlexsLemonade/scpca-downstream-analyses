@@ -30,7 +30,7 @@ rule target:
                sample = SAMPLES,
                library = LIBRARY_ID,
                filter_method = FILTERING_METHOD),
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filter_method}_optional_clustering_report.html"),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filter_method}_clustering_report.html"),
                zip,
                sample = SAMPLES,
                library = LIBRARY_ID,
@@ -60,14 +60,14 @@ rule calculate_clustering:
         
 rule generate_cluster_report:
     input:
-        processed_sce = rules.calculate_clustering.output.sce,
-        stats_dir = rules.calculate_clustering.output.stats_dir
+        processed_sce = "{basedir}/{sample_id}/{library_id}_{filter_method}_clustered_sce.rds",
+        stats_dir = "{basedir}/{sample_id}/{library_id}_{filter_method}_clustering_stats"
     output:
-        "{basedir}/{sample_id}/{library_id}_{filter_method}_optional_clustering_report.html"
+        "{basedir}/{sample_id}/{library_id}_{filter_method}_clustering_report.html"
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        R_PROFILE_USER='.Rprofile' \
+        R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
         Rscript -e \
         "rmarkdown::render('{workflow.basedir}/optional-clustering-analysis/clustering-report-template.Rmd', \
                            clean = TRUE, \

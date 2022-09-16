@@ -128,7 +128,8 @@ if(is(sce,"SingleCellExperiment")){
 
 # perform clustering
 sce <- graph_clustering(normalized_sce = sce,
-                        params_range = opt$nearest_neighbors,
+                        nearest_neighbors_min = opt$nearest_neighbors,
+                        nearest_neighbors_max = opt$nearest_neighbors,
                         cluster_type = opt$cluster_type)
 
 # write output file

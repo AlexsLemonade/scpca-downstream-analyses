@@ -36,9 +36,17 @@ if (is.null(params$project_root)) {
   project_root <- params$project_root
 } 
 
+# Tell knitr to knit from the project root to be able to load `renv` properly
+# This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
+knitr::opts_knit$set(root.dir = project_root)
+
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
+# Source filtering functions 
+source(file.path(project_root, "utils", "filtering-functions.R"))
+```
 
+```{r}
 # Load project
 setup_renv(project_filepath = project_root)
 
@@ -55,10 +63,6 @@ library(dplyr)
 library(miQC)
 library(ggpubr)
 library(scater)
-
-# Source filtering functions 
-source(file.path(project_root, "utils", "filtering-functions.R"))
-
 ```
 
 ```{r}

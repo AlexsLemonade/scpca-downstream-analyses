@@ -71,8 +71,9 @@ These include the following parameters:
 | `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
-It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
+You must also specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
 If `--cores` is given without a number, all available cores are used to run the workflow.
+If you installed dependencies for the workflow [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to provide the `--use_conda` flag as well.
 
 The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory.
 To run tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`.

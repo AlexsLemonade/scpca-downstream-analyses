@@ -40,11 +40,12 @@ def get_input_rds_files(wildcards):
 rule build_renv:
     input: workflow.source_path("renv.lock")
     output: "renv/.snakemake_timestamp"
+    log: "logs/build_renv.log"
     conda: "envs/scpca-renv.yaml"
     shell:
       """
       R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
-      Rscript -e "renv::restore(lockfile = '{input}')"
+      Rscript -e "renv::restore(lockfile = '{input}')" &> {log}
       date -u -Iseconds  > {output}
       """
 
@@ -53,7 +54,8 @@ rule filter_data:
     input:
         get_input_rds_files
     output:
-        temp(os.path.join(config['results_dir'], "{sample_id}/{library_id}_{filtering_method}_filtered.rds"))
+        temp("{basedir}/{library_id}_{filtering_method}_filtered.rds")
+    log: "logs/{basedir}/{library_id}_{filtering_method}/filter_data.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -72,12 +74,14 @@ rule filter_data:
         "  --prob_compromised_cutoff {config[prob_compromised_cutoff]}"
         "  --filtering_method {wildcards.filtering_method}"
         "  --project_root {workflow.basedir}"
+        "  &> {log}"
 
 rule normalize_data:
     input:
         "{basename}_filtered.rds"
     output:
         temp("{basename}_normalized.rds")
+    log: "logs/{basename}/normalize_data.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -86,12 +90,14 @@ rule normalize_data:
         "  --seed {config[seed]}"
         "  --output_filepath {output}"
         "  --project_root {workflow.basedir}"
+        "  &> {log}"
 
 rule dimensionality_reduction:
     input:
         "{basename}_normalized.rds"
     output:
         temp("{basename}_dimreduced.rds")
+    log: "logs/{basename}/dimensionality_reduction.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -102,12 +108,14 @@ rule dimensionality_reduction:
         "  --output_filepath {output}"
         "  --overwrite"
         "  --project_root {workflow.basedir}"
+        "  &> {log}"
 
 rule clustering:
     input:
         "{basename}_dimreduced.rds"
     output:
         "{basename}_processed_sce.rds"
+    log: "logs/{basename}/clustering.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
@@ -118,6 +126,7 @@ rule clustering:
         "  --nearest_neighbors {config[nearest_neighbors]}"
         "  --output_filepath {output}"
         "  --project_root {workflow.basedir}"
+        "  &> {log}"
 
 rule generate_report:
     input:
@@ -125,6 +134,7 @@ rule generate_report:
         processed_sce =  "{basedir}/{sample_id}/{library_id}_{filtering_method}_processed_sce.rds"
     output:
         "{basedir}/{sample_id}/{library_id}_{filtering_method}_core_analysis_report.html"
+    log: "logs/{basedir}/{sample_id}/{library_id}_{filtering_method}/generate_report.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         """
@@ -142,4 +152,5 @@ rule generate_report:
                                          mito_file = '{config[mito_file]}', \
                                          project_root = '{workflow.basedir}'), \
                            envir = new.env())"
+        &> {log}
         """

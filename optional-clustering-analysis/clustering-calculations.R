@@ -12,6 +12,7 @@
 #   --library_id "library01" \
 #   --seed 2021 \
 #   --cluster_type "louvain" \
+#   --second_cluster_type "walktrap" \
 #   --nearest_neighbors_min 5
 #   --nearest_neighbors_max 25 \
 #   --nearest_neighbors_increment 5 \
@@ -52,6 +53,12 @@ option_list <- list(
     type = "character",
     default = "louvain",
     help = "Method used for clustering. Can be either louvain or walktrap.",
+  ),
+  optparse::make_option(
+    c("--second_cluster_type"),
+    type = "character",
+    default = NULL,
+    help = "Additional method used for clustering. Can be either louvain or walktrap.",
   ),
   optparse::make_option(
     c("-n", "--nearest_neighbors_min"),
@@ -169,47 +176,128 @@ nn_range <- define_nn_range(opt$nearest_neighbors_min,
                             opt$nearest_neighbors_max,
                             opt$nearest_neighbors_increment)
 
-# Check for existing clustering results
-cluster_column_names <- paste(opt$cluster_type, nn_range, sep = "_")
-existing_columns <- intersect(cluster_column_names, colnames(colData(sce)))
-
-if(length(existing_columns) != 0){
+cluster_wrapper_function <- function(sce, nn_range, cluster_type, ...) {
+  # Check for existing clustering results
+  cluster_column_names <- paste(cluster_type, nn_range, sep = "_")
+  existing_columns <-
+    intersect(cluster_column_names, colnames(colData(sce)))
   
-  if(!is.null(opt$overwrite)){
-    # Perform graph-based clustering
-    message("Overwriting clustering results.")
+  if (length(existing_columns) != 0) {
+    if (!is.null(opt$overwrite)) {
+      # Perform graph-based clustering
+      message("Overwriting clustering results.")
+      sce <- graph_clustering(
+        normalized_sce = sce,
+        nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
+        nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
+        step_size = opt$nearest_neighbors_increment,
+        cluster_type = cluster_type
+      )
+    } else {
+      message(glue::glue("
+      Clustering results exist for {cluster_column_names}."))
+      stop(
+        "Skipping clustering steps. If you want to overwrite the existing results, use the --overwrite flag."
+      )
+    }
+  } else {
     sce <- graph_clustering(
       normalized_sce = sce,
       nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
       nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
       step_size = opt$nearest_neighbors_increment,
-      cluster_type = opt$cluster_type)
-  } else {
-    message(
-      glue::glue("
-      Clustering results exist for {cluster_column_names}.")
+      cluster_type = cluster_type
     )
-    stop("Skipping clustering steps. If you want to overwrite the existing results, use the --overwrite flag.")
   }
-} else {
-  sce <- graph_clustering(
-    normalized_sce = sce,
-    nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
-    nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
-    step_size = opt$nearest_neighbors_increment,
-    cluster_type = opt$cluster_type)
+  
 }
+
+# Run the clustering wrapper function
+sce <- cluster_wrapper_function(sce, nn_range, opt$cluster_type, 
+                                opt$nearest_neighbors_min, 
+                                opt$nearest_neighbors_max,
+                                opt$nearest_neighbors_increment)
+
+if(!is.null(opt$second_cluster_type)) {
+  # Check that second clustering type is valid 
+  if (!opt$cluster_type %in% c("louvain", "walktrap")) {
+    stop("--cluster_type (-c) must be either louvain or walktrap.")
+  } else {
+    sce <- cluster_wrapper_function(sce, nn_range, opt$second_cluster_type, 
+                                    opt$nearest_neighbors_min,
+                                    opt$nearest_neighbors_max,
+                                    opt$nearest_neighbors_increment)
+  }
+}
+
 
 # Write output SCE file
 readr::write_rds(sce, opt$output_sce)
 
-### Calculate cluster validity stats -------------------------------------------
+### Calculate cluster validity and stability stats -----------------------------
 
-# Check the cluster validity stats for each of the clusters in the SCE object
-# and return stats in a data frame
-validity_stats_df <- create_metadata_stats_df(sce, 
-                                              nn_range, 
-                                              opt$cluster_type)
+cluster_validity_stats_wrapper_function <- function(sce, nn_range, cluster_type, second_cluster_type = NULL, ...) {
+  # Purpose: Calculate the cluster validity stats for each provided `cluster_type`
+  # across n range of parameters
+  #
+  # Args:
+  #   sce: clustered SingleCellExperiment object
+  #   nn_range: the range of numeric parameters used to test for clustering
+  #   cluster_type: method used for clustering
+  #   second_cluster_type: additional method used for clustering
+  
+  # Check the cluster validity stats for each of the clusters in the SCE object
+  # and return stats in a data frame
+  validity_stats_df <- create_metadata_stats_df(sce,
+                                                nn_range,
+                                                cluster_type)
+  
+  # If a second cluster type is provided, check the cluster validity stats for
+  # each of the clusters in the SCE object associated with the second cluster type
+  if(!is.null(second_cluster_type)){
+    second_validity_stats_df <- create_metadata_stats_df(sce,
+                                                         nn_range,
+                                                         second_cluster_type)
+    validity_stats_df <- second_validity_stats_df %>%
+      dplyr::bind_rows(validity_stats_df)
+  }
+}
+
+cluster_stability_stats_wrapper_function <- function(sce, nn_range, cluster_type, second_cluster_type = NULL, ...) {
+  # Purpose: Calculate the cluster stability stats for each provided `cluster_type`
+  # across n range of parameters
+  #
+  # Args:
+  #   sce: clustered SingleCellExperiment object
+  #   nn_range: the range of numeric parameters used to test for clustering
+  #   cluster_type: method used for clustering
+  #   second_cluster_type: additional method used for clustering
+
+  # Check the cluster stability stats and return the summary ari in a data frame
+  summary_stability_stats_df <-
+    get_cluster_stability_summary(sce,
+                                  nn_range,
+                                  cluster_type) %>%
+    dplyr::mutate(param_value = as.numeric(param_value))
+  
+  # If a second cluster type is provided, check the cluster stability stats for
+  # each of the clusters in the SCE object associated with the second cluster type
+  if (!is.null(second_cluster_type)) {
+    second_summary_stability_stats_df <- 
+      get_cluster_stability_summary(sce,
+                                    nn_range,
+                                    second_cluster_type) %>%
+      dplyr::mutate(param_value = as.numeric(param_value))
+    
+    summary_stability_stats_df <- summary_stability_stats_df %>%
+      dplyr::bind_rows(second_summary_stability_stats_df)
+  }
+}
+
+# Run the cluster validity stats wrapper function
+validity_stats_df <- cluster_validity_stats_wrapper_function(
+  sce, nn_range, opt$cluster_type, 
+  second_cluster_type = opt$second_cluster_type)
 
 # Write output file with all cluster validity stats
 readr::write_tsv(validity_stats_df,
@@ -218,29 +306,23 @@ readr::write_tsv(validity_stats_df,
                    paste0(opt$library_id, "_clustering_all_validity_stats.tsv")
                  ))
 
-# Summarize the stats and return in a data frame
-summary_validity_stats_df <- summarize_clustering_stats(validity_stats_df) %>%
+# Summarize the validity stats and return in a data frame
+summary_validity_stats_df <-
+  summarize_clustering_stats(validity_stats_df) %>%
   dplyr::mutate(param_value = as.numeric(param_value))
 
-# Write output file
+# Write output file with summary cluster validity stats
 readr::write_tsv(summary_validity_stats_df,
                  file.path(
                    opt$output_directory,
                    paste0(opt$library_id, "_clustering_summary_validity_stats.tsv")
                  ))
+  
+# Run the cluster stability stats wrapper function
+summary_stability_stats_df <- cluster_stability_stats_wrapper_function(
+  sce, nn_range, opt$cluster_type, second_cluster_type = opt$second_cluster_type)
 
-### Calculate cluster stability stats ------------------------------------------
-
-# Check the cluster stability stats and return the summary ari in a data frame
-summary_stability_stats_df <-
-  get_cluster_stability_summary(
-    sce,
-    nn_range,
-    opt$cluster_type
-  ) %>%
-  dplyr::mutate(param_value = as.numeric(param_value))
-
-# Write output file
+# Write output file with summary cluster stability stats
 readr::write_tsv(summary_stability_stats_df,
                  file.path(
                    opt$output_directory,

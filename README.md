@@ -20,12 +20,30 @@ To run the core downstream analyses workflow on your own sample data, you will n
 
 1. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
 2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
-3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format))
+3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
 4. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
+5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this is the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml).
 
-<!-- cmd -->
+Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
 
-There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary html report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow. See the [expected output section](#expected-output) for more information on these output files.
+```
+snakemake --cores 2 \
+  --use-conda \
+  --config results_dir="relative path to relevant results directory" \
+  project_metadata="relative path to your-project-metadata.TSV" \
+  mito_file="full path to your-mito-file.txt"
+```
+
+**Output Files**
+There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
+ 
+- A processed `SingleCellExperiment` object containing normalized data and clustering results
+- A summary HTML report detailing:
+    - Filtering of low quality cells
+    - Dimensionality reduction
+    - Clustering that was performed within the workflow 
+    
+See the [expected output section](#expected-output) for more information on these output files.
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
@@ -78,8 +96,9 @@ Therefore, you will also need to install Snakemake before running the pipeline.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
-As described in the Snakemake instructions, the recommended way to install snakemake is using the conda package manager. 
-Therefore, you will want to first install [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (we recommend the Miniconda installation).
+Snakemake recommends installing it using the conda package manager. 
+Here are the instructions to [install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) 
+We recommend the Miniconda installation.
 
 After installing conda has been installed, you can follow the steps below to set up the bioconda and conda-forge channels and install Snakemake in an isolated environment:
 
@@ -180,7 +199,7 @@ Each library ID should have a unique `filepath`.
 
 ## Running the workflow
 
-We have provided a snakemake [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config.yaml`](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml) which sets the defaults for all parameters needed to run the workflow.
+We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config.yaml`](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml) which sets the defaults for all parameters needed to run the workflow.
 
 ### Project-specific parameters
 

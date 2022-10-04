@@ -48,7 +48,7 @@ rule calculate_clustering:
         " Rscript '{workflow.basedir}/optional-clustering-analysis/clustering-calculations.R'"
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
-        "  --cluster_type {config[cluster_type]}"
+        "  --cluster_types {config[cluster_types]}"
         "  --output_directory {output.stats_dir}"
         "  --output_sce {output.sce}"
         "  --seed {config[seed]}"

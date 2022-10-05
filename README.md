@@ -100,7 +100,7 @@ Snakemake recommends installing it using the conda package manager.
 Here are the instructions to [install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) 
 We recommend the Miniconda installation.
 
-After installing conda has been installed, you can follow the steps below to set up the bioconda and conda-forge channels and install Snakemake in an isolated environment:
+After installing conda, you can follow the steps below to set up the bioconda and conda-forge channels and install Snakemake in an isolated environment:
 
 ```
 conda config --add channels defaults

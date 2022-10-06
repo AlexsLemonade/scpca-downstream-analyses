@@ -139,12 +139,14 @@ if (!file.exists(opt$sce)){
 }
 
 # Split up string of cluster types
-cluster_types <- unlist(stringr::str_split(opt$cluster_types, ","))
+cluster_types <-  stringr::str_split(opt$cluster_types, ",") %>%
+  unlist() %>%
+  stringr::str_trim()
 
 # Check that clustering type is valid
 for (cluster_type in cluster_types) {
   if (!cluster_type %in% c("louvain", "walktrap")) {
-    stop("--cluster_types (-c) must be either louvain or walktrap.")
+    stop("--cluster_types (-c) must be either louvain, walktrap, or both (comma-separated)")
   }
 }
 
@@ -174,7 +176,7 @@ nn_range <- define_nn_range(opt$nearest_neighbors_min,
                             opt$nearest_neighbors_max,
                             opt$nearest_neighbors_increment)
 
-cluster_wrapper_function <- function(sce, nn_range, cluster_type, ...) {
+perform_clustering <- function(sce, nn_range, cluster_type, ...) {
   # Check for existing clustering results
   cluster_column_names <- paste(cluster_type, nn_range, sep = "_")
   existing_columns <-
@@ -212,7 +214,7 @@ cluster_wrapper_function <- function(sce, nn_range, cluster_type, ...) {
 
 # Run the clustering wrapper function
 for (cluster_type in cluster_types){
-  sce <- cluster_wrapper_function(sce, nn_range, cluster_type, 
+  sce <- perform_clustering(sce, nn_range, cluster_type, 
                                   opt$nearest_neighbors_min, 
                                   opt$nearest_neighbors_max,
                                   opt$nearest_neighbors_increment)

@@ -31,7 +31,7 @@ n_genes_pca: 2000 # The `n` number of highly variable genes to subset for PCA
 
 # clustering parameters
 cluster_type: "louvain"
-cluster_types: "louvain,walktrap"
+optional_cluster_types: "louvain,walktrap"
 nearest_neighbors: 10
 nearest_neighbors_min: 5 # The minimum value to use for a range of neareast neighbors values for exploration
 nearest_neighbors_max: 25 # The maximum value to use for a range of neareast neighbors values for exploration

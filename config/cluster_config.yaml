@@ -1,0 +1,8 @@
+# All parameters included in this file can be altered at the command line using the `--config` flag or by editing this file directly.
+
+### Optional clustering module specific parameters
+optional_cluster_types: "louvain,walktrap"
+nearest_neighbors_min: 5 # The minimum value to use for a range of neareast neighbors values for exploration
+nearest_neighbors_max: 25 # The maximum value to use for a range of neareast neighbors values for exploration
+nearest_neighbors_increment: 5 # The increment to use when implementing the range number of nearest neighbors for cluster stats
+overwrite_results: TRUE # A binary value indicating whether or not to overwrite any existing clustering results

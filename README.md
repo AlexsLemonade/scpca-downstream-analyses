@@ -18,12 +18,34 @@ Cluster assignments are stored in the `SingleCellExperiment` object returned by 
 
 To run the core downstream analyses workflow on your own sample data, you will need the following:
 
-1. Single-cell gene expression data stored as `SingleCellExperiment` objects (see more on this in the ["Input data format" section](#input-data-format))
-2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format))
-3. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
-4. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
+1. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
+2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
+3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
+4. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
+5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this is the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml).
 
-**Note** that R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
+Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
+
+```
+snakemake --cores 2 \
+  --use-conda \
+  --config results_dir="relative path to relevant results directory" \
+  project_metadata="relative path to your-project-metadata.TSV" \
+  mito_file="full path to your-mito-file.txt"
+```
+
+**Output Files**
+There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
+
+- A processed `SingleCellExperiment` object containing normalized data and clustering results
+- A summary HTML report detailing:
+    - Filtering of low quality cells
+    - Dimensionality reduction
+    - Clustering that was performed within the workflow
+
+See the [expected output section](#expected-output) for more information on these output files.
+
+**Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
 If you are using conda, dependencies can be installed as [part of the initial setup](#snakemakeconda-installation).
 
@@ -33,7 +55,6 @@ If you are using conda, dependencies can be installed as [part of the initial se
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Input data format](#input-data-format)
 - [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
   - [1) Clone the repository](#1-clone-the-repository)
   - [2) Install Snakemake](#2-install-snakemake)
@@ -41,6 +62,7 @@ If you are using conda, dependencies can be installed as [part of the initial se
     - [Snakemake/conda installation](#snakemakeconda-installation)
     - [Independent installation](#independent-installation)
       - [Apple Silicon installations](#apple-silicon-installations)
+- [Input data format](#input-data-format)
 - [Metadata file format](#metadata-file-format)
 - [Running the workflow](#running-the-workflow)
   - [Project-specific parameters](#project-specific-parameters)
@@ -52,28 +74,14 @@ If you are using conda, dependencies can be installed as [part of the initial se
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Input data format
-
-The expected input for our core single-cell downstream analysis pipeline is a [`SingleCellExperiment` object](https://rdrr.io/bioc/SingleCellExperiment/man/SingleCellExperiment.html) that has been stored as a RDS file.
-This`SingleCellExperiment` object should contain non-normalized gene expression data with barcodes as the column names and gene identifiers as the row names.
-All barcodes included in the `SingleCellExperiment` object should correspond to droplets likely to contain cells and should not contain empty droplets (e.g. droplets with FDR < 0.01 calculated with [`DropletUtils::emptyDropsCellRanger()`](https://rdrr.io/github/MarioniLab/DropletUtils/man/emptyDropsCellRanger.html).
-The full path to each individual RDS file should be defined in the project metadata described in the following "How to run the pipeline" section.
-
-The pipeline in this repository is setup to process data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) and output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where single-cell/single-nuclei gene expression data is mapped and quantified using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/).
-For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
-Note however that the input for this pipeline is **not required** to be scpca-nf processed output.
-
 ## How to install the core downstream analyses workflow
 
 ### 1) Clone the repository
 
 First you will want to clone the [`scpca-downstream-analyses` repository](https://github.com/AlexsLemonade/scpca-downstream-analyses) from GitHub.
 
-You can do this by navigating to the `Code` button at the top of the repository page and copying the URL.
-Next, open a local `Terminal` window and use `cd` to navigate to the desired local directory for storing the repository.
 We recommend cloning this repository into a separate folder specifically for git repositories.
-
-You can then implement the following command to clone the repository:
+Open a local `Terminal` window and use `cd` to navigate to the desired local directory for storing the repository, and run the following command to clone the repository:
 
 `git clone https://github.com/AlexsLemonade/scpca-downstream-analyses.git`
 
@@ -88,8 +96,11 @@ Therefore, you will also need to install Snakemake before running the pipeline.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
-As described in the Snakemake instructions, the recommended way to install snakemake is using the conda package manager.
-After installing [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (we recommend the Miniconda installation), you can follow the steps below to set up the bioconda and conda-forge channels and install Snakemake in an isolated environment:
+Snakemake recommends installing it using the conda package manager.
+Here are the instructions to [install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
+We recommend the Miniconda installation.
+
+After installing conda, you can follow the steps below to set up the bioconda and conda-forge channels and install Snakemake in an isolated environment:
 
 ```
 conda config --add channels defaults
@@ -129,8 +140,7 @@ To use the environment you have just created, you will need to run Snakemake wit
 
 #### Independent installation
 
-If you do not want to use conda, you can perform all installations manually.
-After confirming that you have R version 4.2 installed (the Intel version is required if you are on an Apple Silicon Mac; see below), you will want to make sure that all of the R packages are installed as well.
+If you would like to perform installation without the conda environments, you can do so after confirming that you have R version 4.1 (the Intel version if you are on a Mac) installed, you will want to make sure that all of the R packages are installed as well.
 First install the `renv` package by your preferred method.
 Then, from within the `scpca-downstream-analyses` directory, run the following command to install all of the additional required packages:
 
@@ -159,7 +169,16 @@ FLIBS = -L/usr/local/gfortran/lib/gcc
 These lines will ensure that R can find the newly-installed `gfortran` compiler.
 If you need to take these steps, you may need to restart R/terminal to proceed with your setup.
 
+## Input data format
 
+The expected input for our core single-cell downstream analysis pipeline is a [`SingleCellExperiment` object](https://rdrr.io/bioc/SingleCellExperiment/man/SingleCellExperiment.html) that has been stored as a RDS file.
+This`SingleCellExperiment` object should contain non-normalized gene expression data with barcodes as the column names and gene identifiers as the row names.
+All barcodes included in the `SingleCellExperiment` object should correspond to droplets likely to contain cells and should not contain empty droplets (e.g. droplets with FDR < 0.01 calculated with [`DropletUtils::emptyDropsCellRanger()`](https://rdrr.io/github/MarioniLab/DropletUtils/man/emptyDropsCellRanger.html).
+The full path to each individual RDS file should be defined in the project metadata described in the following "How to run the pipeline" section.
+
+The pipeline in this repository is setup to process data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) and output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where single-cell/single-nuclei gene expression data is mapped and quantified using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/).
+For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
+Note however that the input for this pipeline is **not required** to be scpca-nf processed output.
 
 ## Metadata file format
 
@@ -173,9 +192,12 @@ The file should contain the following columns:
 - `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object.
 Each library ID should have a unique `filepath`.
 
+|[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv)|
+|---|
+
 ## Running the workflow
 
-We have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the defaults for all parameters needed to run the workflow.
+We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config.yaml`](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml) which sets the defaults for all parameters needed to run the workflow.
 
 ### Project-specific parameters
 
@@ -188,6 +210,9 @@ These include the following parameters:
 | `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
 | `project_metadata` | relative path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
+
+|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml)|
+|---|
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
@@ -285,6 +310,7 @@ Below is an example of the nested file structure you can expect.
 The `_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
 Clustering results can be found in the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the `SingleCellExperiment` object, stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
+
 
 The `_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 

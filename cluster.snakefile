@@ -35,18 +35,18 @@ rule target:
                zip,
                sample = SAMPLES,
                library = LIBRARY_ID,
-               filter_method = FILTERING_METHOD)       
+               filter_method = FILTERING_METHOD)
 
 rule calculate_clustering:
     input:
-        "{basedir}/{sample_id}/{library_id}_{filter_method}_processed_sce.rds"
+        "{basedir}/{library_id}_{filter_method}_processed_sce.rds"
     output:
-        sce = "{basedir}/{sample_id}/{library_id}_{filter_method}_clustered_sce.rds",
-        stats_dir = directory("{basedir}/{sample_id}/{library_id}_{filter_method}_clustering_stats")
+        sce = "{basedir}/{library_id}_{filter_method}_clustered_sce.rds",
+        stats_dir = directory("{basedir}/{library_id}_{filter_method}_clustering_stats")
+    log: "logs/{basedir}/{library_id}_{filter_method}/calculate_clustering.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        "R_PROFILE_USER='{workflow.basedir}/.Rprofile'"
-        " Rscript '{workflow.basedir}/optional-clustering-analysis/clustering-calculations.R'"
+        " Rscript 'optional-clustering-analysis/clustering-calculations.R'"
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --cluster_types {config[optional_cluster_types]}"
@@ -56,21 +56,22 @@ rule calculate_clustering:
         "  --nearest_neighbors_min {config[nearest_neighbors_min]}"
         "  --nearest_neighbors_max {config[nearest_neighbors_max]}"
         "  --nearest_neighbors_increment {config[nearest_neighbors_increment]}"
-        "  --project_root {workflow.basedir}"
+        "  --project_root $PWD"
         "  --overwrite {config[overwrite_results]}"
-        
+        " &> {log}"
+
 rule generate_cluster_report:
     input:
-        processed_sce = "{basedir}/{sample_id}/{library_id}_{filter_method}_clustered_sce.rds",
-        stats_dir = "{basedir}/{sample_id}/{library_id}_{filter_method}_clustering_stats"
+        processed_sce = "{basedir}/{library_id}_{filter_method}_clustered_sce.rds",
+        stats_dir = "{basedir}/{library_id}_{filter_method}_clustering_stats"
     output:
-        "{basedir}/{sample_id}/{library_id}_{filter_method}_clustering_report.html"
+        "{basedir}/{library_id}_{filter_method}_clustering_report.html"
+    log: "{basedir}/{library_id}_{filter_method}/cluster_report.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        R_PROFILE_USER='{workflow.basedir}/.Rprofile' \
         Rscript -e \
-        "rmarkdown::render('{workflow.basedir}/optional-clustering-analysis/clustering-report-template.Rmd', \
+        "rmarkdown::render('optional-clustering-analysis/clustering-report-template.Rmd', \
                            clean = TRUE, \
                            output_file = '{output}', \
                            output_dir = dirname('{output}'), \
@@ -81,5 +82,6 @@ rule generate_cluster_report:
                                          nearest_neighbors_min = {config[nearest_neighbors_min]}, \
                                          nearest_neighbors_max = {config[nearest_neighbors_max]}, \
                                          nearest_neighbors_increment = {config[nearest_neighbors_increment]}), \
-                           envir = new.env())"
+                           envir = new.env())" \
+        &> {log}
         """

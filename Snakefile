@@ -1,6 +1,6 @@
 import pandas as pd
 
-configfile: "config.yaml"
+configfile: "config/config.yaml"
 
 # getting the samples information
 if os.path.exists(config['project_metadata']):
@@ -117,7 +117,7 @@ rule clustering:
         " Rscript 'core-analysis/04-clustering.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
-        "  --cluster_type {config[cluster_type]}"
+        "  --cluster_type {config[core_cluster_type]}"
         "  --nearest_neighbors {config[nearest_neighbors]}"
         "  --output_filepath {output}"
         "  --project_root $PWD"
@@ -141,7 +141,7 @@ rule generate_report:
                            params = list(library = '{wildcards.library_id}', \
                                          pre_processed_sce = '{input.pre_processed_sce}', \
                                          processed_sce = '{input.processed_sce}', \
-                                         cluster_type = '{config[cluster_type]}', \
+                                         cluster_type = '{config[core_cluster_type]}', \
                                          nearest_neighbors = {config[nearest_neighbors]}, \
                                          mito_file = '{config[mito_file]}', \
                                          project_root = '$PWD'), \

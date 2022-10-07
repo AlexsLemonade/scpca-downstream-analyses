@@ -11,7 +11,7 @@
 #   --sce "example-results/sample01/library01_miQC_processed_sce.rds" \
 #   --library_id "library01" \
 #   --seed 2021 \
-#   --cluster_type "louvain" \
+#   --cluster_types "louvain,walktrap" \
 #   --nearest_neighbors_min 5
 #   --nearest_neighbors_max 25 \
 #   --nearest_neighbors_increment 5 \
@@ -48,9 +48,9 @@ option_list <- list(
     metavar = "integer"
   ),
   optparse::make_option(
-    c("-c", "--cluster_type"),
+    c("-c", "--cluster_types"),
     type = "character",
-    default = "louvain",
+    default = "louvain,walktrap",
     help = "Method used for clustering. Can be either louvain or walktrap.",
   ),
   optparse::make_option(
@@ -138,9 +138,16 @@ if (!file.exists(opt$sce)){
   stop(paste(opt$sce, "does not exist."))
 }
 
-# Check that clustering type is valid 
-if (!opt$cluster_type %in% c("louvain", "walktrap")) {
-  stop("--cluster_type (-c) must be either louvain or walktrap.")
+# Split up string of cluster types
+cluster_types <-  stringr::str_split(opt$cluster_types, ",") %>%
+  unlist() %>%
+  stringr::str_trim()
+
+# Check that clustering type is valid
+for (cluster_type in cluster_types) {
+  if (!cluster_type %in% c("louvain", "walktrap")) {
+    stop("--cluster_types (-c) must be either louvain, walktrap, or both (comma-separated)")
+  }
 }
 
 # Make sure the output directory exists 
@@ -169,47 +176,64 @@ nn_range <- define_nn_range(opt$nearest_neighbors_min,
                             opt$nearest_neighbors_max,
                             opt$nearest_neighbors_increment)
 
-# Check for existing clustering results
-cluster_column_names <- paste(opt$cluster_type, nn_range, sep = "_")
-existing_columns <- intersect(cluster_column_names, colnames(colData(sce)))
-
-if(length(existing_columns) != 0){
+perform_clustering <- function(sce, nn_range, cluster_type, ...) {
+  # Check for existing clustering results
+  cluster_column_names <- paste(cluster_type, nn_range, sep = "_")
+  existing_columns <-
+    intersect(cluster_column_names, colnames(colData(sce)))
   
-  if(!is.null(opt$overwrite)){
-    # Perform graph-based clustering
-    message("Overwriting clustering results.")
+  if (length(existing_columns) != 0) {
+    if (!is.null(opt$overwrite)) {
+      # Perform graph-based clustering
+      message("Overwriting clustering results.")
+      sce <- graph_clustering(
+        normalized_sce = sce,
+        nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
+        nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
+        step_size = opt$nearest_neighbors_increment,
+        cluster_type = cluster_type
+      )
+    } else {
+      message(glue::glue("
+      Clustering results exist for {cluster_column_names}."))
+      stop(
+        "Skipping clustering steps. If you want to overwrite the existing results, use the --overwrite flag."
+      )
+    }
+  } else {
     sce <- graph_clustering(
       normalized_sce = sce,
       nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
       nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
       step_size = opt$nearest_neighbors_increment,
-      cluster_type = opt$cluster_type)
-  } else {
-    message(
-      glue::glue("
-      Clustering results exist for {cluster_column_names}.")
+      cluster_type = cluster_type
     )
-    stop("Skipping clustering steps. If you want to overwrite the existing results, use the --overwrite flag.")
   }
-} else {
-  sce <- graph_clustering(
-    normalized_sce = sce,
-    nearest_neighbors_min = as.integer(opt$nearest_neighbors_min),
-    nearest_neighbors_max = as.integer(opt$nearest_neighbors_max),
-    step_size = opt$nearest_neighbors_increment,
-    cluster_type = opt$cluster_type)
+  
 }
+
+# Run the clustering wrapper function
+for (cluster_type in cluster_types){
+  sce <- perform_clustering(sce, nn_range, cluster_type, 
+                                  opt$nearest_neighbors_min, 
+                                  opt$nearest_neighbors_max,
+                                  opt$nearest_neighbors_increment)
+}
+
 
 # Write output SCE file
 readr::write_rds(sce, opt$output_sce)
 
 ### Calculate cluster validity stats -------------------------------------------
 
-# Check the cluster validity stats for each of the clusters in the SCE object
-# and return stats in a data frame
-validity_stats_df <- create_metadata_stats_df(sce, 
-                                              nn_range, 
-                                              opt$cluster_type)
+# Check the cluster validity stats and return the results in a data frame
+validity_stats_df_list <- purrr::map(cluster_types,
+                                     ~ create_metadata_stats_df(sce,
+                                                                nn_range,
+                                                                .x))
+validity_stats_df <-
+  dplyr::bind_rows(validity_stats_df_list) %>%
+  dplyr::mutate(param_value = as.numeric(param_value))
 
 # Write output file with all cluster validity stats
 readr::write_tsv(validity_stats_df,
@@ -218,11 +242,12 @@ readr::write_tsv(validity_stats_df,
                    paste0(opt$library_id, "_clustering_all_validity_stats.tsv")
                  ))
 
-# Summarize the stats and return in a data frame
-summary_validity_stats_df <- summarize_clustering_stats(validity_stats_df) %>%
+# Summarize the validity stats and return in a data frame
+summary_validity_stats_df <-
+  summarize_clustering_stats(validity_stats_df) %>%
   dplyr::mutate(param_value = as.numeric(param_value))
 
-# Write output file
+# Write output file with summary cluster validity stats
 readr::write_tsv(summary_validity_stats_df,
                  file.path(
                    opt$output_directory,
@@ -232,15 +257,15 @@ readr::write_tsv(summary_validity_stats_df,
 ### Calculate cluster stability stats ------------------------------------------
 
 # Check the cluster stability stats and return the summary ari in a data frame
+summary_stability_stats_df_list <- purrr::map(cluster_types,
+                                              ~ get_cluster_stability_summary(sce,
+                                                                              nn_range,
+                                                                              .x))
 summary_stability_stats_df <-
-  get_cluster_stability_summary(
-    sce,
-    nn_range,
-    opt$cluster_type
-  ) %>%
+  dplyr::bind_rows(summary_stability_stats_df_list) %>%
   dplyr::mutate(param_value = as.numeric(param_value))
 
-# Write output file
+# Write output file with summary cluster stability stats
 readr::write_tsv(summary_stability_stats_df,
                  file.path(
                    opt$output_directory,

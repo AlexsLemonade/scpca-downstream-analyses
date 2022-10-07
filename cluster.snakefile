@@ -1,6 +1,7 @@
 import pandas as pd
 
-configfile: "config.yaml"
+configfile: "config/config.yaml"
+configfile: "config/cluster_config.yaml"
 
 # getting the samples information
 if os.path.exists(config['project_metadata']):
@@ -48,7 +49,7 @@ rule calculate_clustering:
         " Rscript 'optional-clustering-analysis/clustering-calculations.R'"
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
-        "  --cluster_type {config[cluster_type]}"
+        "  --cluster_types {config[optional_cluster_types]}"
         "  --output_directory {output.stats_dir}"
         "  --output_sce {output.sce}"
         "  --seed {config[seed]}"
@@ -77,7 +78,7 @@ rule generate_cluster_report:
                            params = list(library = '{wildcards.library_id}', \
                                          processed_sce = '{input.processed_sce}', \
                                          stats_dir = '{input.stats_dir}', \
-                                         cluster_type = '{config[cluster_type]}', \
+                                         cluster_type = '{config[core_cluster_type]}', \
                                          nearest_neighbors_min = {config[nearest_neighbors_min]}, \
                                          nearest_neighbors_max = {config[nearest_neighbors_max]}, \
                                          nearest_neighbors_increment = {config[nearest_neighbors_increment]}), \

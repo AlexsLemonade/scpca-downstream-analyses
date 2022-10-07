@@ -558,7 +558,8 @@ plot_cluster_stability_ari <- function(ari_plotting_df, point_size = 0.7) {
       size = 0.2
     ) +
     scale_x_discrete(name = "Parameter value",
-                     limits = params_range)
+                     limits = params_range) +
+    facet_wrap( ~ cluster_type)
   
   return(plot)
 }

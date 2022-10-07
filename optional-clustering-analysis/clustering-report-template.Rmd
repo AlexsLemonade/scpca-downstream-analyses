@@ -1,9 +1,9 @@
 ---
 params:
   library: "library01"
-  processed_sce: "example-results/sample01/library01_processed_sce_clustering.rds"
-  stats_dir: "example-results/sample01/clustering_stats"
-  cluster_type: "louvain"
+  processed_sce: "example-results/sample01/library01_miQC_clustered_sce.rds"
+  stats_dir: "example-results/sample01/library01_miQC_clustering_stats"
+  cluster_type: "louvain,walktrap"
   nearest_neighbors_min: 5
   nearest_neighbors_max: 25
   nearest_neighbors_increment: 5
@@ -82,9 +82,17 @@ nn_range <- define_nn_range(params$nearest_neighbors_min,
                             params$nearest_neighbors_max,
                             params$nearest_neighbors_increment)
 
+cluster_column_names <- c()
+
+# Split up string of cluster types
+cluster_types <- unlist(stringr::str_split(params$cluster_type, ","))
+
 # Grab column name with clustering results
-cluster_column_names <- paste(params$cluster_type, nn_range, sep = "_")
-existing_columns <- intersect(cluster_column_names, colnames(colData(processed_sce)))
+for (cluster_type in cluster_types) {
+  cluster_column_names <- c(cluster_column_names, sprintf("%s_%02d", cluster_type, nn_range))
+}
+
+existing_columns <-intersect(cluster_column_names, colnames(colData(processed_sce)))
 
 # Check length of `existing_columns`
 if(length(existing_columns) == 0){

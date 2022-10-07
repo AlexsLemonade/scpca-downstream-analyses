@@ -141,7 +141,7 @@ graph_clustering <- function(normalized_sce,
   # perform the graph-based clustering
   for (nearest_neighbors in nn_range) {
     # set cluster name
-    cluster_name <- paste(cluster_type, nearest_neighbors, sep = "_")
+    cluster_name <- sprintf("%s_%02d", cluster_type, nearest_neighbors)
     
     # set the seed for reproducible results
     set.seed(seed)
@@ -273,7 +273,7 @@ create_metadata_stats_df <- function(clustered_sce, params_range, cluster_type) 
   #                 "walktrap", or "louvain"
   
   # define cluster names
-  cluster_names_column <- paste(cluster_type, params_range, sep = "_")
+  cluster_names_column <- sprintf("%s_%02d", cluster_type, params_range)
   
   # save data.frame to the cluster validity list of data.frames
   cluster_validity_df_list <- cluster_names_column %>% 
@@ -361,10 +361,9 @@ plot_cluster_purity <- function(cluster_validity_df, num_col, point_size = 0.7) 
       position = position_dodge(width = 0.9),
       size = 0.2
     ) +
-    labs(title = unique(metadata$cluster_type),
-         x = "Cluster Assignment",
+    labs(x = "Cluster Assignment",
          color = legend_title) +
-    facet_wrap( ~ param_value, scale="free", ncol = num_col)
+    facet_wrap( ~ cluster_names_column, scale="free_x", ncol = num_col, dir = "v")
   
   return(plot)
 }
@@ -392,9 +391,8 @@ plot_cluster_silhouette_width <- function(cluster_validity_df, num_col, point_si
     ggplot(metadata, aes(x = cluster, y = width)) +
     ggbeeswarm::geom_quasirandom(method = "pseudorandom", size = point_size) +
     geom_hline(yintercept = 0, linetype = 'dotted') +
-    labs(title = unique(metadata$cluster_type),
-         x = "Cluster Assignment") +
-    facet_wrap( ~ param_value, scale="free_x", ncol = num_col) +
+    labs(x = "Cluster Assignment") +
+    facet_wrap( ~ cluster_names_column, scale="free_x", ncol = num_col) +
     stat_summary(
       aes(group = cluster_param_assignment),
       color = "red",
@@ -491,9 +489,9 @@ get_cluster_stability_summary <- function(normalized_sce,
   
   # define cluster names
   if (cluster_type == "kmeans") {
-    cluster_names <- paste(cluster_type, params_range, sep = "_")
+    cluster_names <- sprintf("%s_%02d", cluster_type, params_range)
   } else if (cluster_type %in% c("walktrap", "louvain")) {
-    cluster_names <- paste(cluster_type, params_range, sep = "_")
+    cluster_names <- sprintf("%s_%02d", cluster_type, params_range)
   }
   
   ari_results <- list()

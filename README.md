@@ -36,13 +36,13 @@ snakemake --cores 2 \
 
 **Output Files**
 There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
- 
+
 - A processed `SingleCellExperiment` object containing normalized data and clustering results
 - A summary HTML report detailing:
     - Filtering of low quality cells
     - Dimensionality reduction
-    - Clustering that was performed within the workflow 
-    
+    - Clustering that was performed within the workflow
+
 See the [expected output section](#expected-output) for more information on these output files.
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
@@ -75,7 +75,7 @@ If you are using conda, dependencies can be installed as [part of the initial se
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## How to install the core downstream analyses workflow
-<!-- Would put installation steps first -->
+
 ### 1) Clone the repository
 
 First you will want to clone the [`scpca-downstream-analyses` repository](https://github.com/AlexsLemonade/scpca-downstream-analyses) from GitHub.
@@ -96,8 +96,8 @@ Therefore, you will also need to install Snakemake before running the pipeline.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
-Snakemake recommends installing it using the conda package manager. 
-Here are the instructions to [install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) 
+Snakemake recommends installing it using the conda package manager.
+Here are the instructions to [install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
 We recommend the Miniconda installation.
 
 After installing conda, you can follow the steps below to set up the bioconda and conda-forge channels and install Snakemake in an isolated environment:
@@ -123,7 +123,7 @@ This can be done independently, or you can use Snakemake's conda integration to 
 #### Snakemake/conda installation
 
 Snakemake can also handle the dependencies by creating its own conda environments, which we have provided as an option.
-To create the necessary environment, which includes an isolated version of R, pandoc, and the `renv` package installation, run the following command: 
+To create the necessary environment, which includes an isolated version of R, pandoc, and the `renv` package installation, run the following command:
 
 ```
 snakemake --use-conda --conda-create-envs-only -c1 build_renv
@@ -141,7 +141,7 @@ To use the environment you have just created, you will need to run Snakemake wit
 
 
 #### Independent installation
-<!-- what's this? --> 
+
 If you would like to perform installation without the conda environments, you can do so after confirming that you have R version 4.1 (the Intel version if you are on a Mac) installed, you will want to make sure that all of the R packages are installed as well.
 First install the `renv` package by your preferred method.
 Then, from within the `scpca-downstream-analyses` directory, run the following command to install all of the additional required packages:
@@ -313,7 +313,6 @@ The `_processed_sce.rds` file is the [RDS file](https://rstudio-education.github
 Clustering results can be found in the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the `SingleCellExperiment` object, stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
 
-<!-- link to example outputs not file type info -->
 
 The `_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 

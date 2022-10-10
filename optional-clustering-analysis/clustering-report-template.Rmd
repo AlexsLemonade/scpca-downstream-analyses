@@ -165,17 +165,25 @@ knitr::opts_chunk$set(
 
 ```{r}
 # Plot UMAP coordinates
-plot_list <- existing_columns %>%
-  purrr::map(
-    ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x,
-                     point_size = 0.4, point_alpha = 0.5) +
-      theme_bw() +
-      theme(text = element_text(size = 14),
-            legend.text = element_text(size = 14)) +
-      guides(color = guide_legend(override.aes = list(size = 1)))
-  )
-
-cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
+for (cluster_type in cluster_types) {
+  existing_columns_filtered <- existing_columns[stringr::str_detect(existing_columns, cluster_type)]
+  plot_list <- existing_columns_filtered %>%
+    purrr::map(
+      ~ plotReducedDim(
+        processed_sce,
+        dimred = "UMAP",
+        colour_by = .x,
+        point_size = 0.4,
+        point_alpha = 0.5
+      ) +
+        theme_bw() +
+        theme(text = element_text(size = 14),
+              legend.text = element_text(size = 14)) +
+        guides(color = guide_legend(override.aes = list(size = 1)))
+    )
+  
+  cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
+}
 ```
 
 ## Evaluating clustering

@@ -392,7 +392,7 @@ plot_cluster_silhouette_width <- function(cluster_validity_df, num_col, point_si
     ggbeeswarm::geom_quasirandom(method = "pseudorandom", size = point_size) +
     geom_hline(yintercept = 0, linetype = 'dotted') +
     labs(x = "Cluster Assignment") +
-    facet_wrap( ~ cluster_names_column, scale="free_x", ncol = num_col) +
+    facet_wrap( ~ cluster_names_column, scale="free_x", ncol = num_col, dir = "v") +
     stat_summary(
       aes(group = cluster_param_assignment),
       color = "red",

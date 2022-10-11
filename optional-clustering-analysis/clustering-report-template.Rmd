@@ -64,10 +64,13 @@ library(ggpubr)
 library(scater)
 library(dplyr)
 
+# Split up string of cluster types
+cluster_types <- unlist(stringr::str_split(params$cluster_type, ","))
+
 # Set theme for plotting
 library(ggplot2)
-theme_set(theme_bw() + theme(text = element_text(size = 17),
-                             legend.text = element_text(size = 16)))
+theme_set(theme_bw() + theme(text = element_text(size = 17*length(cluster_types)),
+                             legend.text = element_text(size = 16*length(cluster_types))))
 point_size <- params$point_size
 ```
 
@@ -83,9 +86,6 @@ nn_range <- define_nn_range(params$nearest_neighbors_min,
                             params$nearest_neighbors_increment)
 
 cluster_column_names <- c()
-
-# Split up string of cluster types
-cluster_types <- unlist(stringr::str_split(params$cluster_type, ","))
 
 # Grab column name with clustering results
 for (cluster_type in cluster_types) {
@@ -154,8 +154,13 @@ Here clustering was performed using `r params$cluster_type` clustering.
 ```{r}
 # Set number of columns for plotting and use this to define figure heights 
 # and widths
-num_col <- 2
-figure_dim <- max(ceiling(length(existing_columns)/num_col) * 5, 4)
+if (length(cluster_types) == 1) {
+  num_col <- 2
+} else {
+  num_col <- length(cluster_types)
+}
+
+figure_dim <- max(ceiling(length(existing_columns)/num_col) * length(existing_columns)/num_col + 2, (length(existing_columns)/num_col) + 1)
 
 knitr::opts_chunk$set(
   fig.height = figure_dim,
@@ -170,12 +175,12 @@ plot_list <- existing_columns %>%
     ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x,
                      point_size = 0.4, point_alpha = 0.5) +
       theme_bw() +
-      theme(text = element_text(size = 14),
-            legend.text = element_text(size = 14)) +
+      theme(text = element_text(size = length(existing_columns)*length(cluster_types) - 1),
+            legend.text = element_text(size = length(existing_columns)*length(cluster_types) - 1)) +
       guides(color = guide_legend(override.aes = list(size = 1)))
   )
 
-cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
+cowplot::plot_grid(plotlist = plot_list, ncol = num_col, byrow = FALSE)
 ```
 
 ## Evaluating clustering

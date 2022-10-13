@@ -540,7 +540,7 @@ plot_cluster_stability_ari <- function(ari_plotting_df, point_size = 0.7) {
   params_range <- sort(unique(ari_plotting_df$param_value))
   
   plot <-
-    ggplot(ari_plotting_df, aes(x = param_value, y = ARI, group = param_value)) +
+    ggplot(ari_plotting_df, aes(x = param_value, y = ARI, group = param_value, fill = cluster_type)) +
     geom_violin() +
     ggforce::geom_sina(size = point_size) +
     stat_summary(
@@ -556,7 +556,8 @@ plot_cluster_stability_ari <- function(ari_plotting_df, point_size = 0.7) {
       },
       geom = "pointrange",
       position = position_dodge(width = 0.9),
-      size = 0.2
+      size = 0.8,
+      shape = 21
     ) +
     scale_x_discrete(name = "Parameter value",
                      limits = params_range) +

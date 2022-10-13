@@ -149,7 +149,11 @@ summary_stability_stats_df <- summary_stability_stats_df %>%
 ## UMAP plot results for `r params$library`
 
 Below is a set of UMAP plots, where each panel corresponds to clustering performed with a given clustering parameter and each cell is colored based on the cell's cluster assignment.
-Here clustering was performed using `r params$cluster_type` clustering.
+Here clustering was performed using the following clustering types:
+
+```{r results='asis'}
+cat(paste("-", cluster_types), sep = "\n")
+```
 
 ```{r}
 # Set number of columns for plotting and use this to define figure heights 

@@ -2,7 +2,7 @@
 
 This directory includes a clustering analysis workflow that can help users identify the optimal clustering method and parameters for each library in their dataset. 
 Libraries are unique, which means that the optimal clustering is likely to be library-dependent.
-The clustering analysis workflow provided here can be used to explore different methods of clustering and test a range of parameter values for a given clustering method in order to identify the optimal clustering for each library.
+The clustering analysis workflow provided here can be used to explore different methods of clustering and test a range of parameter values for given graph-based clustering methods in order to identify the optimal clustering for each library.
 
 **The clustering analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file.**
 
@@ -15,7 +15,7 @@ The clustering analysis workflow provided here can be used to explore different 
 - [Expected output](#expected-output)
 - [Running the workflow](#running-the-workflow)
   - [Project-specific parameters](#project-specific-parameters)
-  - [Processing parameters](#processing-parameters)
+  - [Clustering parameters](#clustering-parameters)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -23,7 +23,7 @@ The clustering analysis workflow provided here can be used to explore different 
 
 There are two main steps of this clustering analysis workflow:
 
-1. **Cluster Calculations**: clustering results are calculated for the provided type of graph-based clustering, and range of nearest neighbor values.
+1. **Cluster Calculations**: clustering results are calculated for the provided type(s) of graph-based clustering, and range of nearest neighbor values.
 Cluster validity and stability results are also calculated.
 2. **Cluster Plots**: once clustering results are calculated and stored in the `SingleCellExperiment` object, the results from each of the clustering methods tested are displayed in a UMAP plot.
 Additionally, metrics associated with each of the clustering results such as silhouette width, cluster purity, and cluster stability are calculated and plotted.
@@ -40,7 +40,7 @@ To run this workflow, you will need to provide:
 
 1. The RDS file containing the [output `SingleCellExperiment` object](../README.md#expected-output) from the core dowstream analyses workflow.
 2. The [`library_id`](../README.md#metadata-file-format) associated with the `SingleCellExperiment` object.
-2. The desired type of graph-based clustering (can be "louvain" or "walktrap"), along with the minimum, maximum, and incremental values that will be used to define the range of nearest neighbor values to be tested.
+2. The desired type of graph-based clustering (can be "louvain" and/or "walktrap"), along with the minimum, maximum, and incremental values that will be used to define the range of nearest neighbor values to be tested.
 For example, if you would like a range of `5:25` to be tested in increments of 5 (as in, `5, 10, 15, 20, 25`), you will provide `nearest_neighbors_min` = 5, `nearest_neighbors_max` = 25, and `nearest_neighbors_increment` = 5.
 
 ## Expected output
@@ -48,20 +48,20 @@ For example, if you would like a range of `5:25` to be tested in increments of 5
 For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return five files in the same directory where the inputted RDS file is stored:
 
 1. The `SingleCellExperiment` RDS file containing the added clustering results that were calculated in the first step of the worflow.
-2. The `_optional_clustering_report.html` file, which is the summary html report with plots containing the clustering results.
+2. The `_clustering_report.html` file, which is the summary html report with plots containing the clustering results.
 3. A `_clustering_all_validity_stats.tsv` file with all of the calculated cluster validity statistics.
 4. A `_clustering_summary_validity_stats.tsv` file with the cluster validity stats averaged across each cluster assignment.
 5. A `_clustering_summary_stability_stats.tsv` file with the average adjusted Rand Index (ARI) values across each cluster assignment.
 
-The TSV files will be saved in a subdirectory called `clustering_stats/`.
+The TSV files will be saved in a subdirectory called `{library_id}_{filtering_method}_clustering_stats/`.
 
 ## Running the workflow
 
-As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config.yaml` which sets the defaults for all parameters needed to run the clustering workflow.
+As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/config.yaml` which sets the defaults for project-specific parameters needed to run the clustering workflow.
 
 ### Project-specific parameters
 
-There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow.
+There are a set of parameters included in the `config/config.yaml` file that will need to be specified when running the workflow.
 These parameters are specific to the project or dataset being processed.
 These include the following parameters:
 
@@ -89,13 +89,15 @@ snakemake --snakefile cluster.snakefile \
 
 **Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
-### Processing parameters
+### Clustering parameters
 
-The parameters found under the `Processing parameters` section of the config file can be optionally modified.
-Those that are relevant to the clustering workflow are as follows:
+We have provided an additional [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/cluster_config.yaml` which sets the defaults for all parameters needed to run the clustering workflow.
+
+The parameters found in the `config/cluster_config.yaml` file can be optionally modified and are as follows:
 
 | Parameter        | Description | Default value |
 |------------------|-------------|---------------|
+| `optional_cluster_types` | a comma-separated list of graph-based clustering type(s), values can be include "louvain" and/or "walktrap" (see more on these graph-based clustering methods in this [Community Detection Algorithms article](https://towardsdatascience.com/community-detection-algorithms-9bd8951e7dae)) | "louvain,walktrap" |
 | `nearest_neighbors_min` | the minimum value to use for a range of neareast neighbors values for exploration | 5 |
 | `nearest_neighbors_max` | the maximum value to use for a range of neareast neighbors values for exploration | 25 |
 | `nearest_neighbors_increment` | the increment to use when implementing the range number of nearest neighbors for cluster stats (e.g. a value of 5 with min of 5 and max of 25 will test the nearest neighbors values of 5, 10, 15, 20, and 25) | 5 |

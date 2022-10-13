@@ -197,11 +197,11 @@ Each library ID should have a unique `filepath`.
 
 ## Running the workflow
 
-We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config.yaml`](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml) which sets the defaults for all parameters needed to run the workflow.
+We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
 
 ### Project-specific parameters
 
-There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow.
+There are a set of parameters included in the `config/config.yaml` file that will need to be specified when running the workflow.
 These parameters are specific to the project or dataset being processed.
 These include the following parameters:
 
@@ -211,7 +211,7 @@ These include the following parameters:
 | `project_metadata` | relative path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
 
-|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml)|
+|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml)|
 |---|
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
@@ -229,7 +229,7 @@ snakemake --cores 2 \
 
 **Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
-You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
+You can also modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
 The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
 
 We have also included example data in the `example-data` directory for testing purposes.

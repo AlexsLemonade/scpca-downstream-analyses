@@ -70,6 +70,9 @@ These include the following parameters:
 | `results_dir` | relative path to the directory where output files will be stored (use the same `results_dir` used in the prerequisite core workflow) |
 | `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
 
+|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml)|
+|---|
+
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 You must also specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
 If `--cores` is given without a number, all available cores are used to run the workflow.
@@ -103,3 +106,5 @@ The parameters found in the `config/cluster_config.yaml` file can be optionally 
 | `nearest_neighbors_increment` | the increment to use when implementing the range number of nearest neighbors for cluster stats (e.g. a value of 5 with min of 5 and max of 25 will test the nearest neighbors values of 5, 10, 15, 20, and 25) | 5 |
 | `overwrite_results` | a binary value indicating whether or not to overwrite any existing clustering results | `TRUE` |
 
+|[View Clustering Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/cluster_config.yaml)|
+|---|

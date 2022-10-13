@@ -177,7 +177,7 @@ plot_list <- existing_columns %>%
       theme_bw() +
       theme(text = element_text(size = length(existing_columns)*length(cluster_types) - 1),
             legend.text = element_text(size = length(existing_columns)*length(cluster_types) - 1)) +
-      guides(color = guide_legend(override.aes = list(size = 4)))
+      guides(color = guide_legend(override.aes = list(size = length(cluster_types))))
   )
 
 cowplot::plot_grid(
@@ -185,7 +185,7 @@ cowplot::plot_grid(
   ncol = num_col,
   byrow = FALSE,
   labels = cluster_types,
-  label_size = 30,
+  label_size = 15*length(cluster_types),
   vjust = 0
 ) + theme(plot.margin = unit(c(1, 1, 10, 1), "cm"))
 ```

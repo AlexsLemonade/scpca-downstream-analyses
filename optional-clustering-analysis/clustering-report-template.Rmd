@@ -177,10 +177,17 @@ plot_list <- existing_columns %>%
       theme_bw() +
       theme(text = element_text(size = length(existing_columns)*length(cluster_types) - 1),
             legend.text = element_text(size = length(existing_columns)*length(cluster_types) - 1)) +
-      guides(color = guide_legend(override.aes = list(size = 1)))
+      guides(color = guide_legend(override.aes = list(size = 4)))
   )
 
-cowplot::plot_grid(plotlist = plot_list, ncol = num_col, byrow = FALSE)
+cowplot::plot_grid(
+  plotlist = plot_list,
+  ncol = num_col,
+  byrow = FALSE,
+  labels = cluster_types,
+  label_size = 30,
+  vjust = 0
+) + theme(plot.margin = unit(c(1, 1, 10, 1), "cm"))
 ```
 
 ## Evaluating clustering
@@ -198,7 +205,7 @@ The cluster purity range is `0` to `1`. Therefore purity values that are consist
 ```{r}
 # Plot individual cluster purity stats
 purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col, point_size) + 
-  guides(color = guide_legend(override.aes = list(size = 1)))
+  guides(color = guide_legend(override.aes = list(size = 5)))
 
 purity_plots
 ```

@@ -466,7 +466,8 @@ plot_avg_validity_stats <- function(cluster_validity_summary_df_list,
     ylim(y_range) + 
     labs(x = "Parameter value",
          y = gsub("_", " ", measure),
-         color = "Cluster type")
+         color = "Cluster type") +
+    guides(color = guide_legend(override.aes = list(size = 5)))
   
   return(summary_plot)
 }

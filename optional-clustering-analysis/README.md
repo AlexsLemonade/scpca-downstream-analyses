@@ -4,6 +4,14 @@ This directory includes a clustering analysis workflow that can help users ident
 Libraries are unique, which means that the optimal clustering is likely to be library-dependent.
 The clustering analysis workflow provided here can be used to explore different methods of clustering and test a range of parameter values for given graph-based clustering methods in order to identify the optimal clustering for each library.
 
+We evaluate the clustering results across each of the parameters tested by looking at the following measures:
+
+1. **Cluster purity** - looks at each cell as the proportion of neighboring cells that are assigned to the same cluster, with a range of 0 to 1. Well-separated clusters should show little overlap between member and neighboring cells, and therefore high purity values for all member cells.
+2. **Silhouette width** - looks at how well-separated each of the clusters are, with a range of -1 to 1. For each cell, the average distance to all cells in the same cluster and the average distance to all cells in another cluster, are calculated. The silhouette width for each cell is defined as the difference between these two values divided by their maximum. Therefore, cells will ideally have large positive silhouette widths, as this would mean that the cells of one cluster are well-separated from other clusters.
+3. **Cluster stability** - looks at the stability of the clustering results associated with each of the clustering parameters. Here, cells within each dataset are sampled using bootstrapping and the sampled cells are re-clustered. The new clustering assignments are compared to the original assignment by obtaining an adjusted rand index, and this process is repeated 20 times. Clustering results with high stability would reveal that clustering after each bootstrap replicate is consistent with the original clustering results. We use summary adjusted Rand Index (ARI) values in the plots below to represent the average calculated cluster stability values. The range here is 0 to 1, where stable clusters have values closer to 1.
+
+For a more in depth discussion on these metrics and how they can be used to identify the optimal clustering results, see the [advanced clustering chapter in Orchestrating Single Cell Analysis](http://bioconductor.org/books/3.15/OSCA.advanced/clustering-redux.html#motivation).
+
 **The clustering analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file.**
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -70,7 +78,7 @@ These include the following parameters:
 | `results_dir` | relative path to the directory where output files will be stored (use the same `results_dir` used in the prerequisite core workflow) |
 | `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
 
-|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml)|
+|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/development/config/config.yaml)|
 |---|
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
@@ -106,5 +114,5 @@ The parameters found in the `config/cluster_config.yaml` file can be optionally 
 | `nearest_neighbors_increment` | the increment to use when implementing the range number of nearest neighbors for cluster stats (e.g. a value of 5 with min of 5 and max of 25 will test the nearest neighbors values of 5, 10, 15, 20, and 25) | 5 |
 | `overwrite_results` | a binary value indicating whether or not to overwrite any existing clustering results | `TRUE` |
 
-|[View Clustering Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/cluster_config.yaml)|
+|[View Clustering Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/development/config/cluster_config.yaml)|
 |---|

@@ -1,5 +1,33 @@
 # ScPCA downstream analyses
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Core analysis overview](#core-analysis-overview)
+- [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
+  - [1) Clone the repository](#1-clone-the-repository)
+  - [2) Install Snakemake](#2-install-snakemake)
+  - [3) Additional dependencies](#3-additional-dependencies)
+    - [Snakemake/conda installation](#snakemakeconda-installation)
+    - [Independent installation](#independent-installation)
+      - [Apple Silicon installations](#apple-silicon-installations)
+- [Input data format](#input-data-format)
+- [Metadata file format](#metadata-file-format)
+- [Running the workflow](#running-the-workflow)
+  - [Project-specific parameters](#project-specific-parameters)
+  - [Processing parameters](#processing-parameters)
+    - [Filtering parameters](#filtering-parameters)
+    - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
+- [Expected output](#expected-output)
+- [Additional analysis modules](#additional-analysis-modules)
+  - [Clustering](#clustering)
+  - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Core-analysis-overview
+
 This repository stores workflows used for performing downstream analyses on quantified single-cell and single-nuclei gene expression data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/).
 More specifically, the repository currently contains a core workflow that performs initial pre-processing of gene expression data.
 Future development will include addition of optional workflows for extended data analyses to be applied to datasets after running the core workflow.
@@ -50,29 +78,6 @@ Package dependencies for the analysis workflows in this repository are managed u
 If you are using conda, dependencies can be installed as [part of the initial setup](#snakemakeconda-installation).
 
 # The core downstream analyses workflow
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
-  - [1) Clone the repository](#1-clone-the-repository)
-  - [2) Install Snakemake](#2-install-snakemake)
-  - [3) Additional dependencies](#3-additional-dependencies)
-    - [Snakemake/conda installation](#snakemakeconda-installation)
-    - [Independent installation](#independent-installation)
-      - [Apple Silicon installations](#apple-silicon-installations)
-- [Input data format](#input-data-format)
-- [Metadata file format](#metadata-file-format)
-- [Running the workflow](#running-the-workflow)
-  - [Project-specific parameters](#project-specific-parameters)
-  - [Processing parameters](#processing-parameters)
-    - [Filtering parameters](#filtering-parameters)
-    - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
-- [Expected output](#expected-output)
-- [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## How to install the core downstream analyses workflow
 
@@ -314,7 +319,18 @@ For example, if using the default values of Louvain clustering with a nearest ne
 
 The `_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
-## The optional genes of interest analysis pipeline (In development)
+## Additional analysis modules
+
+### Clustering analysis
+
+There is an optional clustering analysis workflow stored in the `optional-clustering-analysis` subdirectory of this repository.
+This workflow can help users identify the optimal clustering method and parameters for each library in their dataset. 
+Libraries are unique, which means that the optimal clustering is likely to be library-dependent.
+The clustering analysis workflow provided can be used to explore different methods of clustering and test a range of parameter values for the given clustering methods in order to identify the optimal clustering for each library.
+
+For more on what's in the clustering analysis workflow and how to run the workflow, see the [`README.md`](optional-clustering-analysis/README.md#optional-clustering-analysis) file in the clustering analysis subdirectory.
+
+### The optional genes of interest analysis pipeline (In development)
 
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.
 

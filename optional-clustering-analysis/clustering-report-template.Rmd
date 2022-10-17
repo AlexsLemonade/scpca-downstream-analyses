@@ -25,6 +25,14 @@ editor_options:
 ---
 
 This notebook will plot the output of the `optional-clustering-analysis/clustering-calculations.R` script, which allows for additional types of clustering across a range of parameters to be calculated on gene expression data associated with a single sample of the dataset of interest.
+Here clustering was performed using the following clustering types:
+
+```{r results='asis'}
+# Split up string of cluster types
+cluster_types <- unlist(stringr::str_split(params$cluster_type, ","))
+
+cat(paste("-", cluster_types), sep = "\n")
+```
 
 ## Set Up
 
@@ -63,9 +71,6 @@ library(miQC)
 library(ggpubr)
 library(scater)
 library(dplyr)
-
-# Split up string of cluster types
-cluster_types <- unlist(stringr::str_split(params$cluster_type, ","))
 
 # Set theme for plotting
 library(ggplot2)
@@ -149,11 +154,6 @@ summary_stability_stats_df <- summary_stability_stats_df %>%
 ## UMAP plot results for `r params$library`
 
 Below is a set of UMAP plots, where each panel corresponds to clustering performed with a given clustering parameter and each cell is colored based on the cell's cluster assignment.
-Here clustering was performed using the following clustering types:
-
-```{r results='asis'}
-cat(paste("-", cluster_types), sep = "\n")
-```
 
 ```{r}
 # Set number of columns for plotting and use this to define figure heights 

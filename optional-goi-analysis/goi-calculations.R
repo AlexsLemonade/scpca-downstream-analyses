@@ -119,19 +119,6 @@ option_list <- list(
 # Read the arguments passed
 opt <- parse_args(OptionParser(option_list = option_list))
 
-opt$sce <- "example-results/sample01/library01_miQC_processed_sce.rds"
-opt$library_id <- "library01"
-opt$seed <- 2021 
-opt$input_goi_list <- "data/anderson-single-cell/goi-lists/nb_goi_list.tsv"
-opt$input_identifiers <- "SYMBOL"
-opt$output_identifiers <- "ENSEMBL"
-opt$identifier_column_name <- "gene_symbol"
-opt$gene_set_column_name <- "gene_set"
-opt$organism <- "Homo sapiens"
-opt$multi_mappings <- "list" 
-opt$output_directory <- "example-results/sample01/goi-stats"
-opt$perform_mapping <- TRUE
-
 # if project root is not provided use here::here()
 if(is.null(opt$project_root)){
   project_root <- here::here()

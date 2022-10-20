@@ -9,7 +9,7 @@
 #   --sce "example-results/sample01/library01_miQC_processed_sce.rds" \
 #   --library_id "library01" \
 #   --seed 2021 \
-#   --input_goi_list "data/anderson-single-cell/goi-lists/nb_goi_list.tsv" \
+#   --input_goi_list "example-data/goi-lists/sample01_goi_list.tsv" \
 #   --perform_mapping TRUE \
 #   --input_identifiers "SYMBOL" \
 #   --output_identifiers "ENSEMBL" \
@@ -56,7 +56,8 @@ option_list <- list(
   optparse::make_option(
     c( "--perform_mapping"),
     action = "store_false",
-    help = "specifies whether or not to perform gene identifier mapping"
+    help = "specifies whether or not to perform gene identifier mapping; the 
+    default is FALSE as mapping is not required when ENSEMBL ids are provided"
   ),
   optparse::make_option(
     c("--input_identifiers"),
@@ -159,6 +160,7 @@ suppressPackageStartupMessages({
   library(AnnotationDbi)
   library(org.Hs.eg.db)
   library(ComplexHeatmap)
+  library(SingleCellExperiment)
 })
 
 #### Read in data --------------------------------------------------------------
@@ -212,7 +214,7 @@ if (opt$perform_mapping == TRUE) {
     # grab only the unique rows
     dplyr::distinct() %>%
     # join the remaining columns
-    dplyr::left_join(goi_list, by = opt$identifier_column_name)
+    dplyr::left_join(goi_list, by = tolower(opt$identifier_column_name))
   
   # Save mapped object to file
   write_tsv(goi_list, file.path(
@@ -228,9 +230,16 @@ identifier_column_name_sym <- rlang::sym(opt$identifier_column_name)
 # get logcounts from normalized sce object
 normalized_sce_logcounts_matrix <- as.matrix(t(logcounts(sce)))
 
+# we need to filter using the column with Ensembl ids
+if(!is.null(opt$output_identifiers) && (opt$output_identifiers == "ENSEMBL")) {
+  ensembl_id_column <- tolower(opt$output_identifiers)
+} else {
+  ensembl_id_column <- opt$identifier_column_name
+}
+
 # filter counts matrix to only data associated with the provided genes of
 # interest
-normalized_sce_logcounts_matrix <- normalized_sce_logcounts_matrix[,colnames(normalized_sce_logcounts_matrix) %in% goi_list[[tolower(opt$output_identifiers)]]]
+normalized_sce_logcounts_matrix <- normalized_sce_logcounts_matrix[,colnames(normalized_sce_logcounts_matrix) %in% goi_list[[ensembl_id_column]]]
 
 # transform counts into z-scores
 normalized_sce_zscores_matrix <- scale(normalized_sce_logcounts_matrix,
@@ -242,7 +251,7 @@ if(!is.null(opt$gene_set_column_name)) {
     normalized_sce_zscores_matrix <- colnames_to_gene_symbols(
       normalized_sce_zscores_matrix,
       goi_list,
-      tolower(opt$output_identifiers),
+      ensembl_id_column,
       opt$identifier_column_name
     )
     gene_id_column <- tolower(opt$output_identifiers)
@@ -269,7 +278,7 @@ if(!is.null(opt$gene_set_column_name)) {
       colnames_to_gene_symbols(
         normalized_sce_zscores_matrix,
         goi_list,
-        tolower(opt$output_identifiers),
+        ensembl_id_column,
         opt$identifier_column_name
       )
     column_annotation <- NULL

@@ -332,6 +332,8 @@ For more on what's in the clustering analysis workflow and how to run the workfl
 
 ### The optional genes of interest analysis pipeline (In development)
 
+Note that this module is still **in development**, updates will be coming soon.
+
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.
 
 To run this analysis, you can run the following command from the main directory:

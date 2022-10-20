@@ -545,7 +545,7 @@ plot_cluster_stability_ari <- function(ari_plotting_df, point_size = 0.7) {
     ggforce::geom_sina(size = point_size) +
     stat_summary(
       aes(group = param_value),
-      color = "red",
+      color = "black",
       # median and quartiles for point range
       fun = "median",
       fun.min = function(x) {
@@ -564,45 +564,4 @@ plot_cluster_stability_ari <- function(ari_plotting_df, point_size = 0.7) {
     facet_wrap( ~ cluster_type)
   
   return(plot)
-}
-
-plot_summary_cluster_stability_ari <- function(ari_df_list) {
-  # Purpose: Calculate a summary data frame of the provided cluster
-  # stability ARI values and return a plot displaying these summary values
-  
-  # Args:
-  #   ari_df_list: list of data frames with cluster stability ARI values 
-  #                associated with their relevant clustering type and param values
-  
-  # prepare a data frame for plotting
-  ari_combined_df <- dplyr::bind_rows(ari_df_list)
-  
-  # create a summary data.frame of the results across the individual clusters
-  ari_summary_df <- ari_combined_df %>%
-    dplyr::group_by(cluster_names_column, cluster_type, param_value) %>%
-    # here we calculate and store the median of the ARI values along with the
-    # median absolute deviation (MAD) values
-    dplyr::summarize(median_ARI = median(ARI),
-                     mad_ARI = mad(ARI),
-                     .groups = 'drop')
-
-  
-  # plot the summary ARI values
-  ari_summary_plot <- ggplot(
-    ari_summary_df,
-    aes(
-      x = param_value,
-      y = median_ARI,
-      color = cluster_type)) +
-    geom_pointrange(aes(x = param_value, y = median_ARI, 
-                        ymin = median_ARI - mad_ARI,
-                        ymax = median_ARI + mad_ARI),
-                    color = "black",
-                    position = position_dodge2(width = 0.6)) +
-    geom_line() +
-    labs(x = "Parameter value",
-         y = "Median ARI",
-         color = "Cluster type")
-  
-  return(ari_summary_plot)
 }

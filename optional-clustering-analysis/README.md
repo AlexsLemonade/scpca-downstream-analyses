@@ -31,9 +31,9 @@ For a more in depth discussion on these metrics and how they can be used to iden
 
 There are two main steps of this clustering analysis workflow:
 
-1. **Cluster Calculations**: clustering results are calculated for the provided type(s) of graph-based clustering, and range of nearest neighbor values.
+1. **Cluster Calculations**: Clustering results are calculated for the provided type(s) of graph-based clustering, and range of nearest neighbor values.
 Cluster validity and stability results are also calculated.
-2. **Cluster Plots**: once clustering results are calculated and stored in the `SingleCellExperiment` object, the results from each of the clustering methods tested are displayed in a UMAP plot.
+2. **Cluster Plots**: Once clustering results are calculated and stored in the `SingleCellExperiment` object, the results from each of the clustering methods tested are displayed in a UMAP plot.
 Additionally, metrics associated with each of the clustering results such as silhouette width, cluster purity, and cluster stability (as described above) are calculated and plotted.
 The plots are displayed in a html report for ease of reference.
 
@@ -47,7 +47,7 @@ If you are using conda, dependencies can be installed as [part of the initial se
 To run this workflow, you will need to provide:
 
 1. The RDS file containing the [output `SingleCellExperiment` object](../README.md#expected-output) from the core dowstream analyses workflow.
-2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow can be used here (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
+2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow should be used here (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv)).
 3. The desired type of graph-based clustering (can be "louvain" and/or "walktrap"), along with the minimum, maximum, and incremental values that will be used to define the range of nearest neighbor values to be tested.
 For example, if you would like a range of `5:25` to be tested in increments of 5 (as in, `5, 10, 15, 20, 25`), you will provide `nearest_neighbors_min` = 5, `nearest_neighbors_max` = 25, and `nearest_neighbors_increment` = 5.
 
@@ -115,5 +115,5 @@ The parameters found in the `config/cluster_config.yaml` file can be optionally 
 | `nearest_neighbors_increment` | the increment to use when implementing the range number of nearest neighbors for cluster stats (e.g. a value of 5 with min of 5 and max of 25 will test the nearest neighbors values of 5, 10, 15, 20, and 25) | 5 |
 | `overwrite_results` | a binary value indicating whether or not to overwrite any existing clustering results | `TRUE` |
 
-|[View Clustering Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/development/config/cluster_config.yaml)|
+|[View Clustering Config File](../config/cluster_config.yaml)|
 |---|

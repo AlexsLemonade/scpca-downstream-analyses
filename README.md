@@ -4,25 +4,26 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Core analysis overview](#core-analysis-overview)
-- [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
-  - [1) Clone the repository](#1-clone-the-repository)
-  - [2) Install Snakemake](#2-install-snakemake)
-  - [3) Additional dependencies](#3-additional-dependencies)
-    - [Snakemake/conda installation](#snakemakeconda-installation)
-    - [Independent installation](#independent-installation)
-      - [Apple Silicon installations](#apple-silicon-installations)
-- [Input data format](#input-data-format)
-- [Metadata file format](#metadata-file-format)
-- [Running the workflow](#running-the-workflow)
-  - [Project-specific parameters](#project-specific-parameters)
-  - [Processing parameters](#processing-parameters)
-    - [Filtering parameters](#filtering-parameters)
-    - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
-- [Expected output](#expected-output)
-- [Additional analysis modules](#additional-analysis-modules)
-  - [Clustering](#clustering)
-  - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
+  - [Core-analysis-overview](#core-analysis-overview)
+- [The core downstream analyses workflow](#the-core-downstream-analyses-workflow)
+  - [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
+    - [1) Clone the repository](#1-clone-the-repository)
+    - [2) Install Snakemake](#2-install-snakemake)
+    - [3) Additional dependencies](#3-additional-dependencies)
+      - [Snakemake/conda installation](#snakemakeconda-installation)
+      - [Independent installation](#independent-installation)
+        - [Apple Silicon installations](#apple-silicon-installations)
+  - [Input data format](#input-data-format)
+  - [Metadata file format](#metadata-file-format)
+  - [Running the workflow](#running-the-workflow)
+    - [Project-specific parameters](#project-specific-parameters)
+    - [Processing parameters](#processing-parameters)
+      - [Filtering parameters](#filtering-parameters)
+      - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
+  - [Expected output](#expected-output)
+  - [Additional analysis modules](#additional-analysis-modules)
+    - [Clustering analysis](#clustering-analysis)
+    - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -50,7 +51,7 @@ To run the core downstream analyses workflow on your own sample data, you will n
 2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
 3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
 4. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
-5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this is the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml).
+5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this is the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
 
 Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
 
@@ -202,7 +203,7 @@ Each library ID should have a unique `filepath`.
 
 ## Running the workflow
 
-We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
+We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
 
 ### Project-specific parameters
 
@@ -216,7 +217,7 @@ These include the following parameters:
 | `project_metadata` | relative path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
 
-|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml)|
+|[View Config File](config/config.yaml)|
 |---|
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).

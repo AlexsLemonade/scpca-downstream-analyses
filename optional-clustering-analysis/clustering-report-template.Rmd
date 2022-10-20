@@ -1,9 +1,9 @@
 ---
 params:
   library: "library01"
-  processed_sce: "example-results/sample01/library01_processed_sce_clustering.rds"
-  stats_dir: "example-results/sample01/clustering_stats"
-  cluster_type: "louvain"
+  processed_sce: "example-results/sample01/library01_miQC_clustered_sce.rds"
+  stats_dir: "example-results/sample01/library01_miQC_clustering_stats"
+  cluster_type: "louvain,walktrap"
   nearest_neighbors_min: 5
   nearest_neighbors_max: 25
   nearest_neighbors_increment: 5
@@ -25,6 +25,14 @@ editor_options:
 ---
 
 This notebook will plot the output of the `optional-clustering-analysis/clustering-calculations.R` script, which allows for additional types of clustering across a range of parameters to be calculated on gene expression data associated with a single sample of the dataset of interest.
+Here clustering was performed using the following clustering types:
+
+```{r results='asis'}
+# Split up string of cluster types
+cluster_types <- unlist(stringr::str_split(params$cluster_type, ","))
+
+cat(paste("-", cluster_types), sep = "\n")
+```
 
 ## Set Up
 
@@ -66,8 +74,8 @@ library(dplyr)
 
 # Set theme for plotting
 library(ggplot2)
-theme_set(theme_bw() + theme(text = element_text(size = 17),
-                             legend.text = element_text(size = 16)))
+theme_set(theme_bw() + theme(text = element_text(size = 17*length(cluster_types)),
+                             legend.text = element_text(size = 16*length(cluster_types))))
 point_size <- params$point_size
 ```
 
@@ -82,9 +90,14 @@ nn_range <- define_nn_range(params$nearest_neighbors_min,
                             params$nearest_neighbors_max,
                             params$nearest_neighbors_increment)
 
+cluster_column_names <- c()
+
 # Grab column name with clustering results
-cluster_column_names <- paste(params$cluster_type, nn_range, sep = "_")
-existing_columns <- intersect(cluster_column_names, colnames(colData(processed_sce)))
+for (cluster_type in cluster_types) {
+  cluster_column_names <- c(cluster_column_names, sprintf("%s_%02d", cluster_type, nn_range))
+}
+
+existing_columns <-intersect(cluster_column_names, colnames(colData(processed_sce)))
 
 # Check length of `existing_columns`
 if(length(existing_columns) == 0){
@@ -141,13 +154,17 @@ summary_stability_stats_df <- summary_stability_stats_df %>%
 ## UMAP plot results for `r params$library`
 
 Below is a set of UMAP plots, where each panel corresponds to clustering performed with a given clustering parameter and each cell is colored based on the cell's cluster assignment.
-Here clustering was performed using `r params$cluster_type` clustering.
 
 ```{r}
 # Set number of columns for plotting and use this to define figure heights 
 # and widths
-num_col <- 2
-figure_dim <- max(ceiling(length(existing_columns)/num_col) * 5, 4)
+if (length(cluster_types) == 1) {
+  num_col <- 2
+} else {
+  num_col <- length(cluster_types)
+}
+
+figure_dim <- max(ceiling(length(existing_columns)/num_col) * length(existing_columns)/num_col + 2, (length(existing_columns)/num_col) + 1)
 
 knitr::opts_chunk$set(
   fig.height = figure_dim,
@@ -162,12 +179,19 @@ plot_list <- existing_columns %>%
     ~ plotReducedDim(processed_sce, dimred = "UMAP",colour_by = .x,
                      point_size = 0.4, point_alpha = 0.5) +
       theme_bw() +
-      theme(text = element_text(size = 14),
-            legend.text = element_text(size = 14)) +
-      guides(color = guide_legend(override.aes = list(size = 1)))
+      theme(text = element_text(size = length(existing_columns)*length(cluster_types) - 1),
+            legend.text = element_text(size = length(existing_columns)*length(cluster_types) - 1)) +
+      guides(color = guide_legend(override.aes = list(size = length(cluster_types))))
   )
 
-cowplot::plot_grid(plotlist = plot_list, ncol = num_col)
+cowplot::plot_grid(
+  plotlist = plot_list,
+  ncol = num_col,
+  byrow = FALSE,
+  labels = cluster_types,
+  label_size = 15*length(cluster_types),
+  vjust = 0
+) + theme(plot.margin = unit(c(1, 1, 10, 1), "cm"))
 ```
 
 ## Evaluating clustering
@@ -185,7 +209,7 @@ The cluster purity range is `0` to `1`. Therefore purity values that are consist
 ```{r}
 # Plot individual cluster purity stats
 purity_plots <- plot_cluster_purity(all_validity_stats_df, num_col, point_size) + 
-  guides(color = guide_legend(override.aes = list(size = 1)))
+  guides(color = guide_legend(override.aes = list(size = 5)))
 
 purity_plots
 ```

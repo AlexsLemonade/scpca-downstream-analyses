@@ -178,7 +178,7 @@ nn_range <- define_nn_range(opt$nearest_neighbors_min,
 
 perform_clustering <- function(sce, nn_range, cluster_type, ...) {
   # Check for existing clustering results
-  cluster_column_names <- paste(cluster_type, nn_range, sep = "_")
+  cluster_column_names <- sprintf("%s_%02d", cluster_type, nn_range)
   existing_columns <-
     intersect(cluster_column_names, colnames(colData(sce)))
   

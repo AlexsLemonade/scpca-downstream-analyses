@@ -78,7 +78,7 @@ rule generate_cluster_report:
                            params = list(library = '{wildcards.library_id}', \
                                          processed_sce = '{input.processed_sce}', \
                                          stats_dir = '{input.stats_dir}', \
-                                         cluster_type = '{config[core_cluster_type]}', \
+                                         cluster_type = '{config[optional_cluster_types]}', \
                                          nearest_neighbors_min = {config[nearest_neighbors_min]}, \
                                          nearest_neighbors_max = {config[nearest_neighbors_max]}, \
                                          nearest_neighbors_increment = {config[nearest_neighbors_increment]}), \

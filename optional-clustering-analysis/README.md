@@ -37,7 +37,7 @@ Cluster validity and stability results are also calculated.
 Additionally, metrics associated with each of the clustering results such as silhouette width, cluster purity, and cluster stability (as described above) are calculated and plotted.
 The plots are displayed in a html report for ease of reference.
 
-**Note** that the same [software requirements for the core workflow](https://github.com/AlexsLemonade/scpca-downstream-analyses/tree/development#3-additional-dependencies) are also required for this clustering workflow.
+**Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.
 R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which must be installed locally prior to running the workflow.
 If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
@@ -47,7 +47,7 @@ If you are using conda, dependencies can be installed as [part of the initial se
 To run this workflow, you will need to provide:
 
 1. The RDS file containing the [output `SingleCellExperiment` object](../README.md#expected-output) from the core dowstream analyses workflow.
-2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow should be used here (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv)).
+2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow should be used here (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](../project-metadata/example-library-metadata.tsv)).
 3. The desired type of graph-based clustering (can be "louvain" and/or "walktrap"), along with the minimum, maximum, and incremental values that will be used to define the range of nearest neighbor values to be tested.
 For example, if you would like a range of `5:25` to be tested in increments of 5 (as in, `5, 10, 15, 20, 25`), you will provide `nearest_neighbors_min` = 5, `nearest_neighbors_max` = 25, and `nearest_neighbors_increment` = 5.
 
@@ -78,7 +78,7 @@ These include the following parameters:
 | `results_dir` | relative path to the directory where output files will be stored (use the same `results_dir` used in the prerequisite core workflow) |
 | `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
 
-|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/development/config/config.yaml)|
+|[View Config File](../config/config.yaml)|
 |---|
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).

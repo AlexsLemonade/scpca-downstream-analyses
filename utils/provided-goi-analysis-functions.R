@@ -120,6 +120,7 @@ prepare_expression_df <- function(normalized_sce,
   # with each marker gene symbol
   expression_means_df <- logcounts(normalized_sce[rownames(normalized_sce) %in% goi_list[[ensembl_id_column_sym]],]) %>%
     t() %>%
+    as.matrix() %>%
     as.data.frame() %>%
     tibble::rownames_to_column("cell_barcode") %>%
     # add column containing average gene expression of each cell for all genes

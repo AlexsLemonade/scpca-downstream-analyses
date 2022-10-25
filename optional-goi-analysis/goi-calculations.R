@@ -232,14 +232,21 @@ normalized_sce_logcounts_matrix <- as.matrix(t(logcounts(sce)))
 
 # we need to filter using the column with Ensembl ids
 if(!is.null(opt$output_identifiers) && (opt$output_identifiers == "ENSEMBL")) {
-  ensembl_id_column <- tolower(opt$output_identifiers)
+  id_column <- tolower(opt$output_identifiers)
 } else {
-  ensembl_id_column <- opt$identifier_column_name
+  id_column <- opt$identifier_column_name
 }
 
-# filter counts matrix to only data associated with the provided genes of
-# interest
-normalized_sce_logcounts_matrix <- normalized_sce_logcounts_matrix[,colnames(normalized_sce_logcounts_matrix) %in% goi_list[[ensembl_id_column]]]
+if(any(colnames(normalized_sce_logcounts_matrix) %in% goi_list[[id_column]])) {
+  # filter counts matrix to only data associated with the provided genes of
+  # interest
+  normalized_sce_logcounts_matrix <-
+    normalized_sce_logcounts_matrix[, colnames(normalized_sce_logcounts_matrix) %in% goi_list[[id_column]]]
+} else {
+  stop(
+    "Provided gene identifiers cannot be found in the column names of the logcounts matrix. You may need to re-run script with `--perform_mapping` to map to Ensembl gene identifiers."
+  )
+}
 
 # transform counts into z-scores
 normalized_sce_zscores_matrix <- scale(normalized_sce_logcounts_matrix,
@@ -251,7 +258,7 @@ if(!is.null(opt$gene_set_column_name)) {
     normalized_sce_zscores_matrix <- colnames_to_gene_symbols(
       normalized_sce_zscores_matrix,
       goi_list,
-      ensembl_id_column,
+      id_column,
       opt$identifier_column_name
     )
     gene_id_column <- tolower(opt$output_identifiers)
@@ -259,7 +266,7 @@ if(!is.null(opt$gene_set_column_name)) {
       prepare_heatmap_annotation(
         normalized_sce_zscores_matrix,
         goi_list,
-        gene_id_column,
+        id_column,
         opt$gene_set_column_name
       )
   } else {
@@ -268,7 +275,7 @@ if(!is.null(opt$gene_set_column_name)) {
       prepare_heatmap_annotation(
         normalized_sce_zscores_matrix,
         goi_list,
-        gene_id_column,
+        id_column,
         opt$gene_set_column_name
       )
   }
@@ -278,7 +285,7 @@ if(!is.null(opt$gene_set_column_name)) {
       colnames_to_gene_symbols(
         normalized_sce_zscores_matrix,
         goi_list,
-        ensembl_id_column,
+        id_column,
         opt$identifier_column_name
       )
     column_annotation <- NULL

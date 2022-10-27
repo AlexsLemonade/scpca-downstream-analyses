@@ -71,9 +71,6 @@ goi_list <-
   ))
 
 goi_list <- as.data.frame(goi_list)
-
-num_cells <- dim(normalized_sce)[2]
-glue::glue("This sample has {num_cells} cells.")
 ```
 
 ```{r}
@@ -87,6 +84,13 @@ column_annotation <- read_rds(file.path(
   params$goi_input_directory,
   paste0(params$library, "_heatmap_annotation.rds")
 ))
+```
+
+```{r}
+existing_goi <- goi_list %>%
+  dplyr::filter(ensembl %in% rownames(logcounts(normalized_sce)))
+
+glue::glue("This sample has the following genes of interest: {existing_goi}")
 ```
 
 ### Heatmap plotting

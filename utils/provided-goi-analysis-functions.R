@@ -190,7 +190,23 @@ plot_goi_expression_sina <- function(normalized_sce,
       y = gene_expression,
       color = gene_expression)) +
       ggforce::geom_sina() +
-      theme(axis.text.x = element_text(angle = 90))
+      theme(axis.text.x = element_text(angle = 90)) +
+      stat_summary(
+        aes(group = !!gene_symbol_column_sym),
+        color = "red",
+        # median and quartiles for point range
+        fun = "mean",
+        fun.min = function(x) {
+          quantile(x, 0.25)
+        },
+        fun.max = function(x) {
+          quantile(x, 0.75)
+        },
+        geom = "pointrange",
+        position = position_dodge(width = 0.9),
+        size = 0.4,
+        shape = 21
+      )
     
   } else {
     
@@ -199,7 +215,23 @@ plot_goi_expression_sina <- function(normalized_sce,
       y = gene_expression,
       color = gene_expression)) +
       ggforce::geom_sina() +
-      theme(axis.text.x = element_text(angle = 90))
+      theme(axis.text.x = element_text(angle = 90)) +
+      stat_summary(
+        aes(group = !!ensembl_id_column_sym),
+        color = "red",
+        # median and quartiles for point range
+        fun = "mean",
+        fun.min = function(x) {
+          quantile(x, 0.25)
+        },
+        fun.max = function(x) {
+          quantile(x, 0.75)
+        },
+        geom = "pointrange",
+        position = position_dodge(width = 0.9),
+        size = 0.4,
+        shape = 21
+      )
   }
   
   return(sina_expression_plot)

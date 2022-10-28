@@ -4,9 +4,9 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - pandoc
+  - cmake
+  - geos
+  - pandoc=2.18
   - pkg-config
   - openssl
-  - r-base=4.1.2
-  - r-jsonlite
-  - r-purrr
+  - r-base=4.2.1

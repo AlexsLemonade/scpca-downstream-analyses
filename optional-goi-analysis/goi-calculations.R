@@ -11,9 +11,8 @@
 #   --seed 2021 \
 #   --input_goi_list "example-data/goi-lists/sample01_goi_list.tsv" \
 #   --perform_mapping TRUE \
-#   --input_identifiers "SYMBOL" \
-#   --output_identifiers "ENSEMBL" \
-#   --identifier_column_name "gene_symbol" \
+#   --sce_rownames_identifier "ENSEMBL" \
+#   --provided_identifier <- "SYMBOL" \
 #   --organism "Homo sapiens" \
 #   --multi_mappings "list" \
 #   --output_directory "example-results/sample01"
@@ -38,20 +37,20 @@ option_list <- list(
     c("-l", "--library_id"),
     type = "character",
     default = NULL,
-    help = "name of library being analyzed",
+    help = "Unique ID corresponding to library being analyzed",
   ),
   optparse::make_option(
     c("-s", "--seed"),
     type = "integer",
     default = 2021,
-    help = "seed integer",
+    help = "Random seed to set",
     metavar = "integer"
   ),
   optparse::make_option(
     c("-g", "--input_goi_list"),
     type = "character",
     default = NULL,
-    help = "file path to the unmapped input genes of interest list"
+    help = "file path to the input genes of interest list"
   ),
   optparse::make_option(
     c( "--perform_mapping"),
@@ -60,25 +59,16 @@ option_list <- list(
     default is FALSE as mapping is not required when ENSEMBL ids are provided"
   ),
   optparse::make_option(
-    c("--input_identifiers"),
+    c("--sce_rownames_identifier"),
     type = "character",
-    default = NULL,
-    help = "type of gene identifiers provided in the list -- 'SYMBOL' or
-           'ENSEMBL' for example, see `keytypes()` in the organism's annotation
-            package for more options"
+    default ="ENSEMBL",
+    help = "gene identifier type associated with rownames of provided SCE object"
   ),
   optparse::make_option(
-    c("--output_identifiers"),
+    c("--provided_identifier"),
     type = "character",
     default = NULL,
-    help = "type of gene identifiers to be mapped to and returned"
-  ),
-  optparse::make_option(
-    c("-c", "--identifier_column_name"),
-    type = "character",
-    default = NULL,
-    help = "the name of the column in the input file that contains the gene
-            identifiers to be converted from"
+    help = "type of gene identifiers that are provided in the GOI list"
   ),
   optparse::make_option(
     c("--gene_set_column_name"),
@@ -97,7 +87,7 @@ option_list <- list(
   optparse::make_option(
     c("-m", "--multi_mappings"),
     type = "character",
-    default = NULL,
+    default = "list",
     help = "how should instances of multiple gene identifier mappings be handled
             - may specify 'list' to return all the mappings or 'first' to keep
             only the first mapping"
@@ -172,9 +162,8 @@ sce <- read_rds(file.path(opt$sce))
 
 if (opt$perform_mapping == TRUE) {
   # turn column name into symbol for pulling the column info out of data frame
-  identifier_column_name <- rlang::sym(opt$identifier_column_name)
   ids_for_mapping <- goi_list %>%
-    dplyr::pull(identifier_column_name)
+    dplyr::pull(gene_id)
   
   # Define the annotation packages based on the specified organism
   annotation_list <- list(
@@ -199,49 +188,46 @@ if (opt$perform_mapping == TRUE) {
     # the provided gene identifiers
     keys = ids_for_mapping,
     # the type of provided gene identifiers
-    keytype = opt$input_identifiers,
+    keytype = opt$provided_identifier,
     # the type of gene identifiers to map to
-    column = opt$output_identifiers,
+    column = opt$sce_rownames_identifier,
     multiVals = opt$multi_mappings
   ) %>%
-    tibble::enframe(
-      name = opt$identifier_column_name,
-      value = tolower(opt$output_identifiers)
-    ) %>%
+    tibble::enframe(name = 'gene_id',
+                    value = tolower(opt$sce_rownames_identifier)) %>%
     # enframe() makes a `list` column; we will simplify it with unnest()
     # This will result in one row of our data frame per list item
-    tidyr::unnest(cols = tolower(opt$output_identifiers)) %>%
+    tidyr::unnest(cols = tolower(opt$sce_rownames_identifier)) %>%
     # grab only the unique rows
-    dplyr::distinct() %>%
-    # join the remaining columns
-    dplyr::left_join(goi_list, by = tolower(opt$identifier_column_name))
+    dplyr::distinct()
   
   # Save mapped object to file
   write_tsv(goi_list, file.path(
     opt$output_directory,
     paste0(opt$library_id, "_mapped_genes.tsv")
   ))
+  
+  # define mapped goi associated with rownames of SCE object
+  goi_rownames_column <- tolower(opt$sce_rownames_identifier)
+  goi_rownames <- goi_list %>%
+    dplyr::pull(goi_rownames_column)
+  
+} else {
+  # if no mapping is performed then set goi to input id column
+  goi_rownames <- goi_list %>%
+    dplyr::pull(gene_id)
 }
 
 #### Prepare data for plotting -------------------------------------------------
 
-identifier_column_name_sym <- rlang::sym(opt$identifier_column_name)
-
 # get logcounts from normalized sce object
 normalized_sce_logcounts_matrix <- as.matrix(t(logcounts(sce)))
 
-# we need to filter using the column with Ensembl ids
-if(!is.null(opt$output_identifiers) && (opt$output_identifiers == "ENSEMBL")) {
-  id_column <- tolower(opt$output_identifiers)
-} else {
-  id_column <- opt$identifier_column_name
-}
-
-if(any(colnames(normalized_sce_logcounts_matrix) %in% goi_list[[id_column]])) {
+if(any(colnames(normalized_sce_logcounts_matrix) %in% goi_rownames)) {
   # filter counts matrix to only data associated with the provided genes of
   # interest
   normalized_sce_logcounts_matrix <-
-    normalized_sce_logcounts_matrix[, colnames(normalized_sce_logcounts_matrix) %in% goi_list[[id_column]]]
+    normalized_sce_logcounts_matrix[, colnames(normalized_sce_logcounts_matrix) %in% goi_rownames]
 } else {
   stop(
     "Provided gene identifiers cannot be found in the column names of the logcounts matrix. You may need to re-run script with `--perform_mapping` to map to Ensembl gene identifiers."

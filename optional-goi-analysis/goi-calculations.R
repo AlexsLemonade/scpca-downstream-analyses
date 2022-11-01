@@ -71,23 +71,17 @@ option_list <- list(
     help = "type of gene identifiers that are provided in the GOI list"
   ),
   optparse::make_option(
-    c("--gene_set_column_name"),
-    type = "character",
-    default = NULL,
-    help = "the name of the column in the input file that contains the gene set
-            information"
-  ),
-  optparse::make_option(
     c("-o", "--organism"),
     type = "character",
     default = NULL,
     help = "the scientific name of the organism relevant to the genes to be
-            mapped, 'Homo sapiens' or 'Mus musculus' for examples"
+            mapped; this workflow currently supports 'Homo sapiens', 
+            'Mus musculus', and 'Danio rerio' as options here"
   ),
   optparse::make_option(
     c("-m", "--multi_mappings"),
     type = "character",
-    default = "list",
+    default = "first",
     help = "how should instances of multiple gene identifier mappings be handled
             - may specify 'list' to return all the mappings or 'first' to keep
             only the first mapping"
@@ -158,6 +152,12 @@ suppressPackageStartupMessages({
 goi_list <- data.table::fread(opt$input_goi_list, stringsAsFactors = FALSE)
 sce <- read_rds(file.path(opt$sce))
 
+# Check for normalized data in SingleCellExperiment object
+if(is.null(logcounts(sce))){
+  stop("There is no normalized data in the provided SingleCellExperiment object.
+       You may want to run the core workflow analysis before re-running this GOI analysis.")
+}
+
 #### Perform mapping -----------------------------------------------------------
 
 if (opt$perform_mapping == TRUE) {
@@ -181,6 +181,11 @@ if (opt$perform_mapping == TRUE) {
   annotation_package <-
     eval(parse(text = annotation_list[[opt$organism]]))
   
+  # Check that provided keytypes are present in the annotation package
+  if (!(opt$provided_identifier %in% keytypes(annotation_package))) {
+    stop(paste(opt$provided_identifier, "is not a supported type of gene identifiers."))
+  }
+  
   # Perform mapping
   goi_list <- mapIds(
     # organism annotation package
@@ -199,7 +204,8 @@ if (opt$perform_mapping == TRUE) {
     # This will result in one row of our data frame per list item
     tidyr::unnest(cols = tolower(opt$sce_rownames_identifier)) %>%
     # grab only the unique rows
-    dplyr::distinct()
+    dplyr::distinct() %>%
+    dplyr::left_join(goi_list, by = "gene_id")
   
   # Save mapped object to file
   write_tsv(goi_list, file.path(
@@ -239,40 +245,38 @@ normalized_sce_zscores_matrix <- scale(normalized_sce_logcounts_matrix,
                                        center = TRUE, scale = TRUE)
 
 # prepare the matrix and column annotation for heatmap plotting
-if(!is.null(opt$gene_set_column_name)) {
-  if (!is.null(opt$output_identifiers)) {
+if(!is.null(goi_list$gene_set)) {
+  if (!is.null(opt$provided_identifier)) {
     normalized_sce_zscores_matrix <- colnames_to_gene_symbols(
       normalized_sce_zscores_matrix,
       goi_list,
-      id_column,
-      opt$identifier_column_name
+      goi_rownames_column,
+      "gene_id"
     )
-    gene_id_column <- tolower(opt$output_identifiers)
     column_annotation <-
       prepare_heatmap_annotation(
         normalized_sce_zscores_matrix,
         goi_list,
-        id_column,
-        opt$gene_set_column_name
+        "gene_id",
+        "gene_set"
       )
   } else {
-    gene_id_column <- opt$identifier_column_name
     column_annotation <-
       prepare_heatmap_annotation(
         normalized_sce_zscores_matrix,
         goi_list,
-        id_column,
-        opt$gene_set_column_name
+        "gene_id",
+        "gene_set"
       )
   }
 } else {
-  if (!is.null(opt$output_identifiers)) {
+  if (!is.null(opt$provided_identifier)) {
     normalized_sce_zscores_matrix <-
       colnames_to_gene_symbols(
         normalized_sce_zscores_matrix,
         goi_list,
-        id_column,
-        opt$identifier_column_name
+        goi_rownames_column,
+        "gene_id"
       )
     column_annotation <- NULL
   } else {

@@ -158,6 +158,11 @@ if(is.null(logcounts(sce))){
        You may want to run the core workflow analysis before re-running this GOI analysis.")
 }
 
+# Check for dimensionality reduction results
+if(!(any(c("PCA", "UMAP") %in% reducedDimNames(sce)))){
+  stop("There are no PCA or UMAP results in the provided SingleCellExperiment object.
+       You may want to run the core workflow analysis before re-running this GOI analysis.")
+}
 #### Perform mapping -----------------------------------------------------------
 
 if (opt$perform_mapping == TRUE) {
@@ -251,24 +256,14 @@ if(!is.null(goi_list$gene_set)) {
       normalized_sce_zscores_matrix,
       goi_list,
       goi_rownames_column,
-      "gene_id"
-    )
-    column_annotation <-
-      prepare_heatmap_annotation(
-        normalized_sce_zscores_matrix,
-        goi_list,
-        "gene_id",
-        "gene_set"
-      )
-  } else {
-    column_annotation <-
-      prepare_heatmap_annotation(
-        normalized_sce_zscores_matrix,
-        goi_list,
-        "gene_id",
-        "gene_set"
-      )
+      "gene_id")
   }
+  column_annotation <-
+    prepare_heatmap_annotation(normalized_sce_zscores_matrix,
+                               goi_list,
+                               "gene_id",
+                               "gene_set")
+  
 } else {
   if (!is.null(opt$provided_identifier)) {
     normalized_sce_zscores_matrix <-
@@ -278,10 +273,8 @@ if(!is.null(goi_list$gene_set)) {
         goi_rownames_column,
         "gene_id"
       )
-    column_annotation <- NULL
-  } else {
-    column_annotation <- NULL
-  }
+  } 
+  column_annotation <- NULL
 }
 
 # Save matrix object to file

@@ -10,11 +10,11 @@
 #   --library_id "library01" \
 #   --seed 2021 \
 #   --input_goi_list "example-data/goi-lists/sample01_goi_list.tsv" \
-#   --perform_mapping TRUE \
+#   --perform_mapping \
 #   --sce_rownames_identifier "ENSEMBL" \
-#   --provided_identifier <- "SYMBOL" \
+#   --provided_identifier "SYMBOL" \
 #   --organism "Homo sapiens" \
-#   --multi_mappings "list" \
+#   --multi_mappings "first" \
 #   --output_directory "example-results/sample01"
 
 ## Set up -------------------------------------------------------------
@@ -50,11 +50,13 @@ option_list <- list(
     c("-g", "--input_goi_list"),
     type = "character",
     default = NULL,
-    help = "file path to the input genes of interest list"
+    help = "file path to the input genes of interest list, must contain gene 
+    identifiers to plot in a column named `gene_id`."
   ),
   optparse::make_option(
     c( "--perform_mapping"),
-    action = "store_false",
+    action = "store_true",
+    default = FALSE,
     help = "specifies whether or not to perform gene identifier mapping; the 
     default is FALSE as mapping is not required when ENSEMBL ids are provided"
   ),
@@ -90,14 +92,14 @@ option_list <- list(
     c("--output_directory"),
     type = "character",
     default = NULL,
-    help = "path to output directory that would hold the TSV files with the 
-    clustering stats"
+    help = "path to output directory"
   ),
   optparse::make_option(
     c("--project_root"),
     type = "character",
     default = NULL,
-    help = "the path to the root directory for the R project and where the `utils` folder lives."
+    help = "the path to the root directory for the R project and where the 
+    `utils` folder lives."
   )
 )
 
@@ -162,6 +164,13 @@ if(is.null(logcounts(sce))){
 if(!(any(c("PCA", "UMAP") %in% reducedDimNames(sce)))){
   stop("There are no PCA or UMAP results in the provided SingleCellExperiment object.
        You may want to run the core workflow analysis before re-running this GOI analysis.")
+}
+
+# Check that `gene_id` column is in GOI list
+if(is.null(goi_list$gene_id)){
+  stop("There is no column named `gene_id` in the provided genes of interest list.
+       Please rename the column holding your gene identifiers `gene_id` before 
+       re-running this GOI analysis.")
 }
 #### Perform mapping -----------------------------------------------------------
 
@@ -232,43 +241,45 @@ if (opt$perform_mapping == TRUE) {
 #### Prepare data for plotting -------------------------------------------------
 
 # get logcounts from normalized sce object
-normalized_sce_logcounts_matrix <- as.matrix(t(logcounts(sce)))
+normalized_logcounts_matrix <- as.matrix(t(logcounts(sce)))
 
-if(any(colnames(normalized_sce_logcounts_matrix) %in% goi_rownames)) {
+if(any(colnames(normalized_logcounts_matrix) %in% goi_rownames)) {
   # filter counts matrix to only data associated with the provided genes of
   # interest
-  normalized_sce_logcounts_matrix <-
-    normalized_sce_logcounts_matrix[, colnames(normalized_sce_logcounts_matrix) %in% goi_rownames]
+  normalized_logcounts_matrix <-
+    normalized_logcounts_matrix[, colnames(normalized_logcounts_matrix) %in% goi_rownames]
 } else {
   stop(
-    "Provided gene identifiers cannot be found in the column names of the logcounts matrix. You may need to re-run script with `--perform_mapping` to map to Ensembl gene identifiers."
+    "Provided gene identifiers cannot be found in the column names of the 
+    logcounts matrix. You may need to re-run script with `--perform_mapping` to 
+    map to Ensembl gene identifiers."
   )
 }
 
 # transform counts into z-scores
-normalized_sce_zscores_matrix <- scale(normalized_sce_logcounts_matrix,
+normalized_zscores_matrix <- scale(normalized_logcounts_matrix,
                                        center = TRUE, scale = TRUE)
 
 # prepare the matrix and column annotation for heatmap plotting
 if(!is.null(goi_list$gene_set)) {
   if (!is.null(opt$provided_identifier)) {
-    normalized_sce_zscores_matrix <- colnames_to_gene_symbols(
-      normalized_sce_zscores_matrix,
+    normalized_zscores_matrix <- colnames_to_gene_symbols(
+      normalized_zscores_matrix,
       goi_list,
       goi_rownames_column,
       "gene_id")
   }
   column_annotation <-
-    prepare_heatmap_annotation(normalized_sce_zscores_matrix,
+    prepare_heatmap_annotation(normalized_zscores_matrix,
                                goi_list,
                                "gene_id",
                                "gene_set")
   
 } else {
   if (!is.null(opt$provided_identifier)) {
-    normalized_sce_zscores_matrix <-
+    normalized_zscores_matrix <-
       colnames_to_gene_symbols(
-        normalized_sce_zscores_matrix,
+        normalized_zscores_matrix,
         goi_list,
         goi_rownames_column,
         "gene_id"
@@ -278,10 +289,10 @@ if(!is.null(goi_list$gene_set)) {
 }
 
 # Save matrix object to file
-write_rds(normalized_sce_zscores_matrix,
+write_rds(normalized_zscores_matrix,
           file.path(
             opt$output_directory,
-            paste0(opt$library_id, "_normalized_sce_zscores.rds")
+            paste0(opt$library_id, "_normalized_zscores.rds")
           ))
 
 # Save heatmap column annotation to file

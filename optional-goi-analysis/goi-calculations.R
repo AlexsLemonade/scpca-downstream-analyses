@@ -288,11 +288,12 @@ if(!is.null(goi_list$gene_set)) {
   column_annotation <- NULL
 }
 
-# Save matrix object to file
-write_rds(normalized_zscores_matrix,
+# Convert heatmap matrix to a sparse matrix and save to file
+normalized_zscores_matrix <- as(normalized_zscores_matrix, "sparseMatrix")
+Matrix::writeMM(normalized_zscores_matrix,
           file.path(
             opt$output_directory,
-            paste0(opt$library_id, "_normalized_zscores.rds")
+            paste0(opt$library_id, "_normalized_zscores.mtx")
           ))
 
 # Save heatmap column annotation to file

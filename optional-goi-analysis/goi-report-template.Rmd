@@ -4,9 +4,6 @@ params:
   normalized_sce: "example-results/sample01/library01_miQC_processed_sce.rds"
   goi_list: "example-data/goi-lists/sample01_goi_list.tsv"
   date: !r Sys.Date()
-  gene_set_column: NULL
-  ensembl_id_column: "ensembl"
-  gene_symbol_column: "gene_symbol"
   goi_input_directory: "example-results/sample01/goi-stats"
   project_root: NULL
 
@@ -76,7 +73,7 @@ goi_list <- as.data.frame(goi_list)
 ```{r}
 heatmap_matrix <- read_rds(file.path(
             params$goi_input_directory,
-            paste0(params$library, "_normalized_sce_zscores.rds")
+            paste0(params$library, "_normalized_zscores.rds")
           ))
 
 column_annotation <- read_rds(file.path(
@@ -88,9 +85,11 @@ column_annotation <- read_rds(file.path(
 
 ```{r}
 existing_goi <- goi_list %>%
-  dplyr::filter(ensembl %in% rownames(logcounts(normalized_sce)))
+  dplyr::filter(ensembl %in% rownames(logcounts(normalized_sce)) | 
+                  gene_id %in% rownames(logcounts(normalized_sce)))
 
-glue::glue("This sample has the following genes of interest: {existing_goi}")
+glue::glue("The following genes of interest can be found in the provided 
+           SingleCellExperiment object: {existing_goi}")
 ```
 
 ### Heatmap plotting
@@ -122,11 +121,18 @@ The plot below displays the normalized and transformed expression for each of th
 genes of interest in comparison to the mean expression of all genes present in the dataset. 
 
 ```{r}
-# plot expression of genes of interest
-plot_goi_expression_sina(normalized_sce,
-                         goi_list,
-                         params$ensembl_id_column,
-                         params$gene_symbol_column)
+if(!is.null(goi_list$ensembl)) {
+  # plot expression of genes of interest
+  plot_goi_expression_sina(normalized_sce,
+                           goi_list,
+                           "ensembl",
+                           "gene_id")
+} else {
+  # plot expression of genes of interest
+  plot_goi_expression_sina(normalized_sce,
+                           goi_list,
+                           "gene_id")
+}
 ```
 
 ### UMAP plots
@@ -135,10 +141,16 @@ Each plot below represents the UMAP results calculated using this sample's data.
 Each dot represents a cell and the color indicates the individual gene of interest's expression (each plot being relevant to a single gene of interest).
 
 ```{r}
-plot_goi_expression_umap(normalized_sce,
-                             goi_list,
-                             params$ensembl_id_column,
-                             params$gene_symbol_column)
+if(!is.null(goi_list$ensembl)) {
+  plot_goi_expression_umap(normalized_sce,
+                           goi_list,
+                           "ensembl",
+                           "gene_id")
+} else {
+  plot_goi_expression_umap(normalized_sce,
+                           goi_list,
+                           "gene_id")
+}
 ```
 
 ### PCA plots
@@ -147,10 +159,16 @@ Each plot below represents the PCA results calculated using this sample's data.
 Each dot represents a cell and the color indicates the individual gene of interest's expression (each plot being relevant to a single gene of interest).
 
 ```{r}
-plot_goi_expression_pca(normalized_sce,
-                            goi_list,
-                            params$ensembl_id_column,
-                            params$gene_symbol_column)
+if(!is.null(goi_list$ensembl)) {
+  plot_goi_expression_pca(normalized_sce,
+                          goi_list,
+                          "ensembl",
+                          "gene_id")
+} else {
+  plot_goi_expression_pca(normalized_sce,
+                          goi_list,
+                          "gene_id")
+}
 ```
 
 ## Session Info

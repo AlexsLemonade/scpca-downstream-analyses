@@ -1,5 +1,34 @@
 # ScPCA downstream analyses
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+  - [Core-analysis-overview](#core-analysis-overview)
+- [The core downstream analyses workflow](#the-core-downstream-analyses-workflow)
+  - [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
+    - [1) Clone the repository](#1-clone-the-repository)
+    - [2) Install Snakemake](#2-install-snakemake)
+    - [3) Additional dependencies](#3-additional-dependencies)
+      - [Snakemake/conda installation](#snakemakeconda-installation)
+      - [Independent installation](#independent-installation)
+        - [Apple Silicon installations](#apple-silicon-installations)
+  - [Input data format](#input-data-format)
+  - [Metadata file format](#metadata-file-format)
+  - [Running the workflow](#running-the-workflow)
+    - [Project-specific parameters](#project-specific-parameters)
+    - [Processing parameters](#processing-parameters)
+      - [Filtering parameters](#filtering-parameters)
+      - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
+  - [Expected output](#expected-output)
+  - [Additional analysis modules](#additional-analysis-modules)
+    - [Clustering analysis](#clustering-analysis)
+    - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Core-analysis-overview
+
 This repository stores workflows used for performing downstream analyses on quantified single-cell and single-nuclei gene expression data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/).
 More specifically, the repository currently contains a core workflow that performs initial pre-processing of gene expression data.
 Future development will include addition of optional workflows for extended data analyses to be applied to datasets after running the core workflow.
@@ -7,7 +36,7 @@ Future development will include addition of optional workflows for extended data
 The core workflow takes as input the gene expression data for each library being processed and performs the following steps:
 
 1. [Filtering](./processing-information.md#filtering-low-quality-cells): Each library is filtered to remove any low quality cells.
-Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g. minimum number of UMI counts).
+Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g., minimum number of UMI counts).
 In addition to removing low quality cells, genes found in a low percentage of cells in a library are removed.
 2. [Normalization](./processing-information.md#normalization) and [dimensionality reduction](./processing-information.md#dimensionality-reduction): Cells are normalized using the [deconvolution method from Lun, Bach, and Marioni (2016)](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP).
 Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow.
@@ -22,7 +51,7 @@ To run the core downstream analyses workflow on your own sample data, you will n
 2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
 3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
 4. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
-5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this is the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml).
+5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
 
 Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
 
@@ -50,29 +79,6 @@ Package dependencies for the analysis workflows in this repository are managed u
 If you are using conda, dependencies can be installed as [part of the initial setup](#snakemakeconda-installation).
 
 # The core downstream analyses workflow
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
-  - [1) Clone the repository](#1-clone-the-repository)
-  - [2) Install Snakemake](#2-install-snakemake)
-  - [3) Additional dependencies](#3-additional-dependencies)
-    - [Snakemake/conda installation](#snakemakeconda-installation)
-    - [Independent installation](#independent-installation)
-      - [Apple Silicon installations](#apple-silicon-installations)
-- [Input data format](#input-data-format)
-- [Metadata file format](#metadata-file-format)
-- [Running the workflow](#running-the-workflow)
-  - [Project-specific parameters](#project-specific-parameters)
-  - [Processing parameters](#processing-parameters)
-    - [Filtering parameters](#filtering-parameters)
-    - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
-- [Expected output](#expected-output)
-- [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## How to install the core downstream analyses workflow
 
@@ -129,7 +135,7 @@ To create the necessary environment, which includes an isolated version of R, pa
 bash setup_envs.sh
 ```
 
-This script will use Snakemake to install all necessary components for the workflow in an isoloated Conda enviroment.
+This script will use Snakemake to install all necessary components for the workflow in an isolated environment.
 If you are on an Apple Silicon (M1/M2/Arm) Mac, this should properly handle setting up R to use an Intel-based build for compatibiity with Bioconductor packages.
 
 This installation may take up to an hour, as all of the R packages will likely have to be compiled from scratch.
@@ -172,8 +178,8 @@ If you need to take these steps, you may need to restart R/terminal to proceed w
 ## Input data format
 
 The expected input for our core single-cell downstream analysis pipeline is a [`SingleCellExperiment` object](https://rdrr.io/bioc/SingleCellExperiment/man/SingleCellExperiment.html) that has been stored as a RDS file.
-This`SingleCellExperiment` object should contain non-normalized gene expression data with barcodes as the column names and gene identifiers as the row names.
-All barcodes included in the `SingleCellExperiment` object should correspond to droplets likely to contain cells and should not contain empty droplets (e.g. droplets with FDR < 0.01 calculated with [`DropletUtils::emptyDropsCellRanger()`](https://rdrr.io/github/MarioniLab/DropletUtils/man/emptyDropsCellRanger.html).
+This `SingleCellExperiment` object should contain non-normalized gene expression data with barcodes as the column names and gene identifiers as the row names.
+All barcodes included in the `SingleCellExperiment` object should correspond to droplets likely to contain cells and should not contain empty droplets (e.g., droplets with FDR < 0.01 calculated with [`DropletUtils::emptyDropsCellRanger()`](https://rdrr.io/github/MarioniLab/DropletUtils/man/emptyDropsCellRanger.html)).
 The full path to each individual RDS file should be defined in the project metadata described in the following "How to run the pipeline" section.
 
 The pipeline in this repository is setup to process data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) and output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where single-cell/single-nuclei gene expression data is mapped and quantified using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/).
@@ -197,11 +203,11 @@ Each library ID should have a unique `filepath`.
 
 ## Running the workflow
 
-We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config.yaml`](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml) which sets the defaults for all parameters needed to run the workflow.
+We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
 
 ### Project-specific parameters
 
-There are a set of parameters included in the `config.yaml` file that will need to be specified when running the workflow.
+There are a set of parameters included in the `config/config.yaml` file that will need to be specified when running the workflow.
 These parameters are specific to the project or dataset being processed.
 These include the following parameters:
 
@@ -211,7 +217,7 @@ These include the following parameters:
 | `project_metadata` | relative path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
 
-|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config.yaml)|
+|[View Config File](config/config.yaml)|
 |---|
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
@@ -229,8 +235,8 @@ snakemake --cores 2 \
 
 **Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
-You can also modify the relevant parameters by manually updating the `config.yaml` file using a text editor of your choice.
-The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/9e82725fe12bcfb6179158aa03e8674f59a9a259/config.yaml#L11).
+You can also modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
+The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](./config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](./config/config.yaml#L11).
 
 We have also included example data in the `example-data` directory for testing purposes.
 The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md).
@@ -314,7 +320,20 @@ For example, if using the default values of Louvain clustering with a nearest ne
 
 The `_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
-## The optional genes of interest analysis pipeline (In development)
+## Additional analysis modules
+
+### Clustering analysis
+
+There is an optional clustering analysis workflow stored in the `optional-clustering-analysis` subdirectory of this repository.
+This workflow can help users identify the optimal clustering method and parameters for each library in their dataset. 
+Libraries are unique, which means that the optimal clustering is likely to be library-dependent.
+The clustering analysis workflow provided can be used to explore different methods of clustering and test a range of parameter values for the given clustering methods in order to identify the optimal clustering for each library.
+
+For more on what's in the clustering analysis workflow and how to run the workflow, see the [`README.md`](optional-clustering-analysis/README.md#optional-clustering-analysis) file in the clustering analysis subdirectory.
+
+### The optional genes of interest analysis pipeline (In development)
+
+Note that this module is still **in development**, updates will be coming soon.
 
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.
 

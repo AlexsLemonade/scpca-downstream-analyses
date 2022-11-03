@@ -71,10 +71,12 @@ goi_list <- as.data.frame(goi_list)
 ```
 
 ```{r}
-heatmap_matrix <- read_rds(file.path(
+heatmap_matrix <- Matrix::readMM(file.path(
             params$goi_input_directory,
-            paste0(params$library, "_normalized_zscores.rds")
+            paste0(params$library, "_normalized_zscores.mtx")
           ))
+# Convert to standard matrix for heatmap plotting
+heatmap_matrix <- as.matrix(heatmap_matrix)
 
 column_annotation <- read_rds(file.path(
   project_root,
@@ -86,7 +88,8 @@ column_annotation <- read_rds(file.path(
 ```{r}
 existing_goi <- goi_list %>%
   dplyr::filter(ensembl %in% rownames(logcounts(normalized_sce)) | 
-                  gene_id %in% rownames(logcounts(normalized_sce)))
+                  gene_id %in% rownames(logcounts(normalized_sce))) %>%
+  dplyr::select(gene_id)
 
 glue::glue("The following genes of interest can be found in the provided 
            SingleCellExperiment object: {existing_goi}")

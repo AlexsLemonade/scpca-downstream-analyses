@@ -6,7 +6,7 @@ channels:
 dependencies:
   - cmake
   - geos
-  - pandoc=2.18
+  - pandoc=2.19.2
   - pkg-config
   - openssl
   - r-base=4.2.1

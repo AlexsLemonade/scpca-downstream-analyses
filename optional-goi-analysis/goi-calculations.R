@@ -221,12 +221,6 @@ if (opt$perform_mapping == TRUE) {
     dplyr::distinct() %>%
     dplyr::left_join(goi_list, by = "gene_id")
   
-  # Save mapped object to file
-  write_tsv(goi_list, file.path(
-    opt$output_directory,
-    paste0(opt$library_id, "_mapped_genes.tsv")
-  ))
-  
   # define mapped goi associated with rownames of SCE object
   goi_rownames_column <- tolower(opt$sce_rownames_identifier)
   goi_rownames <- goi_list %>%
@@ -237,6 +231,12 @@ if (opt$perform_mapping == TRUE) {
   goi_rownames <- goi_list %>%
     dplyr::pull(gene_id)
 }
+
+# Save goi list to file to be used as input for template 
+write_tsv(goi_list, file.path(
+  opt$output_directory,
+  paste0(opt$library_id, "_mapped_genes.tsv")
+))
 
 #### Prepare data for plotting -------------------------------------------------
 

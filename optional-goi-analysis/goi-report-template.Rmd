@@ -124,11 +124,11 @@ The plot below displays the normalized and transformed expression for each of th
 genes of interest in comparison to the mean expression of all genes present in the dataset. 
 
 ```{r}
-if(!is.null(goi_list$ensembl)) {
+if(!any(goi_list$gene_id %in% goi_list$sce_rownames_identifier)) {
   # plot expression of genes of interest
   plot_goi_expression_sina(normalized_sce,
                            goi_list,
-                           "ensembl",
+                           "sce_rownames_identifier",
                            "gene_id")
 } else {
   # plot expression of genes of interest
@@ -144,10 +144,10 @@ Each plot below represents the UMAP results calculated using this sample's data.
 Each dot represents a cell and the color indicates the individual gene of interest's expression (each plot being relevant to a single gene of interest).
 
 ```{r}
-if(!is.null(goi_list$ensembl)) {
+if(!any(goi_list$gene_id %in% goi_list$sce_rownames_identifier)) {
   plot_goi_expression_umap(normalized_sce,
                            goi_list,
-                           "ensembl",
+                           "sce_rownames_identifier",
                            "gene_id")
 } else {
   plot_goi_expression_umap(normalized_sce,
@@ -162,10 +162,10 @@ Each plot below represents the PCA results calculated using this sample's data.
 Each dot represents a cell and the color indicates the individual gene of interest's expression (each plot being relevant to a single gene of interest).
 
 ```{r}
-if(!is.null(goi_list$ensembl)) {
+if(!any(goi_list$gene_id %in% goi_list$sce_rownames_identifier)) {
   plot_goi_expression_pca(normalized_sce,
                           goi_list,
-                          "ensembl",
+                          "sce_rownames_identifier",
                           "gene_id")
 } else {
   plot_goi_expression_pca(normalized_sce,

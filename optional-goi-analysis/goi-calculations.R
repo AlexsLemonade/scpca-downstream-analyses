@@ -226,10 +226,18 @@ if (opt$perform_mapping == TRUE) {
   goi_rownames <- goi_list %>%
     dplyr::pull(goi_rownames_column)
   
+  # create a `sce_rownames_identifier` column
+  goi_list <- goi_list %>%
+    dplyr::mutate(sce_rownames_identifier = goi_list[[goi_rownames_column]])
+  
 } else {
   # if no mapping is performed then set goi to input id column
   goi_rownames <- goi_list %>%
     dplyr::pull(gene_id)
+  
+  # create a `sce_rownames_identifier` column
+  goi_list <- goi_list %>%
+    dplyr::mutate(sce_rownames_identifier = gene_id)
 }
 
 # Save goi list to file to be used as input for template 

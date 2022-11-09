@@ -93,7 +93,7 @@ prepare_heatmap_annotation <- function(normalized_sce_matrix,
     # create the column annotation for the ComplexHeatmap
     column_annotation <- HeatmapAnnotation(
       df = annotation_df,
-      col = list(gene_set = gene_set_colors),
+      col = list(gene_set_names = gene_set_colors),
       annotation_label = "Gene Set"
     )
   }

@@ -48,7 +48,7 @@ To run the core downstream analyses workflow on your own sample data, you will n
 1. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
 2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
 3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
-4. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
+4. A mitochondrial gene list text file with a list of mitochondrial genes found in the reference transcriptome used for alignment. Within this file, each row must contain a unique ensembl gene identifier corresponding to a mitochondrial gene (see more on this in the ["Running the workflow" section](#running-the-workflow)).
 5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
 
 Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
@@ -183,7 +183,7 @@ These include the following parameters:
 |------------------|-------------|
 | `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
 | `project_metadata` | relative path to your specific project metadata TSV file |
-| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
+| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. **Note** that the provided mithochondrial gene list is compatible with data processed using [`scpca-nf`](https://github.com/AlexsLemonade/scpca-nf#scpca-nf). You may need to generate a new mitochondrial gene list for any other data based on the reference used for alignment. To find reference version associated with other data, you will want to look at the `assembly` column of the metadata file associated with that library. |
 
 |[View Config File](config/config.yaml)|
 |---|

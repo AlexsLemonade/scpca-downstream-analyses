@@ -50,7 +50,8 @@ To run the core downstream analyses workflow on your own sample data, you will n
 1. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
 2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
 3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
-4. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
+4. A mitochondrial gene list as a text file with a list of mitochondrial genes found in the reference transcriptome used for alignment.
+Within this file, each row must contain a unique gene identifier corresponding to a mitochondrial gene found in the reference genome used for alignment (see more on this in the ["Running the workflow" section](#running-the-workflow)).
 5. A snakemake configuration file that defines the parameters needed to run the workflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
 
 Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
@@ -187,7 +188,12 @@ These include the following parameters:
 |------------------|-------------|
 | `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
 | `project_metadata` | relative path to your specific project metadata TSV file |
-| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
+| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
+
+**Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome. 
+For all datasets downloaded from the [ScPCA Portal](https://scpca.alexslemonade.org/), the Ensembl version used can be found by looking at the `assembly` column of the `metadata.json` file associated with that library.
+You should not need to change this parameter unless your dataset has been aligned to a different reference.
+If you are using your own data, you will need to grab all possible mitochondrial genes from the reference transcriptome used for alignment of your data and create a text file with one gene per line.
 
 |[View Config File](config/config.yaml)|
 |---|
@@ -276,21 +282,25 @@ Changes will be pushed to the `main` branch once changes are ready for a new rel
 
 ## Expected output
 
-For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary html report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.
-These files can be found in the `results_dir`, as defined in the `config.yaml` file.
-Within the `results_dir`, output files for each library will be nested within folders labeled with the provided `sample_id`.
+For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary HTML report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.
+These files can be found in the `example_results` folder, as defined in the `config.yaml` file.
+Within the `example_results` folder, output files for each library will be nested within folders labeled with the provided `sample_id`.
 Each output filename will be prefixed with the associated `library_id` and `filtering_method`.
 Below is an example of the nested file structure you can expect.
 
-![Expected output directory structure](./screenshots/expected_output_structure.png)
+```
+example_results
+└── sample_id
+	 ├── <library_id>_<filtering_method>_core_analysis_report.html
+	 └── <library_id>_<filtering_method>_processed_sce.rds
+```
 
-
-The `_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+The `<library_id>_<filtering_method>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
 Clustering results can be found in the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the `SingleCellExperiment` object, stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
 
 
-The `_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
+The `<library_id>_<filtering_method>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
 ## Additional analysis modules
 

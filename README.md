@@ -43,7 +43,8 @@ By default, louvain clustering is performed using the [`bluster::NNGraphParam()`
 Alternatively, walktrap graph-based clustering can be specified, and the number of nearest neighbors parameter can be altered if desired.
 Cluster assignments are stored in the `SingleCellExperiment` object returned by the workflow.
 
-You can find more information on the individual workflow steps in the [processing information documentation](./additional-docs/processing-information.md).
+|[View Processing Information Documentation](./additional-docs/processing-information.md)|
+|---|
 
 To run the core downstream analyses workflow on your own sample data, you will need the following:
 

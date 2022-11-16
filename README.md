@@ -168,7 +168,6 @@ The file should contain the following columns:
 
 - `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`.
 - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately.
-- `filtering_method`, the specified filtering method which can be one of "manual" or "miQC". For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md).
 - `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object.
 Each library ID should have a unique `filepath`.
 
@@ -242,6 +241,7 @@ Below are the parameters required to run either of the filtering methods.
 | Parameter        | Description | Default value |
 |------------------|-------------|---------------|
 | `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
+| `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./processing-information.md) | "miQC" |
 | `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
 | `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata | 5 |
 | `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata | 0.1 |
@@ -288,22 +288,21 @@ Changes will be pushed to the `main` branch once changes are ready for a new rel
 For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary HTML report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.
 These files can be found in the `example_results` folder, as defined in the `config.yaml` file.
 Within the `example_results` folder, output files for each library will be nested within folders labeled with the provided `sample_id`.
-Each output filename will be prefixed with the associated `library_id` and `filtering_method`.
+Each output filename will be prefixed with the associated `library_id`.
 Below is an example of the nested file structure you can expect.
 
 ```
 example_results
 └── sample_id
-	 ├── <library_id>_<filtering_method>_core_analysis_report.html
-	 └── <library_id>_<filtering_method>_processed_sce.rds
+	 ├── <library_id>_core_analysis_report.html
+	 └── <library_id>_processed_sce.rds
 ```
 
-The `<library_id>_<filtering_method>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+The `<library_id>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
 Clustering results can be found in the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the `SingleCellExperiment` object, stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
 
-
-The `<library_id>_<filtering_method>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
+The `<library_id>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
 ## Additional analysis modules
 

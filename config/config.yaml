@@ -6,7 +6,7 @@
 # file paths
 results_dir: "example-results"
 mito_file: "reference-files/Homo_sapiens.GRCh38.104.mitogenes.txt"
-project_metadata: "project-metadata/example-library-metadata.tsv"
+project_metadata: "example-data/project-metadata/example-library-metadata.tsv"
 
 ### Processing parameters
 # The below are parameters that are utilized to specify parameters specific to processing an individual library through the workflow.
@@ -17,6 +17,7 @@ project_metadata: "project-metadata/example-library-metadata.tsv"
 seed: 2021
 
 # miQC filtering parameters
+filtering_method: "miQC"
 prob_compromised_cutoff: 0.75 # Maximum miQC probability of cell being compromised
 
 # manual filtering parameters

@@ -17,11 +17,11 @@ output:
     toc: true
     toc_depth: 2
     toc_float: true
-    number_sections: true
+    number_sections: false
     code_folding: hide
 ---
 
-## Set Up
+This notebook will plot the filtering and clustering results from the core analysis workflow.
 
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -46,7 +46,7 @@ source(file.path(project_root, "utils", "setup-functions.R"))
 source(file.path(project_root, "utils", "filtering-functions.R"))
 ```
 
-```{r}
+```{r include=FALSE}
 # Load project
 setup_renv(project_filepath = project_root)
 
@@ -55,7 +55,7 @@ library(ggplot2)
 theme_set(theme_bw())
 ```
 
-```{r}
+```{r include=FALSE}
 # Load libraries
 library(readr)
 library(SingleCellExperiment)
@@ -65,7 +65,7 @@ library(ggpubr)
 library(scater)
 ```
 
-```{r}
+```{r include=FALSE}
 # Read in SCE objects
 pre_processed_sce <- read_rds(file.path(params$pre_processed_sce))
 
@@ -134,6 +134,16 @@ knitr::kable(sample_information, align = 'r') %>%
 ```
 
 ### Filtering plots
+
+The filtering plots below represent the cutoffs used to filter and remove low-quality cells.
+When `miQC` filtering is implemented, two plots are displayed.
+The first plot shows the cutoff used for the maximum probability of a cell being compromised.
+The second plot indicates which cells have been removed using binary values.
+When `manual` filtering is implemented, one plot is displayed.
+The plot in this case represents the manual filtering cutoffs for maximum percent mitochondrial reads per cell and the minimum number of genes detected per cell.
+
+Here, cells were `r processed_meta$filtering`.
+
 
 ```{r}
 # Read in mito genes

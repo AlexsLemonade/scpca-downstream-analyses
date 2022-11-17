@@ -9,27 +9,23 @@ if os.path.exists(config['project_metadata']):
   # get a list of the sample and library ids
   SAMPLES = list(samples_information['sample_id'])
   LIBRARY_ID = list(samples_information['library_id'])
-  FILTERING_METHOD = list(samples_information['filtering_method'])
 else:
   # If the metadata file is missing, warn and fill with empty lists
   print(f"Warning: Project metadata file '{config['project_metadata']}' is missing.")
   samples_information = None
   SAMPLES = list()
   LIBRARY_ID = list()
-  FILTERING_METHOD = list()
 
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_processed_sce.rds"),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_processed_sce.rds"),
                zip,
                sample = SAMPLES,
-               library = LIBRARY_ID,
-               filtering_method = FILTERING_METHOD),
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_{filtering_method}_core_analysis_report.html"),
+               library = LIBRARY_ID),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_core_analysis_report.html"),
                zip,
                sample = SAMPLES,
-               library = LIBRARY_ID,
-               filtering_method = FILTERING_METHOD)
+               library = LIBRARY_ID)
 
 
 # Rule used for building conda & renv environment
@@ -53,8 +49,8 @@ rule filter_data:
     input:
         get_input_rds_files
     output:
-        temp("{basedir}/{sample_id}/{library_id}_{filtering_method}_filtered.rds")
-    log: "logs/{basedir}/{sample_id}/{library_id}_{filtering_method}/filter_data.log"
+        temp("{basedir}/{sample_id}/{library_id}_filtered.rds")
+    log: "logs/{basedir}/{sample_id}/{library_id}/filter_data.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         " Rscript 'core-analysis/01-filter-sce.R'"
@@ -70,7 +66,7 @@ rule filter_data:
         "  --detected_gene_cutoff {config[detected_gene_cutoff]}"
         "  --umi_count_cutoff {config[umi_count_cutoff]}"
         "  --prob_compromised_cutoff {config[prob_compromised_cutoff]}"
-        "  --filtering_method {wildcards.filtering_method}"
+        "  --filtering_method {config[filtering_method]}"
         "  --project_root $PWD"
         "  &> {log}"
 
@@ -126,10 +122,10 @@ rule clustering:
 rule generate_report:
     input:
         pre_processed_sce = get_input_rds_files,
-        processed_sce =  "{basedir}/{sample_id}/{library_id}_{filtering_method}_processed_sce.rds"
+        processed_sce =  "{basedir}/{sample_id}/{library_id}_processed_sce.rds"
     output:
-        "{basedir}/{sample_id}/{library_id}_{filtering_method}_core_analysis_report.html"
-    log: "logs/{basedir}/{sample_id}/{library_id}_{filtering_method}/generate_report.log"
+        "{basedir}/{sample_id}/{library_id}_core_analysis_report.html"
+    log: "logs/{basedir}/{sample_id}/{library_id}/generate_report.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         """

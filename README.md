@@ -4,28 +4,28 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-  - [Core-analysis-overview](#core-analysis-overview)
-- [The core downstream analyses workflow](#the-core-downstream-analyses-workflow)
-  - [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
-    - [1) Clone the repository](#1-clone-the-repository)
-    - [2) Install Snakemake](#2-install-snakemake)
-    - [3) Additional dependencies](#3-additional-dependencies)
-      - [Snakemake/conda installation](#snakemakeconda-installation)
-  - [Input data format](#input-data-format)
-  - [Metadata file format](#metadata-file-format)
-  - [Running the workflow](#running-the-workflow)
-    - [Project-specific parameters](#project-specific-parameters)
-    - [Processing parameters](#processing-parameters)
-      - [Filtering parameters](#filtering-parameters)
-      - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
-  - [Expected output](#expected-output)
-  - [Additional analysis modules](#additional-analysis-modules)
-    - [Clustering analysis](#clustering-analysis)
-    - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
+- [Core analysis overview](#core-analysis-overview)
+- [Quick Start Guide](#quick-start-guide)
+- [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
+  - [1) Clone the repository](#1-clone-the-repository)
+  - [2) Install Snakemake](#2-install-snakemake)
+  - [3) Additional dependencies](#3-additional-dependencies)
+    - [Snakemake/conda installation](#snakemakeconda-installation)
+- [Input data format](#input-data-format)
+- [Metadata file format](#metadata-file-format)
+- [Running the workflow](#running-the-workflow)
+  - [Project-specific parameters](#project-specific-parameters)
+  - [Processing parameters](#processing-parameters)
+    - [Filtering parameters](#filtering-parameters)
+    - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
+- [Expected output](#expected-output)
+- [Additional analysis modules](#additional-analysis-modules)
+  - [Clustering analysis](#clustering-analysis)
+  - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Core-analysis-overview
+## Core analysis overview
 
 This repository stores workflows used for performing downstream analyses on quantified single-cell and single-nuclei gene expression data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/).
 More specifically, the repository currently contains a core workflow that performs initial pre-processing of gene expression data.
@@ -48,24 +48,32 @@ You can read more details about the individual steps of the workflow in the proc
 |[View Processing Information Documentation](./additional-docs/processing-information.md)|
 |---|
 
-To run the core downstream analyses workflow on your own sample data, you will need the following:
+## Quick Start Guide
 
-1. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
-2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
-3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
-4. A mitochondrial gene list as a text file with a list of mitochondrial genes found in the reference transcriptome used for alignment.
+To run the core analysis workflow on data processed using the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), you will want to implement the following steps in order:
+
+1. Clone the repository and install Snakemake using the [instructions provided in the Snakemake docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
+2. [Install the packages and dependencies](#3-additional-dependencies) that are required to run the workflow.
+3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#input-data-format))
+4. [Create a metadata tab-separated value (TSV) file](#metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
+5. Ensure that you have a mitochondrial gene list as a text file with a list of mitochondrial genes found in the reference transcriptome used for alignment.
 Within this file, each row must contain a unique gene identifier corresponding to a mitochondrial gene found in the reference genome used for alignment (see more on this in the ["Running the workflow" section](#running-the-workflow)).
-5. A snakemake configuration file that defines the parameters needed to run the workflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
-
-Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
+6. Ensure that you have a snakemake configuration file that defines the parameters needed to run the workflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and our example configuration file [here](config/config.yaml)).
+7. Open terminal to run the workflow using the following snakemake command and the `--config` flag to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 3:
 
 ```
 snakemake --cores 2 \
   --use-conda \
   --config results_dir="relative path to relevant results directory" \
-  project_metadata="relative path to your-project-metadata.TSV" \
-  mito_file="full path to your-mito-file.txt"
+  project_metadata="relative path to your-project-metadata.TSV"
 ```
+
+**Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
+Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
+If you are using conda, dependencies can be installed as [part of the setup mentioned in step 2 above](#snakemakeconda-installation).
+
+If you did not install dependencies with [conda via snakemake](#snakemakeconda-installation) in step 2, you will need to remove the `--use-conda` flag from the command above.
+See the section on [running the workflow](#running-the-workflow) for more information.
 
 **Output Files**
 There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
@@ -77,12 +85,6 @@ There are two expected output files thay will be associated with each provided `
     - Clustering that was performed within the workflow
 
 See the [expected output section](#expected-output) for more information on these output files.
-
-**Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
-Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
-If you are using conda, dependencies can be installed as [part of the initial setup](#snakemakeconda-installation).
-
-# The core downstream analyses workflow
 
 ## How to install the core downstream analyses workflow
 
@@ -226,7 +228,6 @@ Therefore, if you would like to test this workflow using the example data, you c
 ```
 snakemake --cores 2 --use-conda
 ```
-
 
 ### Processing parameters
 

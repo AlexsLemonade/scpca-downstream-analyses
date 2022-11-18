@@ -144,6 +144,8 @@ Cells labeled with `TRUE` are kept for downstream analysis, while all other cell
 When `manual` filtering is implemented, one plot is displayed.
 The plot in this case represents the manual filtering cutoffs for the minimum number of genes detected per cell and the minimum unique molecular identifiers (UMI) per cell.
 The lines on the plot indicate the cutoffs, where cells with number of genes expressed and unique molecular identifiers (UMI) that are both above the minimum cutoffs are kept for downstream analysis.
+Additionally, cells are colored by percent mitochondrial reads. 
+Cells with percent mitochondrial reads above the provided cutoff are removed prior to downstream analysis.
 
 Here, cells were `r processed_meta$filtering`.
 

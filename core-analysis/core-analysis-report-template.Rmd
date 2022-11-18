@@ -137,10 +137,13 @@ knitr::kable(sample_information, align = 'r') %>%
 
 The filtering plots below represent the cutoffs used to filter and remove low-quality cells.
 When `miQC` filtering is implemented, two plots are displayed.
-The first plot shows the cutoff used for the maximum probability of a cell being compromised.
-The second plot indicates which cells have been removed using binary values.
+`miQC` relies on fitting a mixture model using the number of genes expressed by a cell and the percentage of mitochondrial reads. 
+The first plot will show the model fit by `miQC` with two model fit lines and each cell being colored by the probability of that cell being compromised.
+The second plot indicates which cells have been removed based on the cutoff used for a cell's probability of being compromised.
+Cells labeled with `TRUE` are kept for downstream analysis, while all other cells were removed.
 When `manual` filtering is implemented, one plot is displayed.
-The plot in this case represents the manual filtering cutoffs for maximum percent mitochondrial reads per cell and the minimum number of genes detected per cell.
+The plot in this case represents the manual filtering cutoffs for the minimum number of genes detected per cell and the minimum unique molecular identifiers (UMI) per cell.
+The lines on the plot indicate the cutoffs, where cells with number of genes expressed and unique molecular identifiers (UMI) that are both above the minimum cutoffs are kept for downstream analysis.
 
 Here, cells were `r processed_meta$filtering`.
 

@@ -323,6 +323,15 @@ For example, if using the default values of Louvain clustering with a nearest ne
 
 The `<library_id>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
+| Metadata Information       | Description |
+|----------------------------|-------------|
+| Filtering method           | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data, which can be accessed using `metadata(sce)$filtering`. |
+| Filtering cutoffs          | The relevant filtering cutoffs. In the case of `miQC` filtering, the maximum probability of cells being compromised is stored and can be accessed using `metadata(sce)$probability_compromised_cutoff`. See the [filtering parameters section](#filtering-parameters) for more information on what filtering cutoffs to expect here. |
+| Clustering of similar cells for normalization | A note indicating whether or not clustering of similar cells passed the [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) step in the normalization script. If clustering of similar cells was successful, the note that reads "scater::logNormCounts clustered" can be found in `metadata(sce)$normalization`. |
+| Highly variable genes | The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html), can be accessed using `metadata(sce)$variable_genes`. |
+
+You can find more information on the above in the [processing information documentation](./additional-docs/processing-information.md).
+
 ## Additional analysis modules
 
 ### Clustering analysis

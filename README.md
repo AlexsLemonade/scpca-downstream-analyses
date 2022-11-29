@@ -48,6 +48,15 @@ You can read more details about the individual steps of the workflow in the proc
 |[View Processing Information Documentation](./additional-docs/processing-information.md)|
 |---|
 
+To run the core downstream analyses workflow on your own sample data, you will need the following:
+
+1. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
+2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
+3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
+4. A mitochondrial gene list as a text file with a list of mitochondrial genes found in the reference transcriptome used for alignment.
+Within this file, each row must contain a unique gene identifier corresponding to a mitochondrial gene found in the reference genome used for alignment (see more on this in the ["Running the workflow" section](#running-the-workflow)).
+5. A snakemake configuration file that defines the parameters needed to run the workflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
+
 ## Quick Start Guide
 
 To run the core analysis workflow on data processed using the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), you will want to implement the following steps in order:
@@ -299,8 +308,17 @@ example_results
 	 └── <library_id>_processed_sce.rds
 ```
 
+The `<library_id>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
+
 The `<library_id>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
-Clustering results can be found in the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the `SingleCellExperiment` object, stored in a metadata column named using the associated clustering type and nearest neighbours values.
+
+### What to expect in the output `SingleCellExperiment` object
+
+As a result of the normalization step of the workflow, a log-transformed normalized expression matrix can be accessed using [`logcounts(sce)`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#adding-more-assays).
+
+In the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the output `SingleCellExperiment` object, you can find the following:
+
+- Clustering results stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
 
 The `<library_id>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.

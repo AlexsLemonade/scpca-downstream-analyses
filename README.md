@@ -19,7 +19,6 @@
     - [Filtering parameters](#filtering-parameters)
     - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
 - [Expected output](#expected-output)
-  - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 - [Additional analysis modules](#additional-analysis-modules)
   - [Clustering analysis](#clustering-analysis)
   - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)

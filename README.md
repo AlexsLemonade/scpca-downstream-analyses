@@ -52,7 +52,7 @@ To run the core downstream analyses workflow on your own sample data, you will n
 3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
 4. A mitochondrial gene list as a text file with a list of mitochondrial genes found in the reference transcriptome used for alignment.
 Within this file, each row must contain a unique gene identifier corresponding to a mitochondrial gene found in the reference genome used for alignment (see more on this in the ["Running the workflow" section](#running-the-workflow)).
-5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
+5. A snakemake configuration file that defines the parameters needed to run the workflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
 
 Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
 

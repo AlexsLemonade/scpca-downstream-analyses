@@ -315,28 +315,13 @@ example_results
 	 └── <library_id>_<filtering_method>_processed_sce.rds
 ```
 
-The `<library_id>_<filtering_method>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
-
 The `<library_id>_<filtering_method>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
-
-### What to expect in the output `SingleCellExperiment` object
-
-As a result of the normalization step of the workflow, a log-transformed normalized expression matrix can be accessed using [`logcounts(sce)`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#adding-more-assays).
-
-In the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the output `SingleCellExperiment` object, you can find the following:
-
-- Clustering results stored in a metadata column named using the associated clustering type and nearest neighbours values.
+Clustering results can be found in the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the `SingleCellExperiment` object, stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
 
 In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#other-metadata) of the output `SingleCellExperiment` object, you can find the following information:
 
-- The type of filtering performed (`miQC` or `manual`) on the expression data, which can be accessed using `metadata(sce)$filtering`.
-- The relevant filtering cutoffs.
-In the case of [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) filtering, the maximum probability of cells being compromised is stored and can be accessed using `metadata(sce)$probability_compromised_cutoff`.
-See the [filtering parameters section](#filtering-parameters) for more information on what filtering cutoffs to expect here.
-- A note indicating whether or not clustering of similar cells passed the [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) step in the normalization script.
-If clustering of similar cells was successful, the note that reads "scater::logNormCounts clustered" can be found in `metadata(sce)$normalization`.
-- The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html), can be accessed using `metadata(sce)$variable_genes`
+The `<library_id>_<filtering_method>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
 You can find more information on the above in the [processing information documentation](./additional-docs/processing-information.md).
 

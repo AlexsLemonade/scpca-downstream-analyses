@@ -4,30 +4,29 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-  - [Core-analysis-overview](#core-analysis-overview)
-- [The core downstream analyses workflow](#the-core-downstream-analyses-workflow)
-  - [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
-    - [1) Clone the repository](#1-clone-the-repository)
-    - [2) Install Snakemake](#2-install-snakemake)
-    - [3) Additional dependencies](#3-additional-dependencies)
-      - [Snakemake/conda installation](#snakemakeconda-installation)
-      - [Independent installation](#independent-installation)
-        - [Apple Silicon installations](#apple-silicon-installations)
-  - [Input data format](#input-data-format)
-  - [Metadata file format](#metadata-file-format)
-  - [Running the workflow](#running-the-workflow)
-    - [Project-specific parameters](#project-specific-parameters)
-    - [Processing parameters](#processing-parameters)
-      - [Filtering parameters](#filtering-parameters)
-      - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
-  - [Expected output](#expected-output)
-  - [Additional analysis modules](#additional-analysis-modules)
-    - [Clustering analysis](#clustering-analysis)
-    - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
+- [Core analysis overview](#core-analysis-overview)
+- [Quick Start Guide](#quick-start-guide)
+- [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
+  - [1) Clone the repository](#1-clone-the-repository)
+  - [2) Install Snakemake](#2-install-snakemake)
+  - [3) Additional dependencies](#3-additional-dependencies)
+    - [Snakemake/conda installation](#snakemakeconda-installation)
+- [Input data format](#input-data-format)
+- [Metadata file format](#metadata-file-format)
+- [Running the workflow](#running-the-workflow)
+  - [Project-specific parameters](#project-specific-parameters)
+  - [Processing parameters](#processing-parameters)
+    - [Filtering parameters](#filtering-parameters)
+    - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
+- [Expected output](#expected-output)
+  - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
+- [Additional analysis modules](#additional-analysis-modules)
+  - [Clustering analysis](#clustering-analysis)
+  - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Core-analysis-overview
+## Core analysis overview
 
 This repository stores workflows used for performing downstream analyses on quantified single-cell and single-nuclei gene expression data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/).
 More specifically, the repository currently contains a core workflow that performs initial pre-processing of gene expression data.
@@ -35,33 +34,45 @@ Future development will include addition of optional workflows for extended data
 
 The core workflow takes as input the gene expression data for each library being processed and performs the following steps:
 
-1. [Filtering](./processing-information.md#filtering-low-quality-cells): Each library is filtered to remove any low quality cells.
+1. [Filtering](./additional-docs/processing-information.md#filtering-low-quality-cells): Each library is filtered to remove any low quality cells.
 Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g., minimum number of UMI counts).
 In addition to removing low quality cells, genes found in a low percentage of cells in a library are removed.
-2. [Normalization](./processing-information.md#normalization) and [dimensionality reduction](./processing-information.md#dimensionality-reduction): Cells are normalized using the [deconvolution method from Lun, Bach, and Marioni (2016)](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP).
+2. [Normalization](./additional-docs/processing-information.md#normalization) and [dimensionality reduction](./processing-information.md#dimensionality-reduction): Cells are normalized using the [deconvolution method from Lun, Bach, and Marioni (2016)](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP).
 Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow.
-3. [Clustering](./processing-information.md#clustering): Cells are assigned to cell clusters using graph-based clustering.
+3. [Clustering](./additional-docs/processing-information.md#clustering): Cells are assigned to cell clusters using graph-based clustering.
 By default, louvain clustering is performed using the [`bluster::NNGraphParam()`](https://rdrr.io/github/LTLA/bluster/man/NNGraphParam-class.html) function using the default nearest neighbors parameter of 10.
 Alternatively, walktrap graph-based clustering can be specified, and the number of nearest neighbors parameter can be altered if desired.
 Cluster assignments are stored in the `SingleCellExperiment` object returned by the workflow.
 
-To run the core downstream analyses workflow on your own sample data, you will need the following:
+You can read more details about the individual steps of the workflow in the processing documentation linked below:
 
-1. A local installation of Snakemake and either R or conda (see more on this in the ["how to install the core downstream analyses workflow" section](#how-to-install-the-core-downstream-analyses-workflow))
-2. Single-cell gene expression data stored as `SingleCellExperiment` objects stored as RDS files (see more on this in the ["Input data format" section](#input-data-format))
-3. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing (see more on this in the ["Metadata file format" section](#metadata-file-format) and an example of this metadata file [here](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv))
-4. A mitochondrial gene list that is compatible with your data (see more on this in the ["Running the workflow" section](#running-the-workflow))
-5. A snakemake configuration file that defines the parameters needed to run the worlflow (see more on this in the ["Running the workflow" section](#running-the-workflow) and an example of the configuration file [here](config/config.yaml).
+|[View Processing Information Documentation](./additional-docs/processing-information.md)|
+|---|
 
-Once you have set up your environment and created these files you will be able to run the workflow as follows, modifying any parameters via the `--config` flag as needed:
+## Quick Start Guide
+
+To run the core analysis workflow you will want to implement the following steps in order:
+
+1. Clone the repository and install Snakemake using the [instructions provided in the Snakemake docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
+2. [Install the packages and dependencies](#3-additional-dependencies) that are required to run the workflow.
+3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#input-data-format)).
+The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data.
+4. [Create a metadata tab-separated value (TSV) file](#metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
+5. Open terminal to run the workflow using the following snakemake command and the `--config` flag to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 3:
 
 ```
 snakemake --cores 2 \
   --use-conda \
   --config results_dir="relative path to relevant results directory" \
-  project_metadata="relative path to your-project-metadata.TSV" \
-  mito_file="full path to your-mito-file.txt"
+  project_metadata="relative path to your-project-metadata.TSV"
 ```
+
+**Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
+Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
+If you are using conda, dependencies can be installed as [part of the setup mentioned in step 2 above](#snakemakeconda-installation).
+
+If you did not install dependencies with [conda via snakemake](#snakemakeconda-installation) in step 2, you will need to remove the `--use-conda` flag from the command above.
+See the section on [running the workflow](#running-the-workflow) for more information.
 
 **Output Files**
 There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
@@ -73,12 +84,6 @@ There are two expected output files thay will be associated with each provided `
     - Clustering that was performed within the workflow
 
 See the [expected output section](#expected-output) for more information on these output files.
-
-**Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
-Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
-If you are using conda, dependencies can be installed as [part of the initial setup](#snakemakeconda-installation).
-
-# The core downstream analyses workflow
 
 ## How to install the core downstream analyses workflow
 
@@ -143,37 +148,7 @@ However, this should be a one-time cost, and ensures that you have all of the to
 
 To use the environment you have just created, you will need to run Snakemake with the `--use-conda` flag each time.
 
-
-#### Independent installation
-
-If you would like to perform installation without the conda environments, you can do so after confirming that you have R version 4.1 (the Intel version if you are on a Mac) installed, you will want to make sure that all of the R packages are installed as well.
-First install the `renv` package by your preferred method.
-Then, from within the `scpca-downstream-analyses` directory, run the following command to install all of the additional required packages:
-
-```
-Rscript -e "renv::restore()"
-```
-
-Note that pandoc must also be installed and in your path to successfully run the `Snakefile`.
-You can install pandoc system-wide by following [pandoc's instructions](https://pandoc.org/installing.html), or you can add it to your conda environment with `mamba install pandoc`.
-
-##### Apple Silicon installations
-
-If you are on an Apple Silicon (M1/M2/Arm) Mac and are not using Snakemake and `conda` to handle dependencies, you will need to be sure that you have the Intel version of R, as Bioconductor packages do not currently support the Arm architecture.
-Clicking [this link](https://cran.r-project.org/bin/macosx/base/R-4.2.1.pkg) will download the Intel version of R, version 4.2.1, and you can install R by following the installation instructions.
-You will also need to install `gfortan`, a Fortran compiler, to facilitate building certain R packages.
-Clicking [this link](https://mac.r-project.org/tools/gfortran-8.2-Mojave.dmg) will download the `gfortran` compiler, and again follow the installation instructions to install it.
-
-If you experience library-related errors that indicate R can't find the Fortran compiler while setting up `renv`, you will want to create the file and/or add the following lines to the file `~/.R/Makevars`:
-
-```
-FC  = /usr/local/gfortran/bin/gfortran
-F77 = /usr/local/gfortran/bin/gfortran
-FLIBS = -L/usr/local/gfortran/lib/gcc
-```
-
-These lines will ensure that R can find the newly-installed `gfortran` compiler.
-If you need to take these steps, you may need to restart R/terminal to proceed with your setup.
+If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](./independent-installation-instructions.md).
 
 ## Input data format
 
@@ -194,7 +169,6 @@ The file should contain the following columns:
 
 - `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`.
 - `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately.
-- `filtering_method`, the specified filtering method which can be one of "manual" or "miQC". For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./processing-information.md).
 - `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object.
 Each library ID should have a unique `filepath`.
 
@@ -204,6 +178,8 @@ Each library ID should have a unique `filepath`.
 ## Running the workflow
 
 We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
+
+See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps. 
 
 ### Project-specific parameters
 
@@ -215,7 +191,12 @@ These include the following parameters:
 |------------------|-------------|
 | `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
 | `project_metadata` | relative path to your specific project metadata TSV file |
-| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 which can be found in the `reference-files` directory. |
+| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
+
+**Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome. 
+For all datasets downloaded from the [ScPCA Portal](https://scpca.alexslemonade.org/), the Ensembl version used can be found by looking at the `assembly` column of the `metadata.json` file associated with that library.
+You should not need to change this parameter unless your dataset has been aligned to a different reference.
+If you are using your own data, you will need to grab all possible mitochondrial genes from the reference transcriptome used for alignment of your data and create a text file with one gene per line.
 
 |[View Config File](config/config.yaml)|
 |---|
@@ -247,7 +228,6 @@ Therefore, if you would like to test this workflow using the example data, you c
 snakemake --cores 2 --use-conda
 ```
 
-
 ### Processing parameters
 
 The parameters found under the `Processing parameters` section of the config file can be optionally modified, and are as follows:
@@ -255,12 +235,13 @@ The parameters found under the `Processing parameters` section of the config fil
 #### Filtering parameters
 
 There are two types of filtering methods that can be specified in the project metadata file, [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual` filtering.
-For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./processing-information.md).
+For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md).
 Below are the parameters required to run either of the filtering methods.
 
 | Parameter        | Description | Default value |
 |------------------|-------------|---------------|
 | `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
+| `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./processing-information.md) | "miQC" |
 | `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
 | `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata | 5 |
 | `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata | 0.1 |
@@ -271,7 +252,7 @@ Below are the parameters required to run either of the filtering methods.
 #### Dimensionality reduction and clustering parameters
 
 In the core workflow, PCA and UMAP results are calculated and stored, and the PCA coordinates are used for graph-based clustering.
-For more details on how the workflow performs [dimensionality reduction](./processing-information.md#dimensionality-reduction) and [clustering](./processing-information.md#clustering) see the documentation on [workflow processing information](./processing-information.md).
+For more details on how the workflow performs [dimensionality reduction](./processing-information.md#dimensionality-reduction) and [clustering](./processing-information.md#clustering) see the documentation on [workflow processing information](./additional-docs/processing-information.md).
 Below are the parameters required to run the dimensionality reduction and clustering steps of the workflow.
 
 | Parameter        | Description | Default value |
@@ -304,21 +285,46 @@ Changes will be pushed to the `main` branch once changes are ready for a new rel
 
 ## Expected output
 
-For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary html report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.
-These files can be found in the `results_dir`, as defined in the `config.yaml` file.
-Within the `results_dir`, output files for each library will be nested within folders labeled with the provided `sample_id`.
-Each output filename will be prefixed with the associated `library_id` and `filtering_method`.
+For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary HTML report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.
+These files can be found in the `example_results` folder, as defined in the `config.yaml` file.
+Within the `example_results` folder, output files for each library will be nested within folders labeled with the provided `sample_id`.
+Each output filename will be prefixed with the associated `library_id`.
 Below is an example of the nested file structure you can expect.
 
-![Expected output directory structure](./screenshots/expected_output_structure.png)
+```
+example_results
+└── sample_id
+	 ├── <library_id>_core_analysis_report.html
+	 └── <library_id>_processed_sce.rds
+```
 
+The `<library_id>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
-The `_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
-Clustering results can be found in the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the `SingleCellExperiment` object, stored in a metadata column named using the associated clustering type and nearest neighbours values.
+The `<library_id>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+
+### What to expect in the output `SingleCellExperiment` object
+
+As a result of the normalization step of the workflow, a log-transformed normalized expression matrix can be accessed using [`logcounts(sce)`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#adding-more-assays).
+
+In the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the output `SingleCellExperiment` object, you can find the following:
+
+- Clustering results stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
 
+In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#other-metadata) of the output `SingleCellExperiment` object, which can be accessed using `metadata(sce)`,  you can find the following information:
 
-The `_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
+| Metadata Key       | Description |
+|----------------------------|-------------|
+| `filtering_method`           | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data. |
+| `prob_compromised_cutoff` | The maximum probability of cells being compromised, which is only present when the `filtering_method` is set to `miQC`. |
+| `miQC_model` | The linear mixture model calculated by `miQC` and therefore is only present when `filtering_method` is set to `miQC`. |
+| `mito_percent_cutoff` | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`. |
+| `detected_gene_cutoff` | Minimum number of genes detected per cell, which is only present when `filtering_method` is set to `manual`. |
+| `umi_count_cutoff` | Minimum unique molecular identifiers (UMI) per cell, which is only present when `filtering_method` is set to `manual`. |
+| `normalization` | Indicates if clustering of similar cells using [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) prior to normalization with `scater::logNormCounts()` was successful. |
+| `variable_genes` | The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html). |
+
+You can find more information on the above in the [processing information documentation](./additional-docs/processing-information.md).
 
 ## Additional analysis modules
 

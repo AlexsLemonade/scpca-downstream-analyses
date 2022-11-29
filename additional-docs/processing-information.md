@@ -23,7 +23,7 @@ This value can be defined by altering the default `prob_compromised_cutoff` valu
 Note that if `miQC` fails, the manual filtering described below will be implemented as a default backup method.
 2. `manual` - If chosen, low-quality cells are removed that fall below or above the user provided thresholds for the `mito_percent_cutoff` (maximum percent mitochondrial reads per cell, default: 20), `detected_gene_cutoff` (minimum number of genes detected per cell, default: 500), and `umi_count_cutoff` (minimum unique molecular identifiers (UMI) per cell, default: 500).
 
-The filtering method can be specified for each sample in the [metadata file](https://github.com/AlexsLemonade/scpca-downstream-analyses#metadata-file-format).
+The filtering method can be specified for each sample in the [config file](../config/config.yaml).
 You can also find more on modifying additional filtering parameters under [processing parameters](https://github.com/AlexsLemonade/scpca-downstream-analyses#filtering-parameters).
 
 ## Normalization

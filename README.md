@@ -19,6 +19,7 @@
     - [Filtering parameters](#filtering-parameters)
     - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
 - [Expected output](#expected-output)
+  - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 - [Additional analysis modules](#additional-analysis-modules)
   - [Clustering analysis](#clustering-analysis)
   - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
@@ -310,17 +311,17 @@ In the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecell
 - Clustering results stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
 
-In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#other-metadata) of the output `SingleCellExperiment` object, which can be accessed using `metadata(sce)` you can find the following information:
+In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#other-metadata) of the output `SingleCellExperiment` object, which can be accessed using `metadata(sce)`,  you can find the following information:
 
-| Metadata Information       | Description |
+| Metadata Key       | Description |
 |----------------------------|-------------|
 | `filtering_method`           | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data. |
-| `prob_compromised_cutoff` | The maximum probability of cells being compromised, which only present when the `filtering_method` is set to `miQC`. |
+| `prob_compromised_cutoff` | The maximum probability of cells being compromised, which is only present when the `filtering_method` is set to `miQC`. |
 | `miQC_model` | The linear mixture model calculated by `miQC` and therefore is only present when `filtering_method` is set to `miQC`. |
 | `mito_percent_cutoff` | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`. |
 | `detected_gene_cutoff` | Minimum number of genes detected per cell, which is only present when `filtering_method` is set to `manual`. |
 | `umi_count_cutoff` | Minimum unique molecular identifiers (UMI) per cell, which is only present when `filtering_method` is set to `manual`. |
-| `normalization` | Indicates if clustering of similar cells prior to normalization using [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) prior to normalization with `scater::logNormCounts()` was successful. |
+| `normalization` | Indicates if clustering of similar cells using [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) prior to normalization with `scater::logNormCounts()` was successful. |
 | `variable_genes` | The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html). |
 
 You can find more information on the above in the [processing information documentation](./additional-docs/processing-information.md).

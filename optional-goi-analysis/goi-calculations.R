@@ -221,22 +221,30 @@ if (opt$perform_mapping == TRUE) {
     dplyr::distinct() %>%
     dplyr::left_join(goi_list, by = "gene_id")
   
-  # Save mapped object to file
-  write_tsv(goi_list, file.path(
-    opt$output_directory,
-    paste0(opt$library_id, "_mapped_genes.tsv")
-  ))
-  
   # define mapped goi associated with rownames of SCE object
   goi_rownames_column <- tolower(opt$sce_rownames_identifier)
   goi_rownames <- goi_list %>%
     dplyr::pull(goi_rownames_column)
   
+  # create a `sce_rownames_identifier` column
+  goi_list <- goi_list %>%
+    dplyr::mutate(sce_rownames_identifier = goi_list[[goi_rownames_column]])
+  
 } else {
   # if no mapping is performed then set goi to input id column
   goi_rownames <- goi_list %>%
     dplyr::pull(gene_id)
+  
+  # create a `sce_rownames_identifier` column
+  goi_list <- goi_list %>%
+    dplyr::mutate(sce_rownames_identifier = gene_id)
 }
+
+# Save goi list to file to be used as input for template 
+write_tsv(goi_list, file.path(
+  opt$output_directory,
+  paste0(opt$library_id, "_mapped_genes.tsv")
+))
 
 #### Prepare data for plotting -------------------------------------------------
 
@@ -288,11 +296,12 @@ if(!is.null(goi_list$gene_set)) {
   column_annotation <- NULL
 }
 
-# Save matrix object to file
-write_rds(normalized_zscores_matrix,
+# Convert heatmap matrix to a sparse matrix and save to file
+normalized_zscores_matrix <- as(normalized_zscores_matrix, "sparseMatrix")
+Matrix::writeMM(normalized_zscores_matrix,
           file.path(
             opt$output_directory,
-            paste0(opt$library_id, "_normalized_zscores.rds")
+            paste0(opt$library_id, "_normalized_zscores.mtx")
           ))
 
 # Save heatmap column annotation to file

@@ -123,8 +123,6 @@ prepare_expression_df <- function(normalized_sce,
     as.matrix() %>%
     as.data.frame() %>%
     tibble::rownames_to_column("cell_barcode") %>%
-    # add column containing average gene expression of each cell for all genes
-    dplyr::mutate(A_all_mean_exp = colMeans(logcounts(normalized_sce))) %>%
     tidyr::pivot_longer(
       cols = -c("cell_barcode"),
       names_to = ensembl_id_column,

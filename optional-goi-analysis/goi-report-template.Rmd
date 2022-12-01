@@ -2,7 +2,6 @@
 params:
   library: "library01"
   normalized_sce: "example-results/sample01/library01_processed_sce.rds"
-  goi_list: "example-data/goi-lists/sample01_goi_list.tsv"
   date: !r Sys.Date()
   goi_input_directory: "example-results/sample01/goi-stats"
   project_root: NULL

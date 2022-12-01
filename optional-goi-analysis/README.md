@@ -1,6 +1,6 @@
 # Optional Genes of Interest (GOI) Analysis
 
-This directory includes a genes of interest analysis workflow that can help users evaluate values specific to a list of genes against the rest of a sample dataset.
+This directory includes a genes of interest analysis workflow to help users evaluate expression of a specific list of genes in a sample dataset.
 
 
 **The genes of interest (GOI) analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file.**
@@ -17,13 +17,14 @@ This directory includes a genes of interest analysis workflow that can help user
 
 ## Analysis overview
 
-There are two main steps of this genes of interest analysis workflow:
+There are three main steps of this genes of interest analysis workflow:
 
-1. **Genes of Interest Calculations**: Provided gene identifiers are first optionally mapped to a specified keytype.
-Then the normalized data are used to prepare heatmap matrix and annotation objects using only the provided genes of interest.
-2. **Genes of Interest Plots**: Once GOI results are calculated and stored in separate RDS files, the heatmap matrix and annotation objects are used to plot a heatmap that displays genes on the x-axis, cells on the y-axis, and uses color to indicate gene expression scaled using a z-score.
+1. **Mapping gene identifiers**: Provided gene identifiers are first mapped to a specified keytype when `--perform_mapping` is `TRUE`.
+2. **Heirarchical clustering of the dataset with genes of interest**: Hierarchical clustering is performed on the normalized data associated with the provided genes of interest.
+These clustering results are used to generate a heatmap that displays genes on the x-axis, cells on the y-axis, and uses color to indicate gene expression scaled using a z-score.
 This heatmap can used to identify if any clear structure or groupings of cells with similar gene expression patterns are present.
-Additionally, the normalized and transformed expression for each of the provided genes of interest in comparison to the mean expression of all genes present in the dataset are plotted using `geom_sina()`.
+3. **Visualization of genes of interest expression** (Sina, PCA, and UMAP plots):
+The normalized and transformed expression for each of the provided genes of interest in comparison to the mean expression of all genes present in the dataset are plotted using `geom_sina()`.
 Following are UMAP and PCA plots where each dot represents a cell and the color indicates the individual gene of interest’s expression.
 
 
@@ -43,10 +44,18 @@ This file should contain at least one column named `gene_id` with the relevant g
 
 ## Expected output
 
-For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return five files in the same directory where the inputted RDS file is stored:
+For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return the following files in the specified output directory:
 
-1. **Optionally**, a `_mapped_genes.tsv` file with mapped genes of interest if the `--perform_mapping` is `TRUE` upon running the workflow.
-2. A `_normalized_sce_zscores.rds` file with the z-scored matrix calculated using the normalized data specific to the provided genes of interest.
+```
+goi_stats
+├── library01_mapped_genes.tsv
+├── library01_normalized_zscores.mtx
+├── library01_heatmap_annotation.rds
+└── library01_goi-report-template.html
+```
+
+1. A `_mapped_genes.tsv` file with mapped genes of interest if the `--perform_mapping` is `TRUE` upon running the workflow. Otherwise this file will store just the provided genes of interest, and a new column named `sce_rownames_identifier` with the genes of interest identifiers copied over to the column.
+2. A `_normalized_zscores.mtx` matrix file with the z-scored matrix calculated using the normalized data specific to the provided genes of interest.
 3. A `_heatmap_annotation.rds` file with the annotations to be used when plotting the heatmap for the html report.
 4. The `_goi_report.html` file, which is the summary html report with plots containing the GOI results.
 

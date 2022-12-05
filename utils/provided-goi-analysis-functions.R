@@ -183,11 +183,14 @@ plot_goi_expression_sina <- function(normalized_sce,
         )
       )
     
+    # calculate average gene expression
+    avg_gene_exp=colMeans(logcounts(normalized_sce))
+    
     sina_expression_plot <- ggplot(expression_means_df, aes(
       x = !!gene_symbol_column_sym,
       y = gene_expression,
       color = gene_expression)) +
-      ggforce::geom_sina() +
+      ggforce::geom_sina(size = 0.2) +
       theme(axis.text.x = element_text(angle = 90)) +
       stat_summary(
         aes(group = !!gene_symbol_column_sym),
@@ -201,10 +204,11 @@ plot_goi_expression_sina <- function(normalized_sce,
           quantile(x, 0.75)
         },
         geom = "pointrange",
-        position = position_dodge(width = 0.9),
-        size = 0.4,
+        position = position_dodge(width = 0.7),
+        size = 0.2,
         shape = 21
-      )
+      ) +
+      geom_hline(yintercept = avg_gene_exp, type = "dashed")
     
   } else {
     
@@ -212,7 +216,7 @@ plot_goi_expression_sina <- function(normalized_sce,
       x = !!ensembl_id_column_sym,
       y = gene_expression,
       color = gene_expression)) +
-      ggforce::geom_sina() +
+      ggforce::geom_sina(size = 0.2) +
       theme(axis.text.x = element_text(angle = 90)) +
       stat_summary(
         aes(group = !!ensembl_id_column_sym),
@@ -226,8 +230,8 @@ plot_goi_expression_sina <- function(normalized_sce,
           quantile(x, 0.75)
         },
         geom = "pointrange",
-        position = position_dodge(width = 0.9),
-        size = 0.4,
+        position = position_dodge(width = 0.7),
+        size = 0.2,
         shape = 21
       )
   }
@@ -277,7 +281,7 @@ plot_goi_expression_umap <- function(normalized_sce,
     
     umap_plot <- ggplot(expression_umap_df,
                         aes(x = X1, y = X2, color = gene_expression)) +
-      geom_point(size = 0.5) +
+      geom_point(size = 0.01) +
       facet_wrap(as.formula(paste("~", gene_symbol_column))) +
       scale_color_viridis_c()
   } else {
@@ -288,7 +292,7 @@ plot_goi_expression_umap <- function(normalized_sce,
     
     umap_plot <- ggplot(expression_umap_df,
                         aes(x = X1, y = X2, color = gene_expression)) +
-      geom_point(size = 0.5) +
+      geom_point(size = 0.01) +
       facet_wrap(as.formula(paste("~", ensembl_id_column))) +
       scale_color_viridis_c()
   }
@@ -339,7 +343,7 @@ plot_goi_expression_pca <- function(normalized_sce,
     
     pca_plot <- ggplot(expression_pca_df,
                        aes(x = PC1, y = PC2, color = gene_expression)) +
-      geom_point(size = 0.5) +
+      geom_point(size = 0.3) +
       facet_wrap(as.formula(paste("~", gene_symbol_column))) +
       scale_color_viridis_c()
   } else {
@@ -350,7 +354,7 @@ plot_goi_expression_pca <- function(normalized_sce,
     
     pca_plot <- ggplot(expression_pca_df,
                        aes(x = PC1, y = PC2, color = gene_expression)) +
-      geom_point(size = 0.5) +
+      geom_point(size = 0.3) +
       facet_wrap(as.formula(paste("~", ensembl_id_column))) +
       scale_color_viridis_c()
   }

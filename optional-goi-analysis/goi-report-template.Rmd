@@ -6,7 +6,7 @@ params:
   goi_input_directory: "example-results/sample01/goi-stats"
   project_root: NULL
 
-title: "`r glue::glue('Gene expression plots for {params$sample}')`"
+title: "`r glue::glue('Gene expression plots for {params$library}')`"
 author: "CCDL"
 date: "`r params$date`"
 output: 
@@ -14,11 +14,9 @@ output:
     toc: true
     toc_depth: 2
     toc_float: true
-    number_sections: true
+    number_sections: false
     code_folding: hide
 ---
-
-## Set Up
 
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -54,8 +52,6 @@ set.seed(201)
 source(file.path(project_root, "utils", "provided-goi-analysis-functions.R"))
 ```
 
-## Read in data
-
 ```{r}
 normalized_sce <- read_rds(file.path(params$normalized_sce))
 
@@ -84,14 +80,22 @@ column_annotation <- read_rds(file.path(
 ))
 ```
 
-```{r}
+```{r results='asis'}
 existing_goi <- goi_list %>%
   dplyr::filter(sce_rownames_identifier %in% rownames(logcounts(normalized_sce)) | 
                   gene_id %in% rownames(logcounts(normalized_sce))) %>%
   dplyr::select(gene_id)
 
-glue::glue("The following genes of interest can be found in the provided 
-           SingleCellExperiment object: {existing_goi}")
+existing_goi_print <- paste0("<li>", paste(existing_goi, collapse = '</li><li>', "</li>"))
+glue::glue("
+    <div class=\"alert alert-warning\">
+    
+    The following genes of interest can be found in the provided dataset:
+    
+    {existing_goi_print}
+    
+    </div>
+  ")
 ```
 
 ### Heatmap plotting

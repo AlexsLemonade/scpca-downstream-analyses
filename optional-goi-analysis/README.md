@@ -19,13 +19,13 @@ This directory includes a genes of interest analysis workflow to help users eval
 
 There are three main steps of this genes of interest analysis workflow:
 
-1. **Mapping gene identifiers**: Provided gene identifiers are first mapped to a specified keytype when `--perform_mapping` is `TRUE`.
+1. **Mapping gene identifiers (Optional)**: If input gene identifiers do not match the gene identifiers used in the `SingleCellExperiment` object used as input (e.g., input genes are gene symbols while the `SingleCellExperiment` object contains Ensembl identifiers), then input gene identifiers must first be mapped to a specified type.
 2. **Heirarchical clustering of the dataset with genes of interest**: Hierarchical clustering is performed on the normalized data associated with the provided genes of interest.
 These clustering results are used to generate a heatmap that displays genes on the x-axis, cells on the y-axis, and uses color to indicate gene expression scaled using a z-score.
-This heatmap can used to identify if any clear structure or groupings of cells with similar gene expression patterns are present.
+This heatmap can be used to identify if any clear structure or groupings of cells with similar gene expression patterns are present.
 3. **Visualization of genes of interest expression** (Sina, PCA, and UMAP plots):
-The normalized and transformed expression for each of the provided genes of interest in comparison to the mean expression of all genes present in the dataset are plotted using `geom_sina()`.
-Following are UMAP and PCA plots where each dot represents a cell and the color indicates the individual gene of interest’s expression.
+The normalized and transformed expression for each of the provided genes of interest is compared to the mean expression of all genes present in the dataset and shown using a sina plot.
+UMAP and PCA plots are also provided, where each dot represents a cell and the color indicates the individual gene of interest’s expression.
 
 
 **Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.
@@ -38,6 +38,7 @@ If you are using conda, dependencies can be installed as [part of the initial se
 To run this workflow, you will need to provide:
 
 1. The RDS file containing the normalized [output `SingleCellExperiment` object](../README.md#expected-output) from the core dowstream analyses workflow.
+This `SingleCellExperiment` object must contain a log-normalized counts matrix in an assay named `logcounts`.
 2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow should be used here (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](../project-metadata/example-library-metadata.tsv)).
 3. The genes of interest list, stored as a tab-separated value (TSV) file.
 This file should contain at least one column named `gene_id` with the relevant gene identifiers, and can optionally contain an additional column named `gene_set` that denotes the gene set that each gene identifier belongs to (see an example of this genes of interest file [here](../example-data/goi-lists/sample01_goi_list.tsv)).

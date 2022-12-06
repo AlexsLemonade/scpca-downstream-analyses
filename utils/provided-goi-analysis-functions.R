@@ -120,10 +120,9 @@ prepare_expression_df <- function(normalized_sce,
   # with each marker gene symbol
   expression_means_df <- logcounts(normalized_sce[rownames(normalized_sce) %in% goi_list[[ensembl_id_column_sym]],]) %>%
     t() %>%
+    as.matrix() %>%
     as.data.frame() %>%
     tibble::rownames_to_column("cell_barcode") %>%
-    # add column containing average gene expression of each cell for all genes
-    dplyr::mutate(A_all_mean_exp = colMeans(logcounts(normalized_sce))) %>%
     tidyr::pivot_longer(
       cols = -c("cell_barcode"),
       names_to = ensembl_id_column,
@@ -184,12 +183,32 @@ plot_goi_expression_sina <- function(normalized_sce,
         )
       )
     
+    # calculate average gene expression
+    avg_gene_exp = mean(colMeans(logcounts(normalized_sce)))
+    
     sina_expression_plot <- ggplot(expression_means_df, aes(
       x = !!gene_symbol_column_sym,
       y = gene_expression,
       color = gene_expression)) +
-      ggforce::geom_sina() +
-      theme(axis.text.x = element_text(angle = 90))
+      ggforce::geom_sina(size = 0.2) +
+      theme(axis.text.x = element_text(angle = 90)) +
+      stat_summary(
+        aes(group = !!gene_symbol_column_sym),
+        color = "red",
+        # median and quartiles for point range
+        fun = "mean",
+        fun.min = function(x) {
+          quantile(x, 0.25)
+        },
+        fun.max = function(x) {
+          quantile(x, 0.75)
+        },
+        geom = "pointrange",
+        position = position_dodge(width = 0.7),
+        size = 0.2,
+        shape = 21
+      ) +
+      geom_hline(yintercept = avg_gene_exp, linetype = "dashed")
     
   } else {
     
@@ -197,8 +216,24 @@ plot_goi_expression_sina <- function(normalized_sce,
       x = !!ensembl_id_column_sym,
       y = gene_expression,
       color = gene_expression)) +
-      ggforce::geom_sina() +
-      theme(axis.text.x = element_text(angle = 90))
+      ggforce::geom_sina(size = 0.2) +
+      theme(axis.text.x = element_text(angle = 90)) +
+      stat_summary(
+        aes(group = !!ensembl_id_column_sym),
+        color = "red",
+        # median and quartiles for point range
+        fun = "mean",
+        fun.min = function(x) {
+          quantile(x, 0.25)
+        },
+        fun.max = function(x) {
+          quantile(x, 0.75)
+        },
+        geom = "pointrange",
+        position = position_dodge(width = 0.7),
+        size = 0.2,
+        shape = 21
+      )
   }
   
   return(sina_expression_plot)
@@ -246,7 +281,7 @@ plot_goi_expression_umap <- function(normalized_sce,
     
     umap_plot <- ggplot(expression_umap_df,
                         aes(x = X1, y = X2, color = gene_expression)) +
-      geom_point(size = 0.5) +
+      geom_point(size = 0.01) +
       facet_wrap(as.formula(paste("~", gene_symbol_column))) +
       scale_color_viridis_c()
   } else {
@@ -257,7 +292,7 @@ plot_goi_expression_umap <- function(normalized_sce,
     
     umap_plot <- ggplot(expression_umap_df,
                         aes(x = X1, y = X2, color = gene_expression)) +
-      geom_point(size = 0.5) +
+      geom_point(size = 0.01) +
       facet_wrap(as.formula(paste("~", ensembl_id_column))) +
       scale_color_viridis_c()
   }
@@ -308,7 +343,7 @@ plot_goi_expression_pca <- function(normalized_sce,
     
     pca_plot <- ggplot(expression_pca_df,
                        aes(x = PC1, y = PC2, color = gene_expression)) +
-      geom_point(size = 0.5) +
+      geom_point(size = 0.3) +
       facet_wrap(as.formula(paste("~", gene_symbol_column))) +
       scale_color_viridis_c()
   } else {
@@ -319,7 +354,7 @@ plot_goi_expression_pca <- function(normalized_sce,
     
     pca_plot <- ggplot(expression_pca_df,
                        aes(x = PC1, y = PC2, color = gene_expression)) +
-      geom_point(size = 0.5) +
+      geom_point(size = 0.3) +
       facet_wrap(as.formula(paste("~", ensembl_id_column))) +
       scale_color_viridis_c()
   }

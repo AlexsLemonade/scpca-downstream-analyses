@@ -1,14 +1,12 @@
 ---
 params:
-  sample: Sample
-  normalized_sce: "data/anderson-single-cell/normalized/normalized_GSM4186961_sce.rds"
-  goi_list: "data/anderson-single-cell/goi-lists/mapped_goi_list.tsv"
+  library: "library01"
+  normalized_sce: "example-results/sample01/library01_processed_sce.rds"
   date: !r Sys.Date()
-  gene_set_column: NULL
-  ensembl_id_column: "ensembl"
-  gene_symbol_column: NULL
+  goi_input_directory: "example-results/sample01/goi-stats"
+  project_root: NULL
 
-title: "`r glue::glue('Gene expression plots for {params$sample}')`"
+title: "`r glue::glue('Gene expression plots for {params$library}')`"
 author: "CCDL"
 date: "`r params$date`"
 output: 
@@ -16,17 +14,26 @@ output:
     toc: true
     toc_depth: 2
     toc_float: true
-    number_sections: true
+    number_sections: false
     code_folding: hide
 ---
-
-## Set Up
 
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE
 )
+
+# If project root is not provided use here::here() 
+if (is.null(params$project_root)) {
+  project_root <- here::here()
+} else {
+  project_root <- params$project_root
+} 
+
+# Tell knitr to knit from the project root to be able to load `renv` properly
+# This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
+knitr::opts_knit$set(root.dir = project_root)
 ```
 
 ```{r}
@@ -42,77 +49,53 @@ library(ComplexHeatmap)
 set.seed(201)
 
 # Source custom functions script
-source(file.path("..", "utils", "provided-goi-analysis-functions.R"))
+source(file.path(project_root, "utils", "provided-goi-analysis-functions.R"))
 ```
-
-## Read in data
 
 ```{r}
 normalized_sce <- read_rds(file.path(params$normalized_sce))
 
-goi_list <- read_tsv(file.path(params$goi_list))
+goi_list <-
+  read_tsv(file.path(
+    project_root,
+    params$goi_input_directory,
+    paste0(params$library, "_mapped_genes.tsv")
+  ))
 
-num_cells <- dim(normalized_sce)[2]
-glue::glue("This sample has {num_cells} cells.")
+goi_df <- as.data.frame(goi_list)
 ```
 
-## Perform Hierarchical Clustering
-
 ```{r}
-ensembl_id_column_sym <- rlang::sym(params$ensembl_id_column)
+heatmap_matrix <- Matrix::readMM(file.path(
+            params$goi_input_directory,
+            paste0(params$library, "_normalized_zscores.mtx")
+          ))
+# Convert to standard matrix for heatmap plotting
+heatmap_matrix <- as.matrix(heatmap_matrix)
 
-# get logcounts from normalized sce object
-normalized_sce_logcounts_matrix <- as.matrix(t(logcounts(normalized_sce)))
+column_annotation <- read_rds(file.path(
+  project_root,
+  params$goi_input_directory,
+  paste0(params$library, "_heatmap_annotation.rds")
+))
+```
 
-# filter counts matrix to only data associated with the provided genes of
-# interest
-normalized_sce_logcounts_matrix <- normalized_sce_logcounts_matrix[,colnames(normalized_sce_logcounts_matrix) %in% goi_list[[ensembl_id_column_sym]]]
+```{r results='asis'}
+existing_goi <- goi_df %>%
+  dplyr::filter(sce_rownames_identifier %in% rownames(logcounts(normalized_sce)) | 
+                  gene_id %in% rownames(logcounts(normalized_sce))) %>%
+  dplyr::pull(gene_id)
 
-# transform counts into z-scores
-normalized_sce_zscores_matrix <- scale(normalized_sce_logcounts_matrix,
-                                    center = TRUE, scale = TRUE)
-
-# prepare the matrix and column annotation for heatmap plotting
-if(!is.null(params$gene_set_column)) {
-  if (!is.null(params$gene_symbol_column)) {
-    normalized_sce_zscores_matrix <- colnames_to_gene_symbols(
-        normalized_sce_zscores_matrix,
-        goi_list,
-        params$ensembl_id_column,
-        params$gene_symbol_column
-      )
-    gene_id_column <- params$gene_symbol_column
-    column_annotation <-
-      prepare_heatmap_annotation(
-        normalized_sce_zscores_matrix,
-        goi_list,
-        gene_id_column,
-        params$gene_set_column
-      )
-  } else {
-    gene_id_column <- params$ensembl_id_column
-    column_annotation <-
-      prepare_heatmap_annotation(
-        normalized_sce_zscores_matrix,
-        goi_list,
-        gene_id_column,
-        params$gene_set_column
-      )
-  }
-} else {
-  if (!is.null(params$gene_symbol_column)) {
-    normalized_sce_zscores_matrix <-
-      colnames_to_gene_symbols(
-        normalized_sce_zscores_matrix,
-        goi_list,
-        params$ensembl_id_column,
-        params$gene_symbol_column
-      )
-    column_annotation <- NULL
-  } else {
-    column_annotation <- NULL
-  }
-}
+existing_goi_print <- paste(existing_goi, collapse = ", ")
+glue::glue("
+    <div class=\"alert alert-warning\">
+    
+    The following genes of interest can be found in the provided dataset:
+    
+    {existing_goi_print}
+    
+    </div>
+  ")
 ```
 
 ### Heatmap plotting
@@ -123,7 +106,7 @@ The colored bar on the top of the graph indicates which gene set the provided ge
 
 ```{r, fig.width=10, fig.height=10}
 # create the ComplexHeatmap
-Heatmap(normalized_sce_zscores_matrix,
+Heatmap(heatmap_matrix,
         # implement a correlation based distance metric
         clustering_distance_rows = "pearson",
         # calculate the average distance between each cluster before merging
@@ -144,11 +127,16 @@ The plot below displays the normalized and transformed expression for each of th
 genes of interest in comparison to the mean expression of all genes present in the dataset. 
 
 ```{r}
-# plot expression of genes of interest
+if(all.equal(goi_list$gene_id, goi_list$sce_rownames_identifier) == TRUE) {
+  gene_id_column <- NULL
+} else {
+  gene_id_column <- "gene_id"
+}
+
 plot_goi_expression_sina(normalized_sce,
-                             goi_list,
-                             params$ensembl_id_column,
-                             params$gene_symbol_column)
+                         goi_df,
+                         "sce_rownames_identifier",
+                         gene_id_column)
 ```
 
 ### UMAP plots
@@ -158,9 +146,9 @@ Each dot represents a cell and the color indicates the individual gene of intere
 
 ```{r}
 plot_goi_expression_umap(normalized_sce,
-                             goi_list,
-                             params$ensembl_id_column,
-                             params$gene_symbol_column)
+                         goi_df,
+                         "sce_rownames_identifier",
+                         gene_id_column)
 ```
 
 ### PCA plots
@@ -170,9 +158,9 @@ Each dot represents a cell and the color indicates the individual gene of intere
 
 ```{r}
 plot_goi_expression_pca(normalized_sce,
-                            goi_list,
-                            params$ensembl_id_column,
-                            params$gene_symbol_column)
+                        goi_df,
+                        "sce_rownames_identifier",
+                        gene_id_column)
 ```
 
 ## Session Info

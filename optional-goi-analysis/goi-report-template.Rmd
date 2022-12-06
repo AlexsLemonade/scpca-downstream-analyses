@@ -86,7 +86,7 @@ existing_goi <- goi_df %>%
                   gene_id %in% rownames(logcounts(normalized_sce))) %>%
   dplyr::pull(gene_id)
 
-existing_goi_print <- paste0("<li>", paste(existing_goi, collapse = '</li><li>', "</li>"))
+existing_goi_print <- paste(existing_goi, collapse = ", ")
 glue::glue("
     <div class=\"alert alert-warning\">
     

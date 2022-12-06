@@ -208,7 +208,7 @@ plot_goi_expression_sina <- function(normalized_sce,
         size = 0.2,
         shape = 21
       ) +
-      geom_hline(yintercept = avg_gene_exp, type = "dashed")
+      geom_hline(yintercept = avg_gene_exp, linetype = "dashed")
     
   } else {
     

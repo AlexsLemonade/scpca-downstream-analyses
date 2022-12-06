@@ -52,7 +52,7 @@ goi_stats
 ├── library01_mapped_genes.tsv
 ├── library01_normalized_zscores.mtx
 ├── library01_heatmap_annotation.rds
-└── library01_goi-report-template.html
+└── library01_goi-report.html
 ```
 
 1. A `_mapped_genes.tsv` file with mapped genes of interest if the `--perform_mapping` is `TRUE` upon running the workflow. Otherwise this file will store just the provided genes of interest, and a new column named `sce_rownames_identifier` with the genes of interest identifiers copied over to the column.

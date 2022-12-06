@@ -62,7 +62,7 @@ goi_list <-
     paste0(params$library, "_mapped_genes.tsv")
   ))
 
-goi_list <- as.data.frame(goi_list)
+goi_df <- as.data.frame(goi_list)
 ```
 
 ```{r}
@@ -81,10 +81,10 @@ column_annotation <- read_rds(file.path(
 ```
 
 ```{r results='asis'}
-existing_goi <- goi_list %>%
+existing_goi <- goi_df %>%
   dplyr::filter(sce_rownames_identifier %in% rownames(logcounts(normalized_sce)) | 
                   gene_id %in% rownames(logcounts(normalized_sce))) %>%
-  dplyr::select(gene_id)
+  dplyr::pull(gene_id)
 
 existing_goi_print <- paste0("<li>", paste(existing_goi, collapse = '</li><li>', "</li>"))
 glue::glue("
@@ -134,9 +134,9 @@ if(all.equal(goi_list$gene_id, goi_list$sce_rownames_identifier) == TRUE) {
 }
 
 plot_goi_expression_sina(normalized_sce,
-                           goi_list,
-                           "sce_rownames_identifier",
-                           gene_id_column)
+                         goi_df,
+                         "sce_rownames_identifier",
+                         gene_id_column)
 ```
 
 ### UMAP plots
@@ -146,7 +146,7 @@ Each dot represents a cell and the color indicates the individual gene of intere
 
 ```{r}
 plot_goi_expression_umap(normalized_sce,
-                         goi_list,
+                         goi_df,
                          "sce_rownames_identifier",
                          gene_id_column)
 ```
@@ -158,7 +158,7 @@ Each dot represents a cell and the color indicates the individual gene of intere
 
 ```{r}
 plot_goi_expression_pca(normalized_sce,
-                        goi_list,
+                        goi_df,
                         "sce_rownames_identifier",
                         gene_id_column)
 ```

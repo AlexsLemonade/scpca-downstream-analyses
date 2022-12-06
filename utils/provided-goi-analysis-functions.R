@@ -184,7 +184,7 @@ plot_goi_expression_sina <- function(normalized_sce,
       )
     
     # calculate average gene expression
-    avg_gene_exp=colMeans(logcounts(normalized_sce))
+    avg_gene_exp = mean(colMeans(logcounts(normalized_sce)))
     
     sina_expression_plot <- ggplot(expression_means_df, aes(
       x = !!gene_symbol_column_sym,

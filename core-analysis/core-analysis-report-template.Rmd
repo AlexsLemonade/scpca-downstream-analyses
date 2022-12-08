@@ -217,7 +217,7 @@ plotReducedDim(
       params$nearest_neighbors
     )
   ) +
-  guides(col = guide_legend("Cluster assignment")) +
+  guides(col = guide_legend("Cluster assignment", override.aes = list(size = 5))) +
   theme(text = element_text(size = 14),
         plot.caption = element_text(hjust = 0.5))
 ```

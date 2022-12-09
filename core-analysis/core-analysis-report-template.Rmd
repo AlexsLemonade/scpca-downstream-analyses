@@ -80,7 +80,7 @@ processed_meta <- metadata(processed_sce)
 
 # Define number of cells
 num_cells_pre_processed <- dim(pre_processed_sce)[2]
-num_filtered_cells <- dim(processed_sce)[2]
+num_filtered_cells <- processed_meta$num_filtered_cells_retained
 
 # Define sample id
 if(is.null(processed_meta$sample)){

@@ -248,9 +248,11 @@ detected <-
 expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
 filtered_sce <- filtered_sce[detected & expressed, ]
 
-# Save sample and library id in metadata of filtered object
+# Save sample, library id, and number of cells retained after filtering in 
+# metadata of filtered object
 metadata(filtered_sce)$sample <- opt$sample_id
 metadata(filtered_sce)$library <- opt$library_id
+metadata(filtered_sce)$num_filtered_cells_retained <- dim(filtered_sce)[2]
 
 # Save output filtered sce
 readr::write_rds(filtered_sce, output_file)

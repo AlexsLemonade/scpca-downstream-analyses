@@ -321,6 +321,7 @@ In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecel
 | `mito_percent_cutoff` | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`. |
 | `detected_gene_cutoff` | Minimum number of genes detected per cell, which is only present when `filtering_method` is set to `manual`. |
 | `umi_count_cutoff` | Minimum unique molecular identifiers (UMI) per cell, which is only present when `filtering_method` is set to `manual`. |
+| `num_filtered_cells_retained` | The number of cells retained after filtering using the specified filtering method, either `miQC` or `manual`. |
 | `normalization` | Indicates if clustering of similar cells using [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) prior to normalization with `scater::logNormCounts()` was successful. |
 | `variable_genes` | The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html). |
 

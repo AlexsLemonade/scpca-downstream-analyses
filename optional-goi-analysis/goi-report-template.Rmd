@@ -73,11 +73,15 @@ heatmap_matrix <- Matrix::readMM(file.path(
 # Convert to standard matrix for heatmap plotting
 heatmap_matrix <- as.matrix(heatmap_matrix)
 
-column_annotation <- read_rds(file.path(
-  project_root,
-  params$goi_input_directory,
-  paste0(params$library, "_heatmap_annotation.rds")
-))
+if(!is.null(goi_list$gene_set)) {
+  heatmap_annotation <- read_rds(file.path(
+    project_root,
+    params$goi_input_directory,
+    paste0(params$library, "_heatmap_annotation.rds")
+  ))
+} else {
+  heatmap_annotation <- NULL
+}
 ```
 
 ```{r results='asis'}
@@ -115,7 +119,7 @@ Heatmap(heatmap_matrix,
         clustering_method_columns = "average",
         show_row_names = FALSE,
         show_column_names = TRUE,
-        top_annotation = column_annotation,
+        top_annotation = heatmap_annotation,
         name = "z score")
 ```
 

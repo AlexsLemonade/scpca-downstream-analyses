@@ -292,8 +292,7 @@ if(!is.null(goi_list$gene_set)) {
         goi_rownames_column,
         "gene_id"
       )
-  } 
-  column_annotation <- NULL
+  }
 }
 
 # Convert heatmap matrix to a sparse matrix and save to file
@@ -304,8 +303,11 @@ Matrix::writeMM(normalized_zscores_matrix,
             paste0(opt$library_id, "_normalized_zscores.mtx")
           ))
 
-# Save heatmap column annotation to file
-write_rds(column_annotation, file.path(
-  opt$output_directory,
-  paste0(opt$library_id, "_heatmap_annotation.rds")
-))
+if(exists("column_annotation")) {
+  # Save heatmap column annotation to file
+  write_rds(column_annotation,
+            file.path(
+              opt$output_directory,
+              paste0(opt$library_id, "_heatmap_annotation.rds")
+            ))
+}

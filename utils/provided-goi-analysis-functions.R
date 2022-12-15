@@ -9,7 +9,7 @@
 colnames_to_plotting_symbols <- function(normalized_sce_matrix,
                                     goi_list,
                                     sce_rownames_column,
-                                    optional_plotting_column) {
+                                    plotting_column) {
   # Given a normalized SingleCellExperiment matrix, the name of the column with
   # the SCE rowname identifiers, the name of the associated plotting identifiers,
   # convert the matrix column names into the plotting ids for heatmap plotting.
@@ -20,12 +20,12 @@ colnames_to_plotting_symbols <- function(normalized_sce_matrix,
   #   goi_list: data frame with provided genes of interest relevant to the data
   #             in the SingleCellExperiment object
   #   sce_rownames_column: name of the column with the SCE row identifiers
-  #   optional_plotting_column: name of the column with the identifiers that
-  #                             would be used for plotting if provided at the 
-  #                             command line
+  #   plotting_column: name of the column with the identifiers to be used for 
+  #                    plotting
+  
   
   # turn the gene symbol column name into a symbol for use when subsetting
-  optional_plotting_column_sym <- rlang::sym(optional_plotting_column)
+  plotting_column_sym <- rlang::sym(plotting_column)
   
   # we will want to replace the column names our matrix with the relevant gene
   # symbols for plotting
@@ -34,7 +34,7 @@ colnames_to_plotting_symbols <- function(normalized_sce_matrix,
     dplyr::left_join(goi_list, by = c("ensembl" = sce_rownames_column))
   
   colnames(normalized_sce_matrix) <-
-    map_ensembl_symbols[[optional_plotting_column_sym]]
+    map_ensembl_symbols[[plotting_column_sym]]
   
   return(normalized_sce_matrix)
   
@@ -170,10 +170,10 @@ plot_goi_expression_sina <- function(normalized_sce,
                                                sce_rownames_column)
   
   # Check for optional plotting identifiers if `use_rownames` is FALSE
-  if(use_rownames == FALSE && is.null(optional_plotting_column)){
-    stop("When `use_rownames` = FALSE, a column name that contains optional 
+  if(!use_rownames && is.null(optional_plotting_column)){
+    stop("When `use_rownames = FALSE`, a column name that contains optional 
     plotting identifiers should be provided. Please provide this column name or
-    implement `use_rownames` = TRUE.")
+    implement `use_rownames = TRUE`.")
   }
   
   if(!is.null(optional_plotting_column)) {
@@ -181,17 +181,8 @@ plot_goi_expression_sina <- function(normalized_sce,
     
     expression_means_df <- expression_means_df %>%
       dplyr::select(-cell_barcode) %>%
-      dplyr::distinct() %>%
-      # ensure that the symbol column contains the all_mean_expressed name
-      # rather than NA
-      dplyr::mutate(
-        !!optional_plotting_column := ifelse(
-          !!sce_rownames_column_sym == "A_all_mean_exp",
-          "A_all_mean_exp",
-          !!optional_plotting_column_sym
-        )
-      )
-    
+      dplyr::distinct()
+
     # calculate average gene expression
     avg_gene_exp = mean(colMeans(logcounts(normalized_sce)))
     
@@ -284,10 +275,10 @@ plot_goi_expression_umap <- function(normalized_sce,
     dplyr::left_join(expression_means_df, by = "cell_barcode")
   
   # Check for optional plotting identifiers if `use_rownames` is FALSE
-  if(use_rownames == FALSE && is.null(optional_plotting_column)){
-    stop("When `use_rownames` = FALSE, a column name that contains optional 
+  if(!use_rownames && is.null(optional_plotting_column)){
+    stop("When `use_rownames = FALSE`, a column name that contains optional 
     plotting identifiers should be provided. Please provide this column name or
-    implement `use_rownames` = TRUE.")
+    implement `use_rownames = TRUE`.")
   }
   
   # Plot UMAP, color by marker gene expression

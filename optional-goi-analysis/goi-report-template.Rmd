@@ -134,9 +134,9 @@ if(all.equal(goi_list$gene_id, goi_list$sce_rownames_identifier) == TRUE) {
 }
 
 plot_goi_expression_sina(normalized_sce,
-                         goi_df,
-                         "sce_rownames_identifier",
-                         gene_id_column,
+                         goi_list = goi_df,
+                         sce_rownames_column = "sce_rownames_identifier",
+                         optional_plotting_column = gene_id_column,
                          use_rownames = FALSE)
 ```
 
@@ -147,9 +147,9 @@ Each dot represents a cell and the color indicates the individual gene of intere
 
 ```{r}
 plot_goi_expression_umap(normalized_sce,
-                         goi_df,
-                         "sce_rownames_identifier",
-                         gene_id_column,
+                         goi_list = goi_df,
+                         sce_rownames_column = "sce_rownames_identifier",
+                         optional_plotting_column = gene_id_column,
                          use_rownames = FALSE)
 ```
 
@@ -160,9 +160,9 @@ Each dot represents a cell and the color indicates the individual gene of intere
 
 ```{r}
 plot_goi_expression_pca(normalized_sce,
-                        goi_df,
-                        "sce_rownames_identifier",
-                        gene_id_column,
+                        goi_list = goi_df,
+                        sce_rownames_column = "sce_rownames_identifier",
+                        optional_plotting_column = gene_id_column,
                         use_rownames = FALSE)
 ```
 

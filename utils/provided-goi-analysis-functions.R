@@ -6,34 +6,35 @@
 #
 # source(file.path("utils", "provided-goi-analysis-functions.R"))
 
-colnames_to_gene_symbols <- function(normalized_sce_matrix,
+colnames_to_plotting_symbols <- function(normalized_sce_matrix,
                                     goi_list,
-                                    ensembl_id_column,
-                                    gene_symbol_column) {
+                                    sce_rownames_column,
+                                    plotting_column) {
   # Given a normalized SingleCellExperiment matrix, the name of the column with
-  # the Ensembl gene identifiers, the name of the associated gene symbols,
-  # convert the matrix column names into symbols for heatmap plotting.
+  # the SCE rowname identifiers, the name of the associated plotting identifiers,
+  # convert the matrix column names into the plotting ids for heatmap plotting.
   #
   # Args:
   #   normalized_sce_matrix: matrix retrieved from a normalized
   #                          SingleCellExperiment object
   #   goi_list: data frame with provided genes of interest relevant to the data
   #             in the SingleCellExperiment object
-  #   ensembl_id_column: name of the column with the ensembl gene identifiers
-  #   gene_symbol_column: name of the column with the gene symbols that would be
-  #                       used for plotting if provided at the command line
+  #   sce_rownames_column: name of the column with the SCE row identifiers
+  #   plotting_column: name of the column with the identifiers to be used for 
+  #                    plotting
+  
   
   # turn the gene symbol column name into a symbol for use when subsetting
-  gene_symbol_column_sym <- rlang::sym(gene_symbol_column)
+  plotting_column_sym <- rlang::sym(plotting_column)
   
   # we will want to replace the column names our matrix with the relevant gene
   # symbols for plotting
   map_ensembl_symbols <-
     data.frame(ensembl = colnames(normalized_sce_matrix)) %>%
-    dplyr::left_join(goi_list, by = c("ensembl" = ensembl_id_column))
+    dplyr::left_join(goi_list, by = c("ensembl" = sce_rownames_column))
   
   colnames(normalized_sce_matrix) <-
-    map_ensembl_symbols[[gene_symbol_column_sym]]
+    map_ensembl_symbols[[plotting_column_sym]]
   
   return(normalized_sce_matrix)
   
@@ -101,7 +102,7 @@ prepare_heatmap_annotation <- function(normalized_sce_matrix,
 
 prepare_expression_df <- function(normalized_sce,
                                   goi_list,
-                                  ensembl_id_column) {
+                                  sce_rownames_column) {
   # Given a normalized SingleCellExperiment object and a goi list,
   # prepare a gene expression data frame for plotting.
   #
@@ -109,26 +110,25 @@ prepare_expression_df <- function(normalized_sce,
   #   normalized_sce: normalized SingleCellExperiment object
   #   goi_list: data frame with genes of interest relevant to the data in the
   #                 SingleCellExperiment object
-  #   ensembl_id_column: name of the column with the ensembl gene identifiers
+  #   sce_rownames_column: name of the column with the SCE rowname identifiers
   #                              used for mapping
   
-  # Turn the ensembl and gene symbol column names into symbols for use when
-  # subsetting
-  ensembl_id_column_sym <- rlang::sym(ensembl_id_column)
+  # Turn the SCE rownames into symbols for use when subsetting
+  sce_rownames_column_sym <- rlang::sym(sce_rownames_column)
   
   # Prepare a data frame containing the logcounts expression values associated
   # with each marker gene symbol
-  expression_means_df <- logcounts(normalized_sce[rownames(normalized_sce) %in% goi_list[[ensembl_id_column_sym]],]) %>%
+  expression_means_df <- logcounts(normalized_sce[rownames(normalized_sce) %in% goi_list[[sce_rownames_column_sym]],]) %>%
     t() %>%
     as.matrix() %>%
     as.data.frame() %>%
     tibble::rownames_to_column("cell_barcode") %>%
     tidyr::pivot_longer(
       cols = -c("cell_barcode"),
-      names_to = ensembl_id_column,
+      names_to = sce_rownames_column,
       values_to = "gene_expression"
     ) %>%
-    dplyr::left_join(goi_list, by = ensembl_id_column)
+    dplyr::left_join(goi_list, by = sce_rownames_column)
   
   return(expression_means_df)
   
@@ -136,8 +136,9 @@ prepare_expression_df <- function(normalized_sce,
 
 plot_goi_expression_sina <- function(normalized_sce,
                                      goi_list,
-                                     ensembl_id_column,
-                                     gene_symbol_column = NULL) {
+                                     sce_rownames_column,
+                                     optional_plotting_column = NULL,
+                                     use_rownames = TRUE) {
   
   # Given a normalized SingleCellExperiment object and a goi list,
   # plot the gene expression of each gene of interest on a sina plot against the
@@ -147,10 +148,12 @@ plot_goi_expression_sina <- function(normalized_sce,
   #   normalized_sce: normalized SingleCellExperiment object
   #   goi_list: data frame with genes of interest relevant to the data in the
   #                 SingleCellExperiment object
-  #   ensembl_id_column: name of the column with the ensembl gene identifiers
+  #   sce_rownames_column: name of the column with the SCE rowname identifiers
   #                              used for mapping
-  #   gene_symbol_column: name of the column with the gene symbols that would be
-  #                              used for plotting if provided
+  #   optional_plotting_column: name of the column with the identifiers that
+  #                             would be used for plotting if provided
+  #   use_rownames: indicates whether or not the SCE rowname identifiers should
+  #                 be used when plotting; default is TRUE
   #
   # Returns:
   #   sina_expression_plot: sina plots displaying the logcounts expression
@@ -158,42 +161,39 @@ plot_goi_expression_sina <- function(normalized_sce,
   #                         the mean logcounts expression of all the genes of
   #                         interest
   
-  # Turn the ensembl and gene symbol column names into symbols for use when
-  # subsetting
-  ensembl_id_column_sym <- rlang::sym(ensembl_id_column)
+  # Turn the SCE rownames into symbols for use when subsetting
+  sce_rownames_column_sym <- rlang::sym(sce_rownames_column)
   
   # Run the `prepare_expression_df` function
   expression_means_df <- prepare_expression_df(normalized_sce,
                                                goi_list,
-                                               ensembl_id_column)
+                                               sce_rownames_column)
   
-  if(!is.null(gene_symbol_column)) {
-    gene_symbol_column_sym <- rlang::sym(gene_symbol_column)
+  # Check for optional plotting identifiers if `use_rownames` is FALSE
+  if(!use_rownames && is.null(optional_plotting_column)){
+    stop("When `use_rownames = FALSE`, a column name that contains optional 
+    plotting identifiers should be provided. Please provide this column name or
+    implement `use_rownames = TRUE`.")
+  }
+  
+  if(!is.null(optional_plotting_column)) {
+    optional_plotting_column_sym <- rlang::sym(optional_plotting_column)
     
     expression_means_df <- expression_means_df %>%
       dplyr::select(-cell_barcode) %>%
-      dplyr::distinct() %>%
-      # ensure that the symbol column contains the all_mean_expressed name
-      # rather than NA
-      dplyr::mutate(
-        !!gene_symbol_column := ifelse(
-          !!ensembl_id_column_sym == "A_all_mean_exp",
-          "A_all_mean_exp",
-          !!gene_symbol_column_sym
-        )
-      )
-    
+      dplyr::distinct()
+
     # calculate average gene expression
     avg_gene_exp = mean(colMeans(logcounts(normalized_sce)))
     
     sina_expression_plot <- ggplot(expression_means_df, aes(
-      x = !!gene_symbol_column_sym,
+      x = !!optional_plotting_column_sym,
       y = gene_expression,
       color = gene_expression)) +
       ggforce::geom_sina(size = 0.2) +
       theme(axis.text.x = element_text(angle = 90)) +
       stat_summary(
-        aes(group = !!gene_symbol_column_sym),
+        aes(group = !!optional_plotting_column_sym),
         color = "red",
         # median and quartiles for point range
         fun = "mean",
@@ -213,13 +213,13 @@ plot_goi_expression_sina <- function(normalized_sce,
   } else {
     
     sina_expression_plot <- ggplot(expression_means_df, aes(
-      x = !!ensembl_id_column_sym,
+      x = !!sce_rownames_column_sym,
       y = gene_expression,
       color = gene_expression)) +
       ggforce::geom_sina(size = 0.2) +
       theme(axis.text.x = element_text(angle = 90)) +
       stat_summary(
-        aes(group = !!ensembl_id_column_sym),
+        aes(group = !!sce_rownames_column_sym),
         color = "red",
         # median and quartiles for point range
         fun = "mean",
@@ -240,9 +240,10 @@ plot_goi_expression_sina <- function(normalized_sce,
 }
 
 plot_goi_expression_umap <- function(normalized_sce,
-                                         goi_list,
-                                         ensembl_id_column,
-                                         gene_symbol_column = NULL){
+                                     goi_list,
+                                     sce_rownames_column,
+                                     optional_plotting_column = NULL,
+                                     use_rownames = TRUE){
   # Given a normalized SingleCellExperiment object and a vector of marker genes,
   # plot the gene expression on the UMAP results from the SingleCellExperiment
   # object.
@@ -252,10 +253,12 @@ plot_goi_expression_umap <- function(normalized_sce,
   #                   results
   #   goi_list: data frame with marker genes relevant to the data in the
   #                 SingleCellExperiment object
-  #   ensembl_id_column: name of the column with the ensembl gene identifiers
+  #   sce_rownames_column: name of the column with the SCE rowname identifiers
   #                              used for mapping
-  #   gene_symbol_column: name of the column with the gene symbols that would be
+  #   optional_plotting_column: name of the column with the gene symbols that would be
   #                              used for plotting if provided
+  #   use_rownames: indicates whether or not the SCE rowname identifiers should
+  #                 be used when plotting; default is TRUE
   #
   # Returns:
   #   umap_plot: UMAP plots colored by gene expression for each of the
@@ -264,36 +267,42 @@ plot_goi_expression_umap <- function(normalized_sce,
   # Run the `prepare_expression_df` function
   expression_means_df <- prepare_expression_df(normalized_sce,
                                                goi_list,
-                                               ensembl_id_column)
+                                               sce_rownames_column)
   
   # Get the UMAP matrix and then join the UMAP results with the expression data using the cell barcodes
   expression_umap_df <- data.frame(reducedDim(normalized_sce, "UMAP")) %>%
     tibble::rownames_to_column("cell_barcode") %>%
     dplyr::left_join(expression_means_df, by = "cell_barcode")
   
+  # Check for optional plotting identifiers if `use_rownames` is FALSE
+  if(!use_rownames && is.null(optional_plotting_column)){
+    stop("When `use_rownames = FALSE`, a column name that contains optional 
+    plotting identifiers should be provided. Please provide this column name or
+    implement `use_rownames = TRUE`.")
+  }
   
   # Plot UMAP, color by marker gene expression
-  if(!is.null(gene_symbol_column)) {
+  if(!is.null(optional_plotting_column)) {
     # Turn the gene symbol column name into a symbol for use when filtering
-    gene_symbol_column_sym <- rlang::sym(gene_symbol_column)
+    optional_plotting_column_sym <- rlang::sym(optional_plotting_column)
     expression_umap_df <- expression_umap_df %>%
-      dplyr::filter(!is.na(!!gene_symbol_column_sym))
+      dplyr::filter(!is.na(!!optional_plotting_column_sym))
     
     umap_plot <- ggplot(expression_umap_df,
                         aes(x = X1, y = X2, color = gene_expression)) +
       geom_point(size = 0.01) +
-      facet_wrap(as.formula(paste("~", gene_symbol_column))) +
+      facet_wrap(as.formula(paste("~", optional_plotting_column))) +
       scale_color_viridis_c()
   } else {
-    # Turn the ensembl column name into a symbol for use when filtering
-    ensembl_id_column_sym <- rlang::sym(ensembl_id_column)
+    # Turn the SCE rownames column into a symbol for use when filtering
+    sce_rownames_column_sym <- rlang::sym(sce_rownames_column)
     expression_umap_df <- expression_umap_df %>%
-      dplyr::filter(!is.na(!!ensembl_id_column_sym))
+      dplyr::filter(!is.na(!!sce_rownames_column_sym))
     
     umap_plot <- ggplot(expression_umap_df,
                         aes(x = X1, y = X2, color = gene_expression)) +
       geom_point(size = 0.01) +
-      facet_wrap(as.formula(paste("~", ensembl_id_column))) +
+      facet_wrap(as.formula(paste("~", sce_rownames_column))) +
       scale_color_viridis_c()
   }
   
@@ -301,9 +310,10 @@ plot_goi_expression_umap <- function(normalized_sce,
 }
 
 plot_goi_expression_pca <- function(normalized_sce,
-                                        goi_list,
-                                        ensembl_id_column,
-                                        gene_symbol_column = NULL){
+                                    goi_list,
+                                    sce_rownames_column,
+                                    optional_plotting_column = NULL,
+                                    use_rownames = TRUE){
   
   # Given a normalized SingleCellExperiment object and a vector of marker genes,
   # plot the gene expression on the PCA results from the SingleCellExperiment
@@ -314,10 +324,12 @@ plot_goi_expression_pca <- function(normalized_sce,
   #                   results
   #   goi_list: data frame with marker genes relevant to the data in the
   #                 SingleCellExperiment object
-  #   ensembl_id_column: name of the column with the ensembl gene identifiers
+  #   sce_rownames_column: name of the column with the SCE rowname identifiers
   #                              used for mapping
-  #   gene_symbol_column: name of the column with the gene symbols that would be
+  #   optional_plotting_column: name of the column with the gene symbols that would be
   #                              used for plotting if provided
+  #   use_rownames: indicates whether or not the SCE rowname identifiers should
+  #                 be used when plotting; default is TRUE
   #
   # Returns:
   #   pca_plot: PCA plots colored by gene expression for each of the
@@ -326,36 +338,43 @@ plot_goi_expression_pca <- function(normalized_sce,
   # Run the `prepare_expression_df` function
   expression_means_df <- prepare_expression_df(normalized_sce,
                                                goi_list,
-                                               ensembl_id_column)
+                                               sce_rownames_column)
   
   # Get the PCA matrix and join the PCA results with the expression data using the cell barcodes
   expression_pca_df <- data.frame(reducedDim(normalized_sce, "PCA")) %>%
     tibble::rownames_to_column("cell_barcode") %>%
     dplyr::left_join(expression_means_df, by = "cell_barcode")
   
+  # Check for optional plotting identifiers if `use_rownames` is FALSE
+  if(use_rownames == FALSE && is.null(optional_plotting_column)){
+    stop("When `use_rownames` = FALSE, a column name that contains optional 
+    plotting identifiers should be provided. Please provide this column name or
+    implement `use_rownames` = TRUE.")
+  }
+  
   # Plot first two principal components, color by the expression values
   # associated with the provided genes of interest
-  if (!is.null(gene_symbol_column)) {
+  if (!is.null(optional_plotting_column)) {
     # Turn the gene symbol column name into a symbol for use when filtering
-    gene_symbol_column_sym <- rlang::sym(gene_symbol_column)
+    optional_plotting_column_sym <- rlang::sym(optional_plotting_column)
     expression_pca_df <- expression_pca_df %>%
-      dplyr::filter(!is.na(!!gene_symbol_column_sym))
+      dplyr::filter(!is.na(!!optional_plotting_column_sym))
     
     pca_plot <- ggplot(expression_pca_df,
                        aes(x = PC1, y = PC2, color = gene_expression)) +
       geom_point(size = 0.3) +
-      facet_wrap(as.formula(paste("~", gene_symbol_column))) +
+      facet_wrap(as.formula(paste("~", optional_plotting_column))) +
       scale_color_viridis_c()
   } else {
-    # Turn the gene symbol column name into a symbol for use when filtering
-    ensembl_id_column_sym <- rlang::sym(ensembl_id_column)
+    # Turn the SCE rownames column into a symbol for use when filtering
+    sce_rownames_column_sym <- rlang::sym(sce_rownames_column)
     expression_pca_df <- expression_pca_df %>%
-      dplyr::filter(!is.na(!!ensembl_id_column_sym))
+      dplyr::filter(!is.na(!!sce_rownames_column_sym))
     
     pca_plot <- ggplot(expression_pca_df,
                        aes(x = PC1, y = PC2, color = gene_expression)) +
       geom_point(size = 0.3) +
-      facet_wrap(as.formula(paste("~", ensembl_id_column))) +
+      facet_wrap(as.formula(paste("~", sce_rownames_column))) +
       scale_color_viridis_c()
   }
   

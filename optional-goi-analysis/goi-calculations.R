@@ -271,26 +271,26 @@ normalized_zscores_matrix <- scale(normalized_logcounts_matrix,
 # prepare the matrix and column annotation for heatmap plotting
 if(!is.null(goi_list$gene_set)) {
   if (!is.null(opt$provided_identifier)) {
-    normalized_zscores_matrix <- colnames_to_gene_symbols(
-      normalized_zscores_matrix,
-      goi_list,
-      goi_rownames_column,
-      "gene_id")
+    normalized_zscores_matrix <- colnames_to_plotting_symbols(
+      normalized_sce_matrix = normalized_zscores_matrix,
+      goi_list = goi_list,
+      sce_rownames_column = goi_rownames_column,
+      plotting_column = "gene_id")
   }
   column_annotation <-
-    prepare_heatmap_annotation(normalized_zscores_matrix,
-                               goi_list,
-                               "gene_id",
-                               "gene_set")
+    prepare_heatmap_annotation(normalized_sce_matrix = normalized_zscores_matrix,
+                               goi_list = goi_list,
+                               gene_id_column = "gene_id",
+                               gene_set = "gene_set")
   
 } else {
   if (!is.null(opt$provided_identifier)) {
     normalized_zscores_matrix <-
-      colnames_to_gene_symbols(
-        normalized_zscores_matrix,
-        goi_list,
-        goi_rownames_column,
-        "gene_id"
+      colnames_to_plotting_symbols(
+        normalized_sce_matrix = normalized_zscores_matrix,
+        goi_list = goi_list,
+        sce_rownames_column = goi_rownames_column,
+        plotting_column = "gene_id"
       )
   }
 }

@@ -63,8 +63,8 @@ The workflow can directly take as input the `filtered` RDS files downloaded from
 ```
 snakemake --cores 2 \
   --use-conda \
-  --config results_dir="relative path to relevant results directory" \
-  project_metadata="relative path to your-project-metadata.TSV"
+  --config results_dir="<REPLACE_WITH_RELATIVE_PATH_TO_RESULTS_DIRECTORY>" \
+  project_metadata="<REPLACE_WITH_RELATIVE_PATH_TO_YOUR_PROJECT_METADATA_TSV>"
 ```
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
@@ -85,9 +85,9 @@ There are two expected output files thay will be associated with each provided `
 
 See the [expected output section](#expected-output) for more information on these output files.
 
-## How to install the core downstream analyses workflow
+## 1. How to install the core downstream analyses workflow
 
-### 1) Clone the repository
+### a) Clone the repository
 
 First you will want to clone the [`scpca-downstream-analyses` repository](https://github.com/AlexsLemonade/scpca-downstream-analyses) from GitHub.
 
@@ -100,15 +100,16 @@ More instructions on cloning a GitHub repository can be found [here](https://doc
 
 Once the repository is successfully cloned, a folder named `scpca-downstream-analyses` containing a local copy of the contents of the repository will be created.
 
-### 2) Install Snakemake
+### b) Install Snakemake
 
 The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using a Snakemake workflow.
 Therefore, you will also need to install Snakemake before running the pipeline.
+Note that the **minimum** version of Snakemake you will need installed to be compatible with conda is version **5.23.0**.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
 Snakemake recommends installing it using the conda package manager.
-Here are the instructions to [install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
+Here are the instructions to [install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 We recommend the Miniconda installation.
 
 After installing conda, you can follow the steps below to set up the bioconda and conda-forge channels and install Snakemake in an isolated environment:
@@ -125,7 +126,7 @@ mamba create -n snakemake snakemake
 conda activate snakemake
 ```
 
-### 3) Additional dependencies
+### c) Additional dependencies
 
 To run the Snakemake workflow, you will need to have R version 4.2 installed, as well as the `renv` package and pandoc.
 This can be done independently, or you can use Snakemake's conda integration to set up an R environment that the workflow will use.
@@ -150,7 +151,7 @@ To use the environment you have just created, you will need to run Snakemake wit
 
 If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](./independent-installation-instructions.md).
 
-## Input data format
+## 2. Input data format
 
 The expected input for our core single-cell downstream analysis pipeline is a [`SingleCellExperiment` object](https://rdrr.io/bioc/SingleCellExperiment/man/SingleCellExperiment.html) that has been stored as a RDS file.
 This `SingleCellExperiment` object should contain non-normalized gene expression data with barcodes as the column names and gene identifiers as the row names.
@@ -161,7 +162,7 @@ The pipeline in this repository is setup to process data available on the [Singl
 For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
 Note however that the input for this pipeline is **not required** to be scpca-nf processed output.
 
-## Metadata file format
+## 3. Metadata file format
 
 Now the environment should be all set to implement the Snakemake workflow.
 Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
@@ -175,7 +176,7 @@ Each library ID should have a unique `filepath`.
 |[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv)|
 |---|
 
-## Running the workflow
+## 4. Running the workflow
 
 We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
 
@@ -209,9 +210,9 @@ The below code is an example of running the Snakemake workflow using the project
 ```
 snakemake --cores 2 \
   --use-conda \
-  --config results_dir="relative path to relevant results directory" \
-  project_metadata="relative path to your-project-metadata.TSV" \
-  mito_file="full path to your-mito-file.txt"
+  --config results_dir="<REPLACE_WITH_RELATIVE_PATH_TO_RESULTS_DIRECTORY>" \
+  project_metadata="<REPLACE_WITH_RELATIVE_PATH_TO_YOUR_PROJECT_METADATA_TSV>" \
+  mito_file="<REPLACE_WITH_FULL_PATH_TO_MITOCHONDRIAL_GENES_TXT_FILE>"
 ```
 
 **Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
@@ -283,7 +284,7 @@ snakemake --cores 2 \
 Also note that new changes should be merged through a pull request to the `development` branch.
 Changes will be pushed to the `main` branch once changes are ready for a new release (per the [release checklist document](.github/ISSUE_TEMPLATE/release-checklist.md)).
 
-## Expected output
+## 5. Expected output
 
 For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary HTML report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.
 These files can be found in the `example_results` folder, as defined in the `config.yaml` file.

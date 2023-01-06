@@ -11,8 +11,9 @@ labels: release
 ### Preparing for the release
 
 - [ ] Are all of the issues planned for this release resolved? If there are any issues that are unresolved, mark this issue as blocked by those on ZenHub.
-- [ ] Test that the workflow is in good working order:
+- [ ] Test that the workflow(s) is in good working order and ensure that you have ran the lastest version of the workflow(s):
   - If making additions to the core workflow, test the workflow using the example data with `snakemake --cores 2 --use-conda`
+- [ ] Update the `shared/data` directory with the new example results files and ensure that you run the `utils/sync-results.sh` from the `scpca-tester` RStudio server account to update the example results files there.
 - [ ] File a PR from the `development` branch to the `main` branch. This should include all of the changes that will be associated with the next release.
 
 ### Creating a release

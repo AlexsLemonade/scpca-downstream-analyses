@@ -3,6 +3,7 @@ data/
 results/
 logs/
 project-specific-files/
+example-results/
 
 # ignore hidden `DS_Store`
 .DS_Store

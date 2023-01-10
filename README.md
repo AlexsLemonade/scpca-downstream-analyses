@@ -6,19 +6,19 @@
 
 - [Core analysis overview](#core-analysis-overview)
 - [Quick Start Guide](#quick-start-guide)
-- [How to install the core downstream analyses workflow](#how-to-install-the-core-downstream-analyses-workflow)
-  - [1) Clone the repository](#1-clone-the-repository)
-  - [2) Install Snakemake](#2-install-snakemake)
-  - [3) Additional dependencies](#3-additional-dependencies)
+- [1. How to install the core downstream analyses workflow](#1-how-to-install-the-core-downstream-analyses-workflow)
+  - [a) Clone the repository](#a-clone-the-repository)
+  - [b) Install Snakemake](#b-install-snakemake)
+  - [c) Additional dependencies](#c-additional-dependencies)
     - [Snakemake/conda installation](#snakemakeconda-installation)
-- [Input data format](#input-data-format)
-- [Metadata file format](#metadata-file-format)
-- [Running the workflow](#running-the-workflow)
+- [2. Input data format](#2-input-data-format)
+- [3. Metadata file format](#3-metadata-file-format)
+- [4. Running the workflow](#4-running-the-workflow)
   - [Project-specific parameters](#project-specific-parameters)
   - [Processing parameters](#processing-parameters)
     - [Filtering parameters](#filtering-parameters)
     - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
-- [Expected output](#expected-output)
+- [5. Expected output](#5-expected-output)
   - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 - [Additional analysis modules](#additional-analysis-modules)
   - [Clustering analysis](#clustering-analysis)
@@ -63,9 +63,12 @@ The workflow can directly take as input the `filtered` RDS files downloaded from
 ```
 snakemake --cores 2 \
   --use-conda \
-  --config results_dir="<REPLACE_WITH_RELATIVE_PATH_TO_RESULTS_DIRECTORY>" \
-  project_metadata="<REPLACE_WITH_RELATIVE_PATH_TO_YOUR_PROJECT_METADATA_TSV>"
+  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
 ```
+
+Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
+See more information on project metadata in [section 3](#3-metadata-file-format) below.
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
@@ -104,7 +107,7 @@ Once the repository is successfully cloned, a folder named `scpca-downstream-ana
 
 The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using a Snakemake workflow.
 Therefore, you will also need to install Snakemake before running the pipeline.
-Note that the **minimum** version of Snakemake you will need installed to be compatible with conda is version **5.23.0**.
+Note that the **minimum** version of Snakemake you will need to have installed to be compatible with conda is version **5.23.0**.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
 
@@ -210,12 +213,12 @@ The below code is an example of running the Snakemake workflow using the project
 ```
 snakemake --cores 2 \
   --use-conda \
-  --config results_dir="<REPLACE_WITH_RELATIVE_PATH_TO_RESULTS_DIRECTORY>" \
-  project_metadata="<REPLACE_WITH_RELATIVE_PATH_TO_YOUR_PROJECT_METADATA_TSV>" \
-  mito_file="<REPLACE_WITH_FULL_PATH_TO_MITOCHONDRIAL_GENES_TXT_FILE>"
+  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<RELATIVE_PATH TO YOUR PROJECT METADATA TSV>" \
+  mito_file="<FULL PATH TO MITOCHONDRIAL GENES TXT FILE>"
 ```
 
-**Note:**  If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
+**Note:**  You will want to replace the paths for `results_dir` and `project_metadata` to successfully run the workflow. Additionally, if you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
 You can also modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
 The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](./config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](./config/config.yaml#L11).

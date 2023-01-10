@@ -1,8 +1,9 @@
 # ignore the `data`, `results`, and `example-results` directories and the files within
 data/
 results/
-example-results/
 logs/
+project-specific-files/
+example-results/
 
 # ignore hidden `DS_Store`
 .DS_Store

@@ -69,6 +69,7 @@ snakemake --cores 2 \
 
 Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in [section 3](#3-metadata-file-format) below.
+**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.** 
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
@@ -218,7 +219,9 @@ snakemake --cores 2 \
   mito_file="<FULL PATH TO MITOCHONDRIAL GENES TXT FILE>"
 ```
 
-**Note:**  You will want to replace the paths for `results_dir` and `project_metadata` to successfully run the workflow. Additionally, if you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
+**You will want to replace the paths for `results_dir` and `project_metadata` to successfully run the workflow.** 
+
+**Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
 You can also modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
 The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](./config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](./config/config.yaml#L11).

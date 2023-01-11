@@ -67,9 +67,9 @@ snakemake --cores 2 \
   project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
+**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.** 
 Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in [section 3](#3-metadata-file-format) below.
-**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.** 
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.

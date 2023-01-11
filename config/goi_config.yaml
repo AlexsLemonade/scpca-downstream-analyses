@@ -1,12 +1,9 @@
 # All parameters included in this file can be altered at the command line using the `--config` flag or by editing this file directly.
 
-### Optional clustering module specific parameters
-goi_list: "data/anderson-single-cell/goi-lists/nb_goi_list.tsv"
-organism: "Homo sapiens" 
-provided_identifier: "SYMBOL"
-sce_rownames_identifier: "ENSEMBL"
-multi_mappings: "list" 
-nearest_neighbors_max: 25 # The maximum value to use for a range of neareast neighbors values for exploration
-nearest_neighbors_increment: 5 # The increment to use when implementing the range number of nearest neighbors for cluster stats
-overwrite_results: TRUE # A binary value indicating whether or not to overwrite any existing clustering results
-perform_mapping: TRUE
+### Optional GOI module specific parameters
+goi_list: "example-data/goi-lists/sample01_goi_list.tsv" # The list of genes that are of interest
+organism: "Homo sapiens" # The organism associated with the provided genes and data
+provided_identifier: "SYMBOL" # The type of gene identifiers used to populate the genes of interest list
+sce_rownames_identifier: "ENSEMBL" # The type of gene identifiers found in the rownames of the SingleCellExperiment object
+multi_mappings: "list" # How to handle multiple gene identifier mappings
+perform_mapping: TRUE # A binary value indicating whether or not to perform gene identifier mapping

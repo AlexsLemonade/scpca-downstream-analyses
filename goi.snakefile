@@ -47,6 +47,7 @@ rule calculate_goi:
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --input_goi_list {config[goi_list]}"
+        "  --organism '{config[organism]}'"
         "  --output_directory {output.output_dir}"
         "  --seed {config[seed]}"
         "  --provided_identifier {config[provided_identifier]}"

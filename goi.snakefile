@@ -19,15 +19,7 @@ else:
 
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_goi_stats/{library}_normalized_zscores.mtx"),
-               zip,
-               sample = SAMPLES,
-               library = LIBRARY_ID),
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_goi_stats/{library}_mapped_genes.tsv"),
-               zip,
-               sample = SAMPLES,
-               library = LIBRARY_ID),
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_goi_stats/{library}_heatmap_annotation.rds"),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_goi_stats"),
                zip,
                sample = SAMPLES,
                library = LIBRARY_ID)
@@ -36,9 +28,6 @@ rule calculate_goi:
     input:
         "{basedir}/{library_id}_processed_sce.rds"
     output:
-        matrix = "{basedir}/{library_id}_goi_stats/{library_id}_normalized_zscores.mtx",
-        mapped_genes = "{basedir}/{library_id}_goi_stats/{library_id}_mapped_genes.tsv",
-        annotation = "{basedir}/{library_id}_goi_stats/{library_id}_heatmap_annotation.rds",
         output_dir = directory("{basedir}/{library_id}_goi_stats")
     log: "logs/{basedir}/{library_id}/calculate_goi.log"
     conda: "envs/scpca-renv.yaml"

@@ -106,8 +106,6 @@ option_list <- list(
 # Read the arguments passed
 opt <- parse_args(OptionParser(option_list = option_list))
 
-opt$organism <- "Homo sapiens"
-
 # if project root is not provided use here::here()
 if(is.null(opt$project_root)){
   project_root <- here::here()

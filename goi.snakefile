@@ -22,6 +22,10 @@ rule target:
         expand(os.path.join(config["results_dir"], "{sample}/{library}_goi_stats"),
                zip,
                sample = SAMPLES,
+               library = LIBRARY_ID),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_goi_report.html"),
+               zip,
+               sample = SAMPLES,
                library = LIBRARY_ID)
 
 rule calculate_goi:
@@ -45,3 +49,27 @@ rule calculate_goi:
         "  --perform_mapping {config[perform_mapping]}"
         "  --project_root $PWD"
         " &> {log}"
+        
+rule generate_goi_report:
+    input:
+        processed_sce = "{basedir}/{library_id}_processed_sce.rds",
+        goi_dir = "{basedir}/{library_id}_goi_stats"
+    output:
+        "{basedir}/{library_id}_goi_report.html"
+    log: "logs/{basedir}/{library_id}/goi_report.log"
+    conda: "envs/scpca-renv.yaml"
+    shell:
+        """
+        Rscript -e \
+        "rmarkdown::render('optional-goi-analysis/goi-report-template.Rmd', \
+                           clean = TRUE, \
+                           output_file = '{output}', \
+                           output_dir = dirname('{output}'), \
+                           params = list(library = '{wildcards.library_id}', \
+                                         normalized_sce = '{input.processed_sce}', \
+                                         goi_input_directory = '{input.goi_dir}', \
+                                         project_root = '$PWD'), \
+                           envir = new.env())" \
+        &> {log}
+        """
+        

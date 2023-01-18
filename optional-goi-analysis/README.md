@@ -84,7 +84,7 @@ If `--cores` is given without a number, all available cores are used to run the 
 If you installed dependencies for the workflow [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to provide the `--use_conda` flag as well.
 
 The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
-To run tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
+To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
 The below code is an example of running the clustering workflow using the project-specific parameters.
 
 ```

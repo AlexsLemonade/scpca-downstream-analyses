@@ -99,7 +99,7 @@ snakemake --snakefile goi.snakefile \
 
 ### Genes of Interest parameters
 
-We have provided an additional [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/cluster_config.yaml` which sets the defaults for all parameters needed to run the clustering workflow.
+We have provided an additional [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml` which sets the defaults for all parameters needed to run the clustering workflow.
 It is **not required** to alter these parameters to run the workflow, but if you would like to change the type of clustering or range of nearest neighbor parameters, you can do so by changing these parameters. 
 
 The parameters found in the `config/goi_config.yaml` file can be optionally modified and are as follows:

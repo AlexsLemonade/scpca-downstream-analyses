@@ -10,7 +10,11 @@ This directory includes a genes of interest analysis workflow to help users eval
 **Table of Contents**
 
 - [Analysis overview](#analysis-overview)
+- [Running the workflow](#running-the-workflow)
 - [Expected input](#expected-input)
+- [Parameters and config file](#parameters-and-config-file)
+  - [Project-specific parameters](#project-specific-parameters)
+  - [Genes of Interest parameters](#genes-of-interest-parameters)
 - [Expected output](#expected-output)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -33,6 +37,27 @@ R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which must be installed locally prior to running the workflow.
 If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
 
+## Running the workflow
+
+The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
+To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
+The below code is an example of running the genes of interest workflow.
+
+```
+snakemake --snakefile goi.snakefile \ 
+  --cores 2 \
+  --use-conda \
+  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
+```
+
+**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.** 
+Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
+See more information on project metadata in the [expected input section](#expected-input) below.
+
+**Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
+
+
 ## Expected input
 
 To run this workflow, you will need to provide:
@@ -43,24 +68,7 @@ This `SingleCellExperiment` object must contain a log-normalized counts matrix i
 3. The genes of interest list, stored as a tab-separated value (TSV) file.
 This file should contain at least one column named `gene_id` with the relevant gene identifiers, and can optionally contain an additional column named `gene_set` that denotes the gene set that each gene identifier belongs to (see an example of this genes of interest file [here](../example-data/goi-lists/sample01_goi_list.tsv)).
 
-## Expected output
-
-For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return the following files in the specified output directory:
-
-```
-{library_id}_goi_report.html
-{library_id}_goi_stats
-├── {library_id}_mapped_genes.tsv
-├── {library_id}_normalized_zscores.mtx
-└── {library_id}_heatmap_annotation.rds
-```
-
-1. A `_mapped_genes.tsv` file with mapped genes of interest if the `--perform_mapping` is `TRUE` upon running the workflow. Otherwise this file will store just the provided genes of interest, and a new column named `sce_rownames_identifier` with the genes of interest identifiers copied over to the column.
-2. A `_normalized_zscores.mtx` matrix file with the z-scored matrix calculated using the normalized data specific to the provided genes of interest.
-3. A `_heatmap_annotation.rds` file with the annotations to be used when plotting the heatmap for the html report.
-4. The `_goi_report.html` file, which is the summary html report with plots containing the GOI results.
-
-## Running the workflow
+## Parameters and config file
 
 As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/config.yaml` which sets the defaults for project-specific parameters needed to run the genes of interest workflow.
 
@@ -83,19 +91,16 @@ You must also specify the number of CPU cores for snakemake to use by using the 
 If `--cores` is given without a number, all available cores are used to run the workflow.
 If you installed dependencies for the workflow [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to provide the `--use_conda` flag as well.
 
-The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
-To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
-The below code is an example of running the clustering workflow using the project-specific parameters.
+The below code is an example of running the genes of interest workflow using the project-specific parameters.
 
 ```
 snakemake --snakefile goi.snakefile \ 
   --cores 2 \
   --use-conda \
-  --config results_dir="relative path to relevant results directory" \
-  project_metadata="relative path to your-project-metadata.TSV"
+  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
-**Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
 ### Genes of Interest parameters
 
@@ -116,3 +121,20 @@ The parameters found in the `config/goi_config.yaml` file can be optionally modi
 
 |[View Genes of Interest Config File](../config/goi_config.yaml)|
 |---|
+
+## Expected output
+
+For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return the following files in the specified output directory:
+
+```
+{library_id}_goi_report.html
+{library_id}_goi_stats
+├── {library_id}_mapped_genes.tsv
+├── {library_id}_normalized_zscores.mtx
+└── {library_id}_heatmap_annotation.rds
+```
+
+1. A `_mapped_genes.tsv` file with mapped genes of interest if the `--perform_mapping` is `TRUE` upon running the workflow. Otherwise this file will store just the provided genes of interest, and a new column named `sce_rownames_identifier` with the genes of interest identifiers copied over to the column.
+2. A `_normalized_zscores.mtx` matrix file with the z-scored matrix calculated using the normalized data specific to the provided genes of interest.
+3. A `_heatmap_annotation.rds` file with the annotations to be used when plotting the heatmap for the html report.
+4. The `_goi_report.html` file, which is the summary html report with plots containing the GOI results.

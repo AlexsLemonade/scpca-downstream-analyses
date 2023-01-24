@@ -122,6 +122,28 @@ The parameters found in the `config/goi_config.yaml` file can be optionally modi
 |[View Genes of Interest Config File](../config/goi_config.yaml)|
 |---|
 
+## Gene mapping
+
+If the input gene identifiers do not match the gene identifiers used in the `SingleCellExperiment` object used as input, then input gene identifiers must first be mapped to a specified type.
+When the `perform_mapping` flag is set to `TRUE`, users can map the provided gene identifiers to the identifiers used to label the rownames of the `SingleCellExperiment` object.
+
+To run the gene mapping step, you can run the below command while using the `--config` flag to tailor the genes of interest mapping parameters mentioned in the [Genes of interest section above](#genes-of-interest-parameters):
+
+```
+snakemake --snakefile goi.snakefile \ 
+  --cores 2 \
+  --use-conda \
+  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
+  goi_list="<RELATIVE PATH TO YOUR GOI LIST>" \
+  organism="<NAME OF ORGANISM ASSOCIATED WITH THE PROVIDED GOI>" \
+  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN PROVIDED GOI LIST>" \
+  sce_rownames_identifier="<TYPE OF GENE IDENTIFIER IN ROWNAMES OF INPUT SCE OBJECT>" \
+  perform_mapping=TRUE \
+  multi_mappings="list"
+  
+```
+
 ## Expected output
 
 For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return the following files in the specified output directory:

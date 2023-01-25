@@ -100,6 +100,12 @@ option_list <- list(
     default = NULL,
     help = "the path to the root directory for the R project and where the 
     `utils` folder lives."
+  ),
+  optparse::make_option(
+    c( "--overwrite"),
+    action = "store_true",
+    default = FALSE,
+    help = "specifies whether or not to overwrite existing output files"
   )
 )
 
@@ -133,9 +139,42 @@ if (!file.exists(opt$sce)){
   stop(paste(opt$sce, "does not exist."))
 }
 
-# Check that the outout directory exists
+# Check that the output directory exists
 if (!dir.exists(opt$output_directory)) {
   dir.create(opt$output_directory, recursive = TRUE)
+}
+
+# Define the output file paths
+output_mapped_genes <- file.path(
+  opt$output_directory,
+  paste0(opt$library_id, "_mapped_genes.tsv")
+)
+
+output_matrix <- file.path(
+  opt$output_directory,
+  paste0(opt$library_id, "_normalized_zscores.mtx")
+)
+
+output_annotation <- file.path(
+  opt$output_directory,
+  paste0(opt$library_id, "_heatmap_annotation.rds")
+)
+
+# Create a list of the expected output files
+output_files <- c(output_mapped_genes, output_matrix, output_annotation)
+
+# Check that any of the output files exist, only if the overwrite flag is false
+if (!opt$overwrite) {
+  if (any(file.exists(output_files))) {
+    existing_file <- output_files[file.exists(output_files)]
+    stop(
+      glue::glue(
+        "{existing_file} file exists, to overwrite please use the --overwrite flag
+        
+        "
+      )
+    )
+  }
 }
 
 #### Load libraries ------------------------------------------------------------
@@ -172,9 +211,10 @@ if(is.null(goi_list$gene_id)){
        Please rename the column holding your gene identifiers `gene_id` before 
        re-running this GOI analysis.")
 }
+
 #### Perform mapping -----------------------------------------------------------
 
-if (opt$perform_mapping == TRUE) {
+if (opt$perform_mapping) {
   # turn column name into symbol for pulling the column info out of data frame
   ids_for_mapping <- goi_list %>%
     dplyr::pull(gene_id)
@@ -241,10 +281,7 @@ if (opt$perform_mapping == TRUE) {
 }
 
 # Save goi list to file to be used as input for template 
-write_tsv(goi_list, file.path(
-  opt$output_directory,
-  paste0(opt$library_id, "_mapped_genes.tsv")
-))
+write_tsv(goi_list, output_mapped_genes)
 
 #### Prepare data for plotting -------------------------------------------------
 
@@ -297,17 +334,9 @@ if(!is.null(goi_list$gene_set)) {
 
 # Convert heatmap matrix to a sparse matrix and save to file
 normalized_zscores_matrix <- as(normalized_zscores_matrix, "sparseMatrix")
-Matrix::writeMM(normalized_zscores_matrix,
-          file.path(
-            opt$output_directory,
-            paste0(opt$library_id, "_normalized_zscores.mtx")
-          ))
+Matrix::writeMM(normalized_zscores_matrix, output_matrix)
 
 if(exists("column_annotation")) {
   # Save heatmap column annotation to file
-  write_rds(column_annotation,
-            file.path(
-              opt$output_directory,
-              paste0(opt$library_id, "_heatmap_annotation.rds")
-            ))
+  write_rds(column_annotation, output_annotation)
 }

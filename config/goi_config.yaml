@@ -7,3 +7,4 @@ provided_identifier: "SYMBOL" # The type of gene identifiers used to populate th
 sce_rownames_identifier: "ENSEMBL" # The type of gene identifiers found in the rownames of the SingleCellExperiment object
 multi_mappings: "list" # How to handle multiple gene identifier mappings
 perform_mapping: TRUE # A binary value indicating whether or not to perform gene identifier mapping
+overwrite: TRUE # A binary value indicating whether or not to overwrite any existing output files

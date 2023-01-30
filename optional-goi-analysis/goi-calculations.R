@@ -37,13 +37,13 @@ option_list <- list(
     c("-l", "--library_id"),
     type = "character",
     default = NULL,
-    help = "Unique ID corresponding to library being analyzed",
+    help = "unique ID corresponding to library being analyzed",
   ),
   optparse::make_option(
     c("-s", "--seed"),
     type = "integer",
     default = 2021,
-    help = "Random seed to set",
+    help = "random seed to set",
     metavar = "integer"
   ),
   optparse::make_option(
@@ -144,6 +144,12 @@ if (!dir.exists(opt$output_directory)) {
   dir.create(opt$output_directory, recursive = TRUE)
 }
 
+# Check that library id is not NULL
+if(is.null(opt$library_id)) {
+  stop("There is no library ID associated with the input data.
+       Please provide a library ID using the --library_id flag.")
+}
+
 # Define the output file paths
 output_mapped_genes <- file.path(
   opt$output_directory,
@@ -167,13 +173,8 @@ output_files <- c(output_mapped_genes, output_matrix, output_annotation)
 if (!opt$overwrite) {
   if (any(file.exists(output_files))) {
     existing_file <- output_files[file.exists(output_files)]
-    stop(
-      glue::glue(
-        "{existing_file} file exists, to overwrite please use the --overwrite flag
-        
-        "
-      )
-    )
+    print(glue::glue("{existing_file} file already exists."))
+    stop("To re-run analysis and overwrite all existing files please use the --overwrite flag.")
   }
 }
 

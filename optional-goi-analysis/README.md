@@ -41,7 +41,7 @@ If you are using conda, dependencies can be installed as [part of the initial se
 
 The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
 To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
-The below code is an example of running the genes of interest workflow.
+After navigating to within the root directory of the `scpca-downstream-analyses` repository, the below example command can be used to run the genes of interest workflow:
 
 ```
 snakemake --snakefile goi.snakefile \ 
@@ -74,7 +74,7 @@ As in the main core workflow, we have provided a [configuration file](https://sn
 
 ### Project-specific parameters
 
-There are a set of parameters included in the `config/config.yaml` file that will need to be specified when running the workflow.
+There are a set of parameters included in the `config/config.yaml` file that will always need to be specified when running the workflow.
 These parameters are specific to the project or dataset being processed.
 These include the following parameters:
 
@@ -82,6 +82,8 @@ These include the following parameters:
 |------------------|-------------|
 | `results_dir` | relative path to the directory where output files will be stored (use the same `results_dir` used in the prerequisite core workflow) |
 | `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
+| `goi_list` | the file path to a tsv file containing the list of genes that are of interest; the default file path is `example-data/goi-lists/example_goi_list.tsv` |
+| `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"` -- where `"SYMBOL"` is the default (see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html)) |
 
 |[View Config File](../config/config.yaml)|
 |---|
@@ -104,17 +106,15 @@ snakemake --snakefile goi.snakefile \
 
 ### Genes of Interest parameters
 
-We have provided an additional [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml` which sets the defaults for all parameters needed to run the clustering workflow.
-It is **not required** to alter these parameters to run the workflow, but if you would like to change the type of clustering or range of nearest neighbor parameters, you can do so by changing these parameters. 
+We have provided an additional [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml` which sets the defaults for all parameters required for running the genes of interest workflow.
+It is **not required** to alter these parameters to run the workflow, but if you would like to modify the gene identifier mapping, you can do so by changing these parameters. 
 
 The parameters found in the `config/goi_config.yaml` file can be optionally modified and are as follows:
 
 | Parameter        | Description | Default value |
 |------------------|-------------|---------------|
-| `goi_list` | the file path to a tsv file containing the list of genes that are of interest | `example-data/goi-lists/example_goi_list.tsv` |
 | `organism` | the organism associated with the provided genes and data | "Homo sapiens" |
-| `provided_identifier` | the type of gene identifiers used to populate the genes of interest list | "SYMBOL" |
-| `sce_rownames_identifier` | the type of gene identifiers found in the rownames of the SingleCellExperiment object | "ENSEMBL" |
+| `sce_rownames_identifier` | the type of gene identifiers found in the rownames of the SingleCellExperiment object; note that this parameter should not be changed unless the output of the core analysis workflow has been altered in some way prior to running this module | "ENSEMBL" |
 | `perform_mapping` | a binary value indicating whether or not to perform gene identifier mapping | `TRUE` |
 | `multi_mappings` | how to handle multiple gene identifier mappings when `perform_mapping` is `TRUE` | "list" |
 

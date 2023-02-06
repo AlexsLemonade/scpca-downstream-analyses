@@ -22,7 +22,7 @@
   - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 - [Additional analysis modules](#additional-analysis-modules)
   - [Clustering analysis](#clustering-analysis)
-  - [The optional genes of interest analysis pipeline (In development)](#the-optional-genes-of-interest-analysis-pipeline-in-development)
+  - [Genes of interest analysis](#genes-of-interest-analysis)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -345,21 +345,9 @@ The clustering analysis workflow provided can be used to explore different metho
 
 For more on what's in the clustering analysis workflow and how to run the workflow, see the [`README.md`](optional-clustering-analysis/README.md#optional-clustering-analysis) file in the clustering analysis subdirectory.
 
-### The optional genes of interest analysis pipeline (In development)
-
-Note that this module is still **in development**, updates will be coming soon.
+### Genes of interest analysis
 
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.
+This workflow can help users evaluate expression of a specific list of genes in their sample dataset and how the expression values compare to the remaining genes in the dataset.
 
-To run this analysis, you can run the following command from the main directory:
-
-```
-bash optional-goi-analysis/run-provided-goi-analysis.sh \
- --output_dir "path/to/output-results" \
- --sample_name "sample"  \
- --sample_matrix "path/to/sample/matrix" \
- --sample_metadata "path/to/sample/metadata" \
- --goi_list "path/to/goi-list"
-```
-
-Where `goi_list` is the path to the genes of interest TSV file relevant to your dataset.
+For more on what's in the genes of interest analysis workflow and how to run the workflow, see the [`README.md`](optional-goi-analysis/README.md#optional-clustering-analysis) file in the genes of interest analysis subdirectory.

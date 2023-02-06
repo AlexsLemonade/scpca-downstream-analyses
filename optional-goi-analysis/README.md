@@ -117,6 +117,7 @@ The parameters found in the `config/goi_config.yaml` file can be optionally modi
 | `sce_rownames_identifier` | the type of gene identifiers found in the rownames of the SingleCellExperiment object; note that this parameter should not be changed unless the output of the core analysis workflow has been altered in some way prior to running this module | "ENSEMBL" |
 | `perform_mapping` | a binary value indicating whether or not to perform gene identifier mapping | `TRUE` |
 | `multi_mappings` | how to handle multiple gene identifier mappings when `perform_mapping` is `TRUE` | "list" |
+| `overwrite` | a binary value indicating whether or not to overwrite existing output files | `TRUE` |
 
 
 |[View Genes of Interest Config File](../config/goi_config.yaml)|

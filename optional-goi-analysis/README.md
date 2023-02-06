@@ -52,7 +52,7 @@ snakemake --snakefile goi.snakefile \
 ```
 
 **You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.** 
-Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
+Where `results_dir` is the relative path to the directory where all results from running the workflow will be stored, and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in the [expected input section](#expected-input) below.
 
 **Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
@@ -74,7 +74,7 @@ As in the main core workflow, we have provided a [configuration file](https://sn
 
 ### Project-specific parameters
 
-There are a set of parameters included in the `config/config.yaml` file that will always need to be specified when running the workflow.
+There are a set of parameters included in the provided configuration files (`config/config.yaml`, `config/goi_config.yaml`) that will always need to be specified when running the genes of interest workflow.
 These parameters are specific to the project or dataset being processed.
 These include the following parameters:
 
@@ -85,22 +85,21 @@ These include the following parameters:
 | `goi_list` | the file path to a tsv file containing the list of genes that are of interest; the default file path is `example-data/goi-lists/example_goi_list.tsv` |
 | `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"` -- where `"SYMBOL"` is the default (see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html)) |
 
-|[View Config File](../config/config.yaml)|
-|---|
-
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 You must also specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
 If `--cores` is given without a number, all available cores are used to run the workflow.
 If you installed dependencies for the workflow [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to provide the `--use_conda` flag as well.
 
-The below code is an example of running the genes of interest workflow using the project-specific parameters.
+The below code is an example of running the genes of interest workflow using the required parameters.
 
 ```
 snakemake --snakefile goi.snakefile \ 
   --cores 2 \
   --use-conda \
   --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
+  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
+  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
+  provided_indentifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
 ```
 
 

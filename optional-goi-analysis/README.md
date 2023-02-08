@@ -14,7 +14,8 @@ This directory includes a genes of interest analysis workflow to help users eval
 - [Expected input](#expected-input)
 - [Parameters and config file](#parameters-and-config-file)
   - [Project-specific parameters](#project-specific-parameters)
-  - [Genes of Interest parameters](#genes-of-interest-parameters)
+  - [Gene mapping parameters](#gene-mapping-parameters)
+- [Gene mapping](#gene-mapping)
 - [Expected output](#expected-output)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -103,12 +104,12 @@ snakemake --snakefile goi.snakefile \
 ```
 
 
-### Genes of Interest parameters
+### Gene mapping parameters
 
-We have provided an additional [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml` which sets the defaults for all parameters required for running the genes of interest workflow.
+The additional [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml`, also sets the defaults for the parameters required for mapping the gene identifiers in the genes of interest workflow.
 It is **not required** to alter these parameters to run the workflow, but if you would like to modify the gene identifier mapping, you can do so by changing these parameters. 
 
-The parameters found in the `config/goi_config.yaml` file can be optionally modified and are as follows:
+The following gene mapping parameters found in the `config/goi_config.yaml` file can be optionally modified:
 
 | Parameter        | Description | Default value |
 |------------------|-------------|---------------|
@@ -127,7 +128,7 @@ The parameters found in the `config/goi_config.yaml` file can be optionally modi
 If the input gene identifiers do not match the gene identifiers used in the `SingleCellExperiment` object used as input, then input gene identifiers must first be mapped to a specified type.
 When the `perform_mapping` flag is set to `TRUE`, users can map the provided gene identifiers to the identifiers used to label the rownames of the `SingleCellExperiment` object.
 
-To run the gene mapping step, you can run the below command while using the `--config` flag to tailor the genes of interest mapping parameters mentioned in the [Genes of interest section above](#genes-of-interest-parameters):
+To run the gene mapping step, you can run the below command while using the `--config` flag to tailor the genes of interest mapping parameters mentioned in the [gene mapping parameters section above](#gene-mapping-parameters):
 
 ```
 snakemake --snakefile goi.snakefile \ 

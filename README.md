@@ -350,4 +350,4 @@ For more on what's in the clustering analysis workflow and how to run the workfl
 There is an optional genes of interest analysis pipeline in the `optional-goi-analysis` subdirectory of this repository.
 This workflow can help users evaluate expression of a specific list of genes in their sample dataset and how the expression values compare to the remaining genes in the dataset.
 
-For more on what's in the genes of interest analysis workflow and how to run the workflow, see the [`README.md`](optional-goi-analysis/README.md#optional-clustering-analysis) file in the genes of interest analysis subdirectory.
+For more on what's in the genes of interest analysis workflow and how to run the workflow, see the [`README.md`](optional-goi-analysis/README.md) file in the genes of interest analysis subdirectory.

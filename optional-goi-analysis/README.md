@@ -14,8 +14,8 @@ This directory includes a genes of interest analysis workflow to help users eval
 - [Expected input](#expected-input)
 - [Parameters and config file](#parameters-and-config-file)
   - [Project-specific parameters](#project-specific-parameters)
-  - [Gene mapping parameters](#gene-mapping-parameters)
 - [Gene mapping](#gene-mapping)
+  - [Gene mapping parameters](#gene-mapping-parameters)
 - [Expected output](#expected-output)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->

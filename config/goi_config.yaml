@@ -1,0 +1,10 @@
+# All parameters included in this file can be altered at the command line using the `--config` flag or by editing this file directly.
+
+### Optional GOI module specific parameters
+goi_list: "example-data/goi-lists/example_goi_list.tsv" # The list of genes that are of interest
+organism: "Homo sapiens" # The organism associated with the provided genes and data
+provided_identifier: "SYMBOL" # The type of gene identifiers used to populate the genes of interest list
+sce_rownames_identifier: "ENSEMBL" # The type of gene identifiers found in the rownames of the SingleCellExperiment object
+multi_mappings: "list" # How to handle multiple gene identifier mappings
+perform_mapping: TRUE # A binary value indicating whether or not to perform gene identifier mapping
+overwrite: TRUE # A binary value indicating whether or not to overwrite any existing output files

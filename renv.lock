@@ -1857,6 +1857,15 @@
         "getopt"
       ]
     },
+    "org.Hs.eg.db": {
+      "Package": "org.Hs.eg.db",
+      "Version": "3.16.0",
+      "Source": "Bioconductor",
+      "Hash": "ea73036cd4946b4577e0aa9e51d0a61b",
+      "Requirements": [
+        "AnnotationDbi"
+      ]
+    },
     "pbkrtest": {
       "Package": "pbkrtest",
       "Version": "0.5.1",

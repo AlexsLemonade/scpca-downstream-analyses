@@ -14,7 +14,8 @@ This directory includes a genes of interest analysis workflow to help users eval
 - [Expected input](#expected-input)
 - [Parameters and config file](#parameters-and-config-file)
   - [Project-specific parameters](#project-specific-parameters)
-  - [Genes of Interest parameters](#genes-of-interest-parameters)
+  - [Gene mapping parameters](#gene-mapping-parameters)
+- [Gene mapping](#gene-mapping)
 - [Expected output](#expected-output)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -78,12 +79,13 @@ There are a set of parameters included in the provided configuration files (`con
 These parameters are specific to the project or dataset being processed.
 These include the following parameters:
 
-| Parameter        | Description |
-|------------------|-------------|
-| `results_dir` | relative path to the directory where output files will be stored (use the same `results_dir` used in the prerequisite core workflow) |
-| `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
-| `goi_list` | the file path to a tsv file containing the list of genes that are of interest; the default file path is `example-data/goi-lists/example_goi_list.tsv` |
-| `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"` -- where `"SYMBOL"` is the default (see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html)) |
+| Parameter        | Description | Default value |
+|------------------|-------------| --------------|
+| `results_dir` | relative path to the directory where output files will be stored (use the same `results_dir` used in the prerequisite core workflow) | `"example-results"` |
+| `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
+| `goi_list` | the file path to a tsv file containing the list of genes that are of interest | `"example-data/goi-lists/example_goi_list.tsv"` |
+| `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"`; see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html) | `"SYMBOL"` |
+| `overwrite` | a binary value indicating whether or not to overwrite existing output files | `TRUE` |
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 You must also specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
@@ -99,24 +101,55 @@ snakemake --snakefile goi.snakefile \
   --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
   project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
   goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
-  provided_indentifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
+  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
 ```
 
+## Gene mapping
 
-### Genes of Interest parameters
+The first step in the workflow is to ensure that the input gene identifiers provided in the genes of interest list match the gene identifiers present in the `SingleCellExperiment` object. 
+The `SingleCellExperiment` objects that are returned by the core workflow will contain gene names as Ensembl ids.
+If the provided genes of interest list contains another identifier type (e.g., gene symbol, Entrez id) that does not match the gene names present in the `SingleCellExperiment` objects, then mapping must be performed.
+The `perform_mapping` flag is used to indicate whether or not gene mapping will be performed and by default is set to `TRUE`.
 
-We have provided an additional [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml` which sets the defaults for all parameters required for running the genes of interest workflow.
+To run the workflow with the gene mapping step, you will only need to provide the required parameters mentioned in the [project-specific parameters section](#project-specific-parameters).
+
+```
+snakemake --snakefile goi.snakefile \ 
+  --cores 2 \
+  --use-conda \
+  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
+  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
+  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
+```
+
+To run the workflow without the gene mapping step, you can run the below command:
+
+```
+snakemake --snakefile goi.snakefile \ 
+  --cores 2 \
+  --use-conda \
+  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
+  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
+  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>" \
+  perform_mapping=FALSE
+```
+
+### Gene mapping parameters
+
+The [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml`, sets the defaults for additional parameters required for mapping the gene identifiers in the genes of interest workflow.
+These parameters will only be used if `perform_mapping` is set to `TRUE`.
 It is **not required** to alter these parameters to run the workflow, but if you would like to modify the gene identifier mapping, you can do so by changing these parameters. 
 
-The parameters found in the `config/goi_config.yaml` file can be optionally modified and are as follows:
+The following gene mapping parameters found in the `config/goi_config.yaml` file can be optionally modified:
 
 | Parameter        | Description | Default value |
 |------------------|-------------|---------------|
-| `organism` | the organism associated with the provided genes and data | "Homo sapiens" |
-| `sce_rownames_identifier` | the type of gene identifiers found in the rownames of the SingleCellExperiment object; note that this parameter should not be changed unless the output of the core analysis workflow has been altered in some way prior to running this module | "ENSEMBL" |
 | `perform_mapping` | a binary value indicating whether or not to perform gene identifier mapping | `TRUE` |
-| `multi_mappings` | how to handle multiple gene identifier mappings when `perform_mapping` is `TRUE` | "list" |
-| `overwrite` | a binary value indicating whether or not to overwrite existing output files | `TRUE` |
+| `organism` | the organism associated with the provided genes and data | `"Homo sapiens"` |
+| `sce_rownames_identifier` | the type of gene identifiers found in the rownames of the `SingleCellExperiment` object; note that this parameter should not be changed unless the output of the core analysis workflow has been altered in some way prior to running this module | `"ENSEMBL"` |
+| `multi_mappings` | how to handle multiple gene identifier mappings when `perform_mapping` is `TRUE` | `"list"` |
 
 
 |[View Genes of Interest Config File](../config/goi_config.yaml)|

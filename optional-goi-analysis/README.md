@@ -111,7 +111,7 @@ The `SingleCellExperiment` objects that are returned by the core workflow will c
 If the provided genes of interest list contains another identifier type (e.g., gene symbol, Entrez id) that does not match the gene names present in the `SingleCellExperiment` objects, then mapping must be performed.
 The `perform_mapping` flag is used to indicate whether or not gene mapping will be performed and by default is set to `TRUE`.
 
-To run the gene mapping step, you can run the below command while using the `--config` flag to tailor the genes of interest mapping parameters mentioned in the [gene mapping parameters section above](#gene-mapping-parameters):
+To run the workflow with the gene mapping step, you will only need to provide the required parameters mentioned in the [project-specific parameters section](#project-specific-parameters).
 
 ```
 snakemake --snakefile goi.snakefile \ 
@@ -120,11 +120,7 @@ snakemake --snakefile goi.snakefile \
   --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
   project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
   goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
-  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>" \
-  perform_mapping=TRUE \
-  organism="<NAME OF ORGANISM ASSOCIATED WITH THE PROVIDED GOI>" \
-  sce_rownames_identifier="<TYPE OF GENE IDENTIFIER IN SCE ROWNAMES>" \
-  multi_mappings="list"
+  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
 ```
 
 To run the workflow without the gene mapping step, you can run the below command:
@@ -142,7 +138,7 @@ snakemake --snakefile goi.snakefile \
 
 ### Gene mapping parameters
 
-The [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml`, sets the defaults for the parameters required for mapping the gene identifiers in the genes of interest workflow.
+The [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml`, sets the defaults for additional parameters required for mapping the gene identifiers in the genes of interest workflow.
 These parameters will only be used if `perform_mapping` is set to `TRUE`.
 It is **not required** to alter these parameters to run the workflow, but if you would like to modify the gene identifier mapping, you can do so by changing these parameters. 
 

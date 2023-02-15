@@ -88,6 +88,7 @@ There are two expected output files thay will be associated with each provided `
     - Clustering that was performed within the workflow
 
 See the [expected output section](#expected-output) for more information on these output files.
+You can also download an example of the summary HTML report [here](https://scpca-downstream-analyses.s3.amazonaws.com/example-results/sample01/library01_core_analysis_report.html) and an example of the processed `SingleCellExperiment` object as a RDS file [here](https://scpca-downstream-analyses.s3.amazonaws.com/example-results/sample01/library01_processed_sce.rds).
 
 ## 1. How to install the core downstream analyses workflow
 
@@ -308,6 +309,8 @@ example_results
 The `<library_id>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
 The `<library_id>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+
+You can download an example of the summary HTML report [here](https://scpca-downstream-analyses.s3.amazonaws.com/example-results/sample01/library01_core_analysis_report.html) and an example of the processed `SingleCellExperiment` object as a RDS file [here](https://scpca-downstream-analyses.s3.amazonaws.com/example-results/sample01/library01_processed_sce.rds).
 
 ### What to expect in the output `SingleCellExperiment` object
 

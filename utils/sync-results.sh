@@ -11,6 +11,7 @@ cd ..
 # location for the shared data
 share_base=/shared/data
 modules_base=${share_base}/scpca-downstream-analyses
+s3_base=s3://scpca-downstream-analyses
 
 # create directory for example results
 mkdir -p example-results/sample01
@@ -33,3 +34,5 @@ do
     echo "${loc} already exists and is not a link, delete or move it to create a link."
   fi
 done
+
+aws s3 sync $modules_base $s3_base

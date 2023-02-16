@@ -37,5 +37,5 @@ done
 
 # zip and sync example results
 zip -r core_example_results.zip $repo_base/example-results
-aws s3 cp core_example_results.zip $s3_base/example_results.jpg --acl public-read
+aws s3 cp core_example_results.zip $s3_base/core_example_results.zip --acl public-read
 rm ./core_example_results.zip

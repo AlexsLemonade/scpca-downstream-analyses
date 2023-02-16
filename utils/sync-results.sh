@@ -10,8 +10,8 @@ cd ..
 
 # location for the shared data
 share_base=/shared/data
-modules_base=${share_base}/scpca-downstream-analyses
-s3_base=s3://scpca-downstream-analyses
+repo_base=${share_base}/scpca-downstream-analyses
+s3_base=s3://scpca-references/example-data/scpca-downstream-analyses
 
 # create directory for example results
 mkdir -p example-results/sample01
@@ -35,4 +35,7 @@ do
   fi
 done
 
-aws s3 sync $modules_base $s3_base
+# zip and sync example results
+zip -r core_example_results.zip $repo_base/example-results
+aws s3 cp core_example_results.zip $s3_base/example_results.jpg --acl public-read
+rm ./core_example_results.zip

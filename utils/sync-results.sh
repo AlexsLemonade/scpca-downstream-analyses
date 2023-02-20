@@ -16,6 +16,8 @@ s3_base=s3://scpca-references/example-data/scpca-downstream-analyses
 # create directory for example results
 mkdir -p example-results/sample01
 mkdir -p example-results/sample02
+mkdir -p clustering-example-results/sample01
+mkdir -p clustering-example-results/sample02
 
 link_locs=(
   example-results/sample01/library01_processed_sce.rds
@@ -24,18 +26,43 @@ link_locs=(
   example-results/sample02/library02_core_analysis_report.html
 )
 
+clustering_link_locs=(
+  clustering-example-results/sample01/library01_clustered_sce.rds
+  clustering-example-results/sample01/library01_clustering_report.html
+  clustering-example-results/sample01/library01_clustering_stats
+  clustering-example-results/sample02/library02_clustered_sce.rds
+  clustering-example-results/sample02/library02_clustering_report.html
+  clustering-example-results/sample02/library02_clustering_stats
+)
+
 for loc in ${link_locs[@]}
 do
   # only make the links if replacing an old link or the file doesn't exist
   if [[ -L ${loc} || ! -e ${loc} ]]
   then
-    ln -nsf ${modules_base}/${loc} ${loc}
+    ln -nsf ${repo_base}/${loc} ${loc}
   else
     echo "${loc} already exists and is not a link, delete or move it to create a link."
   fi
 done
 
-# zip and sync example results
+for loc in ${clustering_link_locs[@]}
+do
+  # only make the links if replacing an old link or the file doesn't exist
+  if [[ -L ${loc} || ! -e ${loc} ]]
+  then
+    ln -nsf ${repo_base}/${loc} ${loc}
+  else
+    echo "${loc} already exists and is not a link, delete or move it to create a link."
+  fi
+done
+
+# zip and sync core analysis example results
 zip -r core_example_results.zip $repo_base/example-results
 aws s3 cp core_example_results.zip $s3_base/core_example_results.zip --acl public-read
 rm ./core_example_results.zip
+
+# zip and sync core analysis example results
+zip -r clustering_example_results.zip $repo_base/clustering-example-results
+aws s3 cp clustering_example_results.zip $s3_base/clustering_example_results.zip --acl public-read
+rm ./clustering_example_results.zip

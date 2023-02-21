@@ -20,19 +20,19 @@ mkdir -p clustering-example-results/sample01
 mkdir -p clustering-example-results/sample02
 
 link_locs=(
-  example-results/sample01/library01_processed_sce.rds
-  example-results/sample01/library01_core_analysis_report.html
-  example-results/sample02/library02_processed_sce.rds
-  example-results/sample02/library02_core_analysis_report.html
+  sample01/library01_processed_sce.rds
+  sample01/library01_core_analysis_report.html
+  sample02/library02_processed_sce.rds
+  sample02/library02_core_analysis_report.html
 )
 
 clustering_link_locs=(
-  clustering-example-results/sample01/library01_clustered_sce.rds
-  clustering-example-results/sample01/library01_clustering_report.html
-  clustering-example-results/sample01/library01_clustering_stats
-  clustering-example-results/sample02/library02_clustered_sce.rds
-  clustering-example-results/sample02/library02_clustering_report.html
-  clustering-example-results/sample02/library02_clustering_stats
+  sample01/library01_clustered_sce.rds
+  sample01/library01_clustering_report.html
+  sample01/library01_clustering_stats
+  sample02/library02_clustered_sce.rds
+  sample02/library02_clustering_report.html
+  sample02/library02_clustering_stats
 )
 
 for loc in ${link_locs[@]}
@@ -40,7 +40,7 @@ do
   # only make the links if replacing an old link or the file doesn't exist
   if [[ -L ${loc} || ! -e ${loc} ]]
   then
-    ln -nsf ${repo_base}/${loc} ${loc}
+    ln -nsf ${repo_base}/example-results/${loc} example-results/${loc}
   else
     echo "${loc} already exists and is not a link, delete or move it to create a link."
   fi
@@ -51,7 +51,7 @@ do
   # only make the links if replacing an old link or the file doesn't exist
   if [[ -L ${loc} || ! -e ${loc} ]]
   then
-    ln -nsf ${repo_base}/${loc} ${loc}
+    ln -nsf ${repo_base}/example-results/${loc} clustering-example-results/${loc}
   else
     echo "${loc} already exists and is not a link, delete or move it to create a link."
   fi

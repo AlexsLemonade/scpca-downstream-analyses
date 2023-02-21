@@ -63,6 +63,8 @@ For each provided `SingleCellExperiment` RDS file and associated `library_id`, t
 
 The TSV files will be saved in a subdirectory called `{library_id}_{filtering_method}_clustering_stats/`, where both the `{library_id}` and `{filtering_method}` are obtained from the input metadata file.
 
+You can also download a ZIP file with an example of the output from running the clustering workflow, including the summary HTML report, processed `SingleCellExperiment` objects stored as RDS files, and the clustering statistics saved as TSV files [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/clustering_example_results.zip).
+
 ## Running the workflow
 
 As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/config.yaml` which sets the defaults for project-specific parameters needed to run the clustering workflow.

@@ -12,11 +12,8 @@ labels: release
 
 - [ ] Are all of the issues planned for this release resolved? If there are any issues that are unresolved, mark this issue as blocked by those on ZenHub.
 - [ ] Test that the workflow(s) is in good working order and ensure that you have run the latest version of the workflow(s):
+  - Ensure that the conda environment can successfully build using `bash setup_envs.sh`.
   - If making additions to the core workflow, test the workflow using the example data with `snakemake --cores 2 --use-conda`
-- [ ] Copy the `example-results` folder output by the workflow to the `/shared/data/scpca-downstream-analyses` directory on the Rstudio server.
-- [ ] Log into the `scpca-tester` Rstudio server and do the following:
-  - [ ] Ensure the conda environment is up to date, using `bash setup_envs.sh`.
-  - [ ] Run the `utils/sync-results.sh` script from within `~/scpca-downstream-analyses` to update the example results files.
 - [ ] File a PR from the `development` branch to the `main` branch. This should include all of the changes that will be associated with the next release.
 
 ### Creating a release

@@ -67,7 +67,7 @@ snakemake --cores 2 \
   project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
-**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.** 
+**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.**
 Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in [section 3](#3-metadata-file-format) below.
 
@@ -177,14 +177,14 @@ The file should contain the following columns:
 - `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object.
 Each library ID should have a unique `filepath`.
 
-|[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv)|
+|[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-library-metadata.tsv)|
 |---|
 
 ## 4. Running the workflow
 
 We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
 
-See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps. 
+See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps.
 
 ### Project-specific parameters
 
@@ -198,12 +198,12 @@ These include the following parameters:
 | `project_metadata` | relative path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
 
-**Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome. 
+**Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome.
 For all datasets downloaded from the [ScPCA Portal](https://scpca.alexslemonade.org/), the Ensembl version used can be found by looking at the `assembly` column of the `metadata.json` file associated with that library.
 You should not need to change this parameter unless your dataset has been aligned to a different reference.
 If you are using your own data, you will need to grab all possible mitochondrial genes from the reference transcriptome used for alignment of your data and create a text file with one gene per line.
 
-|[View Config File](config/config.yaml)|
+|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml)|
 |---|
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
@@ -219,7 +219,7 @@ snakemake --cores 2 \
   mito_file="<FULL PATH TO MITOCHONDRIAL GENES TXT FILE>"
 ```
 
-**You will want to replace the paths for `results_dir` and `project_metadata` to successfully run the workflow.** 
+**You will want to replace the paths for `results_dir` and `project_metadata` to successfully run the workflow.**
 
 **Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
@@ -339,7 +339,7 @@ You can find more information on the above in the [processing information docume
 ### Clustering analysis
 
 There is an optional clustering analysis workflow stored in the `optional-clustering-analysis` subdirectory of this repository.
-This workflow can help users identify the optimal clustering method and parameters for each library in their dataset. 
+This workflow can help users identify the optimal clustering method and parameters for each library in their dataset.
 Libraries are unique, which means that the optimal clustering is likely to be library-dependent.
 The clustering analysis workflow provided can be used to explore different methods of clustering and test a range of parameter values for the given clustering methods in order to identify the optimal clustering for each library.
 

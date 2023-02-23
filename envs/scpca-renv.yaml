@@ -10,4 +10,5 @@ dependencies:
   - pandoc=2.19.2
   - pkg-config
   - r-base=4.2.2
+  - r-jsonlite=1.8.4
   - r-tidyverse=2.0.0

@@ -4,7 +4,9 @@
 Rscript --vanilla -e \
   "
    library(tidyverse)
+   library(jsonlite)
    source('.Rprofile')
    renv::restore()
-  "
+  " \
+  &> .snakemake/log/renv_install.log
 

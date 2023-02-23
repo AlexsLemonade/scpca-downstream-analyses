@@ -10,3 +10,4 @@ dependencies:
   - pandoc=2.19.2
   - pkg-config
   - r-base=4.2.1
+  - r-tidyverse

@@ -3,9 +3,7 @@
 # install packages required for renv
 Rscript --vanilla -e \
   "
-   library(glue)
-   library(jsonlite)
-   library(purrr)
+   library(tidyverse)
    source('.Rprofile')
    renv::restore()
   "

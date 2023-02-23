@@ -19,7 +19,7 @@ This directory includes a clustering analysis workflow that can help users ident
 
 ## Analysis overview
 
-Libraries are unique, which means that the optimal clustering is likely to be library-dependent.
+Single-cell gene expression libraries are unique, which means that the optimal clustering is likely to be library-dependent.
 The clustering analysis workflow provided here can be used to explore different methods of clustering and test a range of parameter values for given graph-based clustering methods in order to identify the optimal clustering for each library.
 
 We evaluate the clustering results across each of the parameters tested by looking at the following measures:
@@ -45,7 +45,8 @@ If you are using conda, dependencies can be installed as [part of the initial se
 
 ## Running the workflow
 
-The execution file with the clustering Snakemake workflow is named cluster.snakefile and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the --snakefile or -s option followed by the name of the snakefile, cluster.snakefile. After navigating to within the root directory of the scpca-downstream-analyses repository, the below example command can be used to run the clustering workflow:
+The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`. 
+After navigating to within the root directory of the `scpca-downstream-analyses` repository, the below example command can be used to run the clustering workflow:
 
 ```
 snakemake --snakefile cluster.snakefile \ 
@@ -125,13 +126,24 @@ The parameters found in the `config/cluster_config.yaml` file can be optionally 
 
 For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return five files in the same directory where the inputted RDS file is stored:
 
-1. The `SingleCellExperiment` RDS file containing the added clustering results that were calculated in the first step of the worflow.
+1. The `_clustered_sce.rds` file containing the `SingleCellExperiment` object with the added clustering results that were calculated in the first step of the workflow.
 2. The `_clustering_report.html` file, which is the summary html report with plots containing the clustering results.
 3. A `_clustering_all_validity_stats.tsv` file with all of the calculated cluster validity statistics.
 4. A `_clustering_summary_validity_stats.tsv` file with the cluster validity stats averaged across each cluster assignment.
 5. A `_clustering_summary_stability_stats.tsv` file with the average adjusted Rand Index (ARI) values across each cluster assignment.
 
-The TSV files will be saved in a subdirectory called `{library_id}_{filtering_method}_clustering_stats/`, where both the `{library_id}` and `{filtering_method}` are obtained from the input metadata file.
+Below is an example of the nested file structure you can expect.
+
+```
+example_results
+└── <sample_id>
+    ├── <library_id>_clustered_sce.rds
+    ├── <library_id>_clustering_report.html
+    ├── <library_id>_clustering_stats
+        ├── <library_id>_clustering_all_validity_stats.tsv
+        ├── <library_id>_clustering_summary_stability_stats.tsv
+        └── <library_id>_clustering_summary_validity_stats.tsv
+```
 
 You can also download a ZIP file with an example of the output from running the clustering workflow, including the summary HTML report, processed `SingleCellExperiment` objects stored as RDS files, and the clustering statistics saved as TSV files [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/clustering_example_results.zip).
 

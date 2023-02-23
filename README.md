@@ -54,10 +54,10 @@ You can read more details about the individual steps of the workflow in the proc
 To run the core analysis workflow you will want to implement the following steps in order:
 
 1. Clone the repository and install Snakemake using the [instructions provided in the Snakemake docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
-2. [Install the packages and dependencies](#3-additional-dependencies) that are required to run the workflow.
-3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#input-data-format)).
+2. [Install the packages and dependencies](#c-additional-dependencies) that are required to run the workflow.
+3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#2-input-data-format)).
 The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data.
-4. [Create a metadata tab-separated value (TSV) file](#metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
+4. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
 5. Open terminal to run the workflow using the following snakemake command and the `--config` flag to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 3:
 
 ```
@@ -76,7 +76,7 @@ Package dependencies for the analysis workflows in this repository are managed u
 If you are using conda, dependencies can be installed as [part of the setup mentioned in step 2 above](#snakemakeconda-installation).
 
 If you did not install dependencies with [conda via snakemake](#snakemakeconda-installation) in step 2, you will need to remove the `--use-conda` flag from the command above.
-See the section on [running the workflow](#running-the-workflow) for more information.
+See the section on [running the workflow](#4-running-the-workflow) for more information.
 
 **Output Files**
 There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
@@ -87,7 +87,7 @@ There are two expected output files thay will be associated with each provided `
     - Dimensionality reduction
     - Clustering that was performed within the workflow
 
-See the [expected output section](#expected-output) for more information on these output files.
+See the [expected output section](#5-expected-output) for more information on these output files.
 
 ## 1. How to install the core downstream analyses workflow
 
@@ -153,7 +153,7 @@ However, this should be a one-time cost, and ensures that you have all of the to
 
 To use the environment you have just created, you will need to run Snakemake with the `--use-conda` flag each time.
 
-If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](./independent-installation-instructions.md).
+If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/additional-docs/independent-installation-instructions.md).
 
 ## 2. Input data format
 
@@ -242,13 +242,13 @@ The parameters found under the `Processing parameters` section of the config fil
 #### Filtering parameters
 
 There are two types of filtering methods that can be specified in the project metadata file, [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual` filtering.
-For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md).
+For more information on choosing a filtering method, see [Filtering low quality cells](./additional-docs/processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md).
 Below are the parameters required to run either of the filtering methods.
 
 | Parameter        | Description | Default value |
 |------------------|-------------|---------------|
 | `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
-| `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./processing-information.md) | "miQC" |
+| `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./additional-docs/processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md) | "miQC" |
 | `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
 | `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata | 5 |
 | `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata | 0.1 |
@@ -259,7 +259,7 @@ Below are the parameters required to run either of the filtering methods.
 #### Dimensionality reduction and clustering parameters
 
 In the core workflow, PCA and UMAP results are calculated and stored, and the PCA coordinates are used for graph-based clustering.
-For more details on how the workflow performs [dimensionality reduction](./processing-information.md#dimensionality-reduction) and [clustering](./processing-information.md#clustering) see the documentation on [workflow processing information](./additional-docs/processing-information.md).
+For more details on how the workflow performs [dimensionality reduction](./additional-docs/processing-information.md#dimensionality-reduction) and [clustering](./additional-docs/processing-information.md#clustering) see the documentation on [workflow processing information](./additional-docs/processing-information.md).
 Below are the parameters required to run the dimensionality reduction and clustering steps of the workflow.
 
 | Parameter        | Description | Default value |

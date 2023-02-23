@@ -54,10 +54,10 @@ You can read more details about the individual steps of the workflow in the proc
 To run the core analysis workflow you will want to implement the following steps in order:
 
 1. Clone the repository and install Snakemake using the [instructions provided in the Snakemake docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
-2. [Install the packages and dependencies](#3-additional-dependencies) that are required to run the workflow.
-3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#input-data-format)).
+2. [Install the packages and dependencies](#c-additional-dependencies) that are required to run the workflow.
+3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#2-input-data-format)).
 The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data.
-4. [Create a metadata tab-separated value (TSV) file](#metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
+4. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
 5. Open terminal to run the workflow using the following snakemake command and the `--config` flag to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 3:
 
 ```
@@ -67,7 +67,7 @@ snakemake --cores 2 \
   project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
-**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.** 
+**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.**
 Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in [section 3](#3-metadata-file-format) below.
 
@@ -76,7 +76,7 @@ Package dependencies for the analysis workflows in this repository are managed u
 If you are using conda, dependencies can be installed as [part of the setup mentioned in step 2 above](#snakemakeconda-installation).
 
 If you did not install dependencies with [conda via snakemake](#snakemakeconda-installation) in step 2, you will need to remove the `--use-conda` flag from the command above.
-See the section on [running the workflow](#running-the-workflow) for more information.
+See the section on [running the workflow](#4-running-the-workflow) for more information.
 
 **Output Files**
 There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
@@ -87,7 +87,7 @@ There are two expected output files thay will be associated with each provided `
     - Dimensionality reduction
     - Clustering that was performed within the workflow
 
-See the [expected output section](#expected-output) for more information on these output files.
+See the [expected output section](#5-expected-output) for more information on these output files.
 
 ## 1. How to install the core downstream analyses workflow
 
@@ -153,7 +153,7 @@ However, this should be a one-time cost, and ensures that you have all of the to
 
 To use the environment you have just created, you will need to run Snakemake with the `--use-conda` flag each time.
 
-If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](./independent-installation-instructions.md).
+If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/additional-docs/independent-installation-instructions.md).
 
 ## 2. Input data format
 
@@ -177,14 +177,14 @@ The file should contain the following columns:
 - `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object.
 Each library ID should have a unique `filepath`.
 
-|[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/project-metadata/example-library-metadata.tsv)|
+|[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-library-metadata.tsv)|
 |---|
 
 ## 4. Running the workflow
 
 We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
 
-See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps. 
+See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps.
 
 ### Project-specific parameters
 
@@ -198,12 +198,12 @@ These include the following parameters:
 | `project_metadata` | relative path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
 
-**Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome. 
+**Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome.
 For all datasets downloaded from the [ScPCA Portal](https://scpca.alexslemonade.org/), the Ensembl version used can be found by looking at the `assembly` column of the `metadata.json` file associated with that library.
 You should not need to change this parameter unless your dataset has been aligned to a different reference.
 If you are using your own data, you will need to grab all possible mitochondrial genes from the reference transcriptome used for alignment of your data and create a text file with one gene per line.
 
-|[View Config File](config/config.yaml)|
+|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml)|
 |---|
 
 The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
@@ -219,7 +219,7 @@ snakemake --cores 2 \
   mito_file="<FULL PATH TO MITOCHONDRIAL GENES TXT FILE>"
 ```
 
-**You will want to replace the paths for `results_dir` and `project_metadata` to successfully run the workflow.** 
+**You will want to replace the paths for `results_dir` and `project_metadata` to successfully run the workflow.**
 
 **Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
@@ -242,13 +242,13 @@ The parameters found under the `Processing parameters` section of the config fil
 #### Filtering parameters
 
 There are two types of filtering methods that can be specified in the project metadata file, [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual` filtering.
-For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md).
+For more information on choosing a filtering method, see [Filtering low quality cells](./additional-docs/processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md).
 Below are the parameters required to run either of the filtering methods.
 
 | Parameter        | Description | Default value |
 |------------------|-------------|---------------|
 | `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
-| `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./processing-information.md) | "miQC" |
+| `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./additional-docs/processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md) | "miQC" |
 | `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
 | `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata | 5 |
 | `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata | 0.1 |
@@ -259,7 +259,7 @@ Below are the parameters required to run either of the filtering methods.
 #### Dimensionality reduction and clustering parameters
 
 In the core workflow, PCA and UMAP results are calculated and stored, and the PCA coordinates are used for graph-based clustering.
-For more details on how the workflow performs [dimensionality reduction](./processing-information.md#dimensionality-reduction) and [clustering](./processing-information.md#clustering) see the documentation on [workflow processing information](./additional-docs/processing-information.md).
+For more details on how the workflow performs [dimensionality reduction](./additional-docs/processing-information.md#dimensionality-reduction) and [clustering](./additional-docs/processing-information.md#clustering) see the documentation on [workflow processing information](./additional-docs/processing-information.md).
 Below are the parameters required to run the dimensionality reduction and clustering steps of the workflow.
 
 | Parameter        | Description | Default value |
@@ -339,7 +339,7 @@ You can find more information on the above in the [processing information docume
 ### Clustering analysis
 
 There is an optional clustering analysis workflow stored in the `optional-clustering-analysis` subdirectory of this repository.
-This workflow can help users identify the optimal clustering method and parameters for each library in their dataset. 
+This workflow can help users identify the optimal clustering method and parameters for each library in their dataset.
 Libraries are unique, which means that the optimal clustering is likely to be library-dependent.
 The clustering analysis workflow provided can be used to explore different methods of clustering and test a range of parameter values for the given clustering methods in order to identify the optimal clustering for each library.
 

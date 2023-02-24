@@ -124,7 +124,7 @@ The parameters found in the `config/cluster_config.yaml` file can be optionally 
 
 ## Expected output
 
-For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return five files in the same directory where the inputted RDS file is stored:
+For each provided `SingleCellExperiment` RDS file and associated `library_id`, the workflow will return five files in the same directory where the input RDS file is stored:
 
 1. The `_clustered_sce.rds` file containing the `SingleCellExperiment` object with the added clustering results that were calculated in the first step of the workflow.
 2. The `_clustering_report.html` file, which is the summary html report with plots containing the clustering results.

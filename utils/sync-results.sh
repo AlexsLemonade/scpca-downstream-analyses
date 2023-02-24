@@ -37,6 +37,14 @@ clustering_link_locs=(
   sample02/library02_clustering_stats
 )
 
+# genes of interest module output files
+goi_link_locs=(
+  sample01/library01_goi_report.html
+  sample01/library01_goi_stats
+  sample02/library02_goi_report.html
+  sample02/library02_goi_stats
+)
+
 for loc in ${core_link_locs[@]}
 do
   # only make the links if replacing an old link or the file doesn't exist
@@ -59,6 +67,17 @@ do
   fi
 done
 
+for loc in ${goi_link_locs[@]}
+do
+  # only make the links if replacing an old link or the file doesn't exist
+  if [[ -L ${loc} || ! -e ${loc} ]]
+  then
+    ln -nsf ${repo_base}/example-results/${loc} goi-example-results/${loc}
+  else
+    echo "${loc} already exists and is not a link, delete or move it to create a link."
+  fi
+done
+
 # zip and sync core analysis example results
 zip -r core_example_results.zip $repo_base/example-results
 aws s3 cp core_example_results.zip $s3_base/core_example_results.zip --acl public-read
@@ -68,3 +87,8 @@ rm ./core_example_results.zip
 zip -r clustering_example_results.zip $repo_base/clustering-example-results
 aws s3 cp clustering_example_results.zip $s3_base/clustering_example_results.zip --acl public-read
 rm ./clustering_example_results.zip
+
+# zip and sync genes of interest module example results
+zip -r goi_example_results.zip $repo_base/goi-example-results
+aws s3 cp goi_example_results.zip $s3_base/goi_example_results.zip --acl public-read
+rm ./goi_example_results.zip

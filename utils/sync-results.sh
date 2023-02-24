@@ -19,13 +19,15 @@ mkdir -p example-results/sample02
 mkdir -p clustering-example-results/sample01
 mkdir -p clustering-example-results/sample02
 
-link_locs=(
+# files only found in output from running core worfklow
+core_link_locs=(
   sample01/library01_processed_sce.rds
   sample01/library01_core_analysis_report.html
   sample02/library02_processed_sce.rds
   sample02/library02_core_analysis_report.html
 )
 
+# clustering module output files
 clustering_link_locs=(
   sample01/library01_clustered_sce.rds
   sample01/library01_clustering_report.html
@@ -35,7 +37,7 @@ clustering_link_locs=(
   sample02/library02_clustering_stats
 )
 
-for loc in ${link_locs[@]}
+for loc in ${core_link_locs[@]}
 do
   # only make the links if replacing an old link or the file doesn't exist
   if [[ -L ${loc} || ! -e ${loc} ]]
@@ -62,7 +64,7 @@ zip -r core_example_results.zip $repo_base/example-results
 aws s3 cp core_example_results.zip $s3_base/core_example_results.zip --acl public-read
 rm ./core_example_results.zip
 
-# zip and sync core analysis example results
+# zip and sync clustering module example results
 zip -r clustering_example_results.zip $repo_base/clustering-example-results
 aws s3 cp clustering_example_results.zip $s3_base/clustering_example_results.zip --acl public-read
 rm ./clustering_example_results.zip

@@ -9,6 +9,8 @@
 - [1. How to install the core downstream analyses workflow](#1-how-to-install-the-core-downstream-analyses-workflow)
   - [a) Clone the repository](#a-clone-the-repository)
   - [b) Install Snakemake](#b-install-snakemake)
+    - [What is Snakemake?](#what-is-snakemake)
+    - [How to install Snakemake](#how-to-install-snakemake)
   - [c) Additional dependencies](#c-additional-dependencies)
     - [Snakemake/conda installation](#snakemakeconda-installation)
 - [2. Input data format](#2-input-data-format)
@@ -107,8 +109,14 @@ Once the repository is successfully cloned, a folder named `scpca-downstream-ana
 
 ### b) Install Snakemake
 
-The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using a Snakemake workflow.
+#### What is Snakemake?
+The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using Snakemake.
+Snakemake is a workflow manager that provides an execution environment for speedy implementation of multiple scripts.
+We use Snakemake to run the core downstream analysis scripts found in the `core-analysis` subdirectory in their logical order.
 Therefore, you will also need to install Snakemake before running the pipeline.
+
+#### How to install Snakemake
+
 Note that the **minimum** version of Snakemake you will need to have installed to be compatible with conda is version **5.23.0**.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).

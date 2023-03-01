@@ -9,11 +9,13 @@ This directory includes a clustering analysis workflow that can help users ident
 **Table of Contents**
 
 - [Analysis overview](#analysis-overview)
-- [Expected input](#expected-input)
-- [Expected output](#expected-output)
 - [Running the workflow](#running-the-workflow)
+- [Expected input](#expected-input)
+- [Parameters and config file](#parameters-and-config-file)
   - [Project-specific parameters](#project-specific-parameters)
   - [Clustering parameters](#clustering-parameters)
+- [Expected output](#expected-output)
+  - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

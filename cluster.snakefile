@@ -34,7 +34,7 @@ rule target:
 
 rule calculate_clustering:
     input:
-        "{basedir}/{library_id}_processed_sce.rds"
+        "{basedir}/{library_id}_processed.rds"
     output:
         sce = "{basedir}/{library_id}_clustered_sce.rds",
         stats_dir = directory("{basedir}/{library_id}_clustering_stats")

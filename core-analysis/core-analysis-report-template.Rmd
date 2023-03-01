@@ -2,7 +2,7 @@
 params:
   library: Library
   pre_processed_sce: "data/Gawad_processed_data/SCPCS000216/SCPCL000290_filtered.rds"
-  processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
+  processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_processed.rds"
   cluster_type: "louvain"
   nearest_neighbors: 10
   project_root: NULL

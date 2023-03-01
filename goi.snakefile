@@ -30,7 +30,7 @@ rule target:
 
 rule calculate_goi:
     input:
-        "{basedir}/{library_id}_processed_sce.rds"
+        "{basedir}/{library_id}_processed.rds"
     output:
         output_dir = directory("{basedir}/{library_id}_goi_stats")
     log: "logs/{basedir}/{library_id}/calculate_goi.log"
@@ -52,7 +52,7 @@ rule calculate_goi:
         
 rule generate_goi_report:
     input:
-        processed_sce = "{basedir}/{library_id}_processed_sce.rds",
+        processed_sce = "{basedir}/{library_id}_processed.rds",
         goi_dir = "{basedir}/{library_id}_goi_stats"
     output:
         "{basedir}/{library_id}_goi_report.html"

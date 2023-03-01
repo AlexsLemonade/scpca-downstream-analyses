@@ -8,7 +8,7 @@
 # Command line usage:
 
 # Rscript --vanilla clustering-calculations.R \
-#   --sce "example-results/sample01/library01_miQC_processed_sce.rds" \
+#   --sce "example-results/sample01/library01_processed.rds" \
 #   --library_id "library01" \
 #   --seed 2021 \
 #   --cluster_types "louvain,walktrap" \

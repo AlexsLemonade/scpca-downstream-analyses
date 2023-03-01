@@ -303,12 +303,12 @@ Below is an example of the nested file structure you can expect.
 example_results
 └── sample_id
 	 ├── <library_id>_core_analysis_report.html
-	 └── <library_id>_processed_sce.rds
+	 └── <library_id>_processed.rds
 ```
 
 The `<library_id>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
-The `<library_id>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+The `<library_id>_processed.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
 
 You can also download a ZIP file with an example of the output from running the core workflow, including the summary HTML report and processed `SingleCellExperiment` objects stored as RDS files [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/core_example_results.zip).
 

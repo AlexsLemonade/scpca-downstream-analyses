@@ -21,9 +21,9 @@ mkdir -p clustering-example-results/sample02
 
 # files only found in output from running core worfklow
 core_link_locs=(
-  sample01/library01_processed_sce.rds
+  sample01/library01_processed.rds
   sample01/library01_core_analysis_report.html
-  sample02/library02_processed_sce.rds
+  sample02/library02_processed.rds
   sample02/library02_core_analysis_report.html
 )
 

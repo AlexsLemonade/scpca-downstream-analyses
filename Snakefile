@@ -28,16 +28,14 @@ rule target:
                library = LIBRARY_ID)
 
 
-# Rule used for building conda & renv environment
-rule build_renv:
-    input: "renv.lock"
-    output: "renv/.snakemake_timestamp"
-    log: "logs/build_renv.log"
+# Rule used to sync renv
+rule snapshot_renv:
+    output: "renv.lock"
+    log: "logs/write_renv.log"
     conda: "envs/scpca-renv.yaml"
     shell:
       """
-      Rscript -e "renv::restore(lockfile = '{input}')" &> {log}
-      date -u -Iseconds  > {output}
+      Rscript -e "renv::snapshot()" &> {log}
       """
 
 

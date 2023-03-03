@@ -112,7 +112,7 @@ Once the repository is successfully cloned, a folder named `scpca-downstream-ana
 #### What is Snakemake?
 
 The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using the [Snakemake](https://snakemake.github.io/) workflow manager.
-By using Snakemake, users can run the core downstream analysis pipeline with a single call, rather than having to run each [core downstream analysis script](core-analysis/) on its own.
+With Snakemake, users can run the core downstream analysis pipeline with a single call, rather than having to run each [core downstream analysis script](core-analysis/) on its own.
 Therefore, you will also need to install Snakemake before running the pipeline.
 
 #### How to install Snakemake

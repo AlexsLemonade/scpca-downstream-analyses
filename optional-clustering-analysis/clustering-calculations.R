@@ -1,5 +1,5 @@
-## This script performs graph based clustering across a range of specified 
-## nearest neighbors values and outputs a SCE with the cluster assignments 
+## This script performs graph based clustering across a range of specified
+## nearest neighbors values and outputs a SCE with the cluster assignments
 ## stored in the colData, as well as a separate data frame with cluster validity
 ## and stability statistics.
 ## Read in SingleCellExperiment RDS object that has been normalized and has PCA
@@ -31,7 +31,7 @@ option_list <- list(
     c("-i", "--sce"),
     type = "character",
     default = NULL,
-    help = "path to RDS file containing SCE object with log-normalized counts 
+    help = "path to RDS file containing SCE object with log-normalized counts
     and PCA embeddings",
   ),
   optparse::make_option(
@@ -57,21 +57,21 @@ option_list <- list(
     c("-n", "--nearest_neighbors_min"),
     type = "integer",
     default = 5,
-    help = "The minimum number of a range of nearest neighbors values to include 
+    help = "The minimum number of a range of nearest neighbors values to include
     during graph construction. Default is 5."
   ),
   optparse::make_option(
     c("--nearest_neighbors_max"),
     type = "integer",
     default = 25,
-    help = "The maximum number of a range of nearest neighbors values to include 
+    help = "The maximum number of a range of nearest neighbors values to include
     during graph construction. Default is 25."
   ),
   optparse::make_option(
     c("--nearest_neighbors_increment"),
     type = "integer",
     default = 1,
-    help = "Increment to use when implementing the range number of nearest 
+    help = "Increment to use when implementing the range number of nearest
     neighbors for calculating the cluster stats. If using a single value for the
     nearest neighbors range, set to 1"
   ),
@@ -79,7 +79,7 @@ option_list <- list(
     c("-o", "--output_directory"),
     type = "character",
     default = NULL,
-    help = "path to output directory that would hold the TSV files with the 
+    help = "path to output directory that would hold the TSV files with the
     clustering stats"
   ),
   optparse::make_option(
@@ -114,14 +114,11 @@ if(is.null(opt$project_root)){
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 
-# source in clustering functions 
+# source in clustering functions
 source(file.path(project_root, "utils", "clustering-functions.R"))
 
 # Check R and Bioconductor versions
 check_r_bioc_versions()
-
-# Load project
-setup_renv(project_filepath = project_root)
 
 ## Load libraries
 suppressPackageStartupMessages({
@@ -150,7 +147,7 @@ for (cluster_type in cluster_types) {
   }
 }
 
-# Make sure the output directory exists 
+# Make sure the output directory exists
 if(!dir.exists(opt$output_directory)){
   dir.create(opt$output_directory, recursive = TRUE)
 }
@@ -160,7 +157,7 @@ if(!dir.exists(opt$output_directory)){
 # Read in normalized sce object
 sce <- readr::read_rds(opt$sce)
 
-# Check that the input data contains an SCE with PCA results 
+# Check that the input data contains an SCE with PCA results
 if(is(sce,"SingleCellExperiment")){
   if(!"PCA" %in% reducedDimNames(sce)) {
     stop("PCA results are not found in the provided SingleCellExperiment object.")
@@ -181,7 +178,7 @@ perform_clustering <- function(sce, nn_range, cluster_type, ...) {
   cluster_column_names <- sprintf("%s_%02d", cluster_type, nn_range)
   existing_columns <-
     intersect(cluster_column_names, colnames(colData(sce)))
-  
+
   if (length(existing_columns) != 0) {
     if (!is.null(opt$overwrite)) {
       # Perform graph-based clustering
@@ -209,13 +206,13 @@ perform_clustering <- function(sce, nn_range, cluster_type, ...) {
       cluster_type = cluster_type
     )
   }
-  
+
 }
 
 # Run the clustering wrapper function
 for (cluster_type in cluster_types){
-  sce <- perform_clustering(sce, nn_range, cluster_type, 
-                                  opt$nearest_neighbors_min, 
+  sce <- perform_clustering(sce, nn_range, cluster_type,
+                                  opt$nearest_neighbors_min,
                                   opt$nearest_neighbors_max,
                                   opt$nearest_neighbors_increment)
 }

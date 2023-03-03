@@ -73,9 +73,6 @@ check_r_bioc_versions()
 # source in clustering functions
 source(file.path(project_root, "utils", "clustering-functions.R"))
 
-# Load project
-setup_renv(project_filepath = project_root)
-
 ## Load libraries
 suppressPackageStartupMessages({
   library(magrittr)

@@ -130,8 +130,6 @@ if(is.null(opt$project_root)){
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 
-# Load project
-setup_renv(project_filepath = project_root)
 # Check R and Bioconductor versions
 check_r_bioc_versions()
 
@@ -248,7 +246,7 @@ detected <-
 expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
 filtered_sce <- filtered_sce[detected & expressed, ]
 
-# Save sample, library id, and number of cells retained after filtering in 
+# Save sample, library id, and number of cells retained after filtering in
 # metadata of filtered object
 metadata(filtered_sce)$sample <- opt$sample_id
 metadata(filtered_sce)$library <- opt$library_id

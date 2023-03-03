@@ -1,6 +1,6 @@
 # Optional Clustering Analysis
 
-This directory includes a clustering analysis workflow that can help users identify the optimal clustering method and parameters for each library in their dataset. 
+This directory includes a clustering analysis workflow that can help users identify the optimal clustering method and parameters for each library in their dataset.
 
 **The clustering analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file.**
 
@@ -9,11 +9,13 @@ This directory includes a clustering analysis workflow that can help users ident
 **Table of Contents**
 
 - [Analysis overview](#analysis-overview)
-- [Expected input](#expected-input)
-- [Expected output](#expected-output)
 - [Running the workflow](#running-the-workflow)
+- [Expected input](#expected-input)
+- [Parameters and config file](#parameters-and-config-file)
   - [Project-specific parameters](#project-specific-parameters)
   - [Clustering parameters](#clustering-parameters)
+- [Expected output](#expected-output)
+  - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -45,18 +47,18 @@ If you are using conda, dependencies can be installed as [part of the initial se
 
 ## Running the workflow
 
-The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`. 
+The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`.
 After navigating to within the root directory of the `scpca-downstream-analyses` repository, the below example command can be used to run the clustering workflow:
 
 ```
-snakemake --snakefile cluster.snakefile \ 
+snakemake --snakefile cluster.snakefile \
   --cores 2 \
   --use-conda \
   --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
   project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
-**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.** 
+**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.**
 Where `results_dir` is the relative path to the directory where all results from running the workflow will be stored, and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in the [expected input section](#expected-input) below.
 
@@ -97,7 +99,7 @@ If you installed dependencies for the workflow [with conda via snakemake](../REA
 The below code is an example of running the clustering workflow using the required parameters.
 
 ```
-snakemake --snakefile cluster.snakefile \ 
+snakemake --snakefile cluster.snakefile \
   --cores 2 \
   --use-conda \
   --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
@@ -107,7 +109,7 @@ snakemake --snakefile cluster.snakefile \
 ### Clustering parameters
 
 The [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/cluster_config.yaml` sets the defaults for all parameters needed to run the clustering workflow.
-It is **not required** to alter these parameters to run the workflow, but if you would like to change the type of clustering or range of nearest neighbor parameters, you can do so by changing these parameters. 
+It is **not required** to alter these parameters to run the workflow, but if you would like to change the type of clustering or range of nearest neighbor parameters, you can do so by changing these parameters.
 
 The parameters found in the `config/cluster_config.yaml` file can be optionally modified and are as follows:
 

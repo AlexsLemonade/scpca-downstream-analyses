@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
- 
+
 ###############################################################################
 # Run the scPCA downstream analysis scripts including the optional genes of
 # interest mapping script in `utils`, and the prepare SingleCellExperiment object,
@@ -14,10 +14,8 @@ set -euo pipefail
 
 # This script should always run as if it were being called from
 # the directory it lives in.
-script_directory="$(perl -e 'use File::Basename;
-  use Cwd "abs_path";
-  print dirname(abs_path(@ARGV[0]));' -- "$0")"
-cd "$script_directory/.." || exit
+# Run from the script file location
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
 sample_data_dir="data/anderson-single-cell/GSE140819"
 sample_names=(GSM4186961 GSM4186962 GSM4186963 GSM4186964 GSM4186965 GSM4186966 GSM4186967 GSM4186968 GSM4186969 GSM4186970)
@@ -49,9 +47,9 @@ declare -A sample_metadata=(
 )
 
 for sample_name in "${sample_names[@]}"; do
-  
+
   if [[ -e "${sample_data_dir}"/"${sample_matrix[$sample_name]}" ]]; then
-  
+
     bash optional-goi-analysis/run-provided-goi-analysis.sh --output_dir "data/anderson-single-cell/results" \
     --sample_name "${sample_name}" \
     --sample_matrix "${sample_data_dir}"/"${sample_matrix[$sample_name]}" \
@@ -62,5 +60,5 @@ for sample_name in "${sample_names[@]}"; do
   else
     echo "${sample_data_dir}"/"${sample_matrix[$sample_name]}" "does not exist."
   fi
-    
+
 done

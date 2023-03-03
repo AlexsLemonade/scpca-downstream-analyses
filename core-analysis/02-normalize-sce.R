@@ -63,9 +63,6 @@ source(file.path(project_root, "utils", "setup-functions.R"))
 # Check R and Bioconductor versions
 check_r_bioc_versions()
 
-# Load project
-setup_renv(project_filepath = project_root)
-
 ## Load libraries
 suppressPackageStartupMessages({
   library(scater)

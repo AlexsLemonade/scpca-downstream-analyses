@@ -1,4 +1,4 @@
-## This script performs optional gene identifier mapping, as well as genes of 
+## This script performs optional gene identifier mapping, as well as genes of
 #  interest calculations in preparation for plotting.
 ## Read in SingleCellExperiment RDS object that has been normalized and has PCA
 ## embeddings.
@@ -30,7 +30,7 @@ option_list <- list(
     c("-i", "--sce"),
     type = "character",
     default = NULL,
-    help = "path to RDS file containing SCE object with log-normalized counts 
+    help = "path to RDS file containing SCE object with log-normalized counts
     and PCA embeddings",
   ),
   optparse::make_option(
@@ -50,14 +50,14 @@ option_list <- list(
     c("-g", "--input_goi_list"),
     type = "character",
     default = NULL,
-    help = "file path to the input genes of interest list, must contain gene 
+    help = "file path to the input genes of interest list, must contain gene
     identifiers to plot in a column named `gene_id`."
   ),
   optparse::make_option(
     c( "--perform_mapping"),
     action = "store_true",
     default = FALSE,
-    help = "specifies whether or not to perform gene identifier mapping; the 
+    help = "specifies whether or not to perform gene identifier mapping; the
     default is FALSE as mapping is not required when ENSEMBL ids are provided"
   ),
   optparse::make_option(
@@ -77,7 +77,7 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "the scientific name of the organism relevant to the genes to be
-            mapped; this workflow currently supports 'Homo sapiens', 
+            mapped; this workflow currently supports 'Homo sapiens',
             'Mus musculus', and 'Danio rerio' as options here"
   ),
   optparse::make_option(
@@ -98,7 +98,7 @@ option_list <- list(
     c("--project_root"),
     type = "character",
     default = NULL,
-    help = "the path to the root directory for the R project and where the 
+    help = "the path to the root directory for the R project and where the
     `utils` folder lives."
   ),
   optparse::make_option(
@@ -122,14 +122,12 @@ if(is.null(opt$project_root)){
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 
-# Source in goi functions 
+# Source in goi functions
 source(file.path(project_root, "utils", "provided-goi-analysis-functions.R"))
 
 # Check R and Bioconductor versions
 check_r_bioc_versions()
 
-# Load project
-setup_renv(project_filepath = project_root)
 
 ## Set the seed
 set.seed(opt$seed)
@@ -209,7 +207,7 @@ if(!(any(c("PCA", "UMAP") %in% reducedDimNames(sce)))){
 # Check that `gene_id` column is in GOI list
 if(is.null(goi_list$gene_id)){
   stop("There is no column named `gene_id` in the provided genes of interest list.
-       Please rename the column holding your gene identifiers `gene_id` before 
+       Please rename the column holding your gene identifiers `gene_id` before
        re-running this GOI analysis.")
 }
 
@@ -219,7 +217,7 @@ if (opt$perform_mapping) {
   # turn column name into symbol for pulling the column info out of data frame
   ids_for_mapping <- goi_list %>%
     dplyr::pull(gene_id)
-  
+
   # Define the annotation packages based on the specified organism
   annotation_list <- list(
     'Homo sapiens' = "org.Hs.eg.db",
@@ -235,12 +233,12 @@ if (opt$perform_mapping) {
   library(annotation_list[[opt$organism]], character.only = TRUE)
   annotation_package <-
     eval(parse(text = annotation_list[[opt$organism]]))
-  
+
   # Check that provided keytypes are present in the annotation package
   if (!(opt$provided_identifier %in% keytypes(annotation_package))) {
     stop(paste(opt$provided_identifier, "is not a supported type of gene identifiers."))
   }
-  
+
   # Perform mapping
   goi_list <- mapIds(
     # organism annotation package
@@ -261,27 +259,27 @@ if (opt$perform_mapping) {
     # grab only the unique rows
     dplyr::distinct() %>%
     dplyr::left_join(goi_list, by = "gene_id")
-  
+
   # define mapped goi associated with rownames of SCE object
   goi_rownames_column <- tolower(opt$sce_rownames_identifier)
   goi_rownames <- goi_list %>%
     dplyr::pull(goi_rownames_column)
-  
+
   # create a `sce_rownames_identifier` column
   goi_list <- goi_list %>%
     dplyr::mutate(sce_rownames_identifier = goi_list[[goi_rownames_column]])
-  
+
 } else {
   # if no mapping is performed then set goi to input id column
   goi_rownames <- goi_list %>%
     dplyr::pull(gene_id)
-  
+
   # create a `sce_rownames_identifier` column
   goi_list <- goi_list %>%
     dplyr::mutate(sce_rownames_identifier = gene_id)
 }
 
-# Save goi list to file to be used as input for template 
+# Save goi list to file to be used as input for template
 write_tsv(goi_list, output_mapped_genes)
 
 #### Prepare data for plotting -------------------------------------------------
@@ -296,8 +294,8 @@ if(any(colnames(normalized_logcounts_matrix) %in% goi_rownames)) {
     normalized_logcounts_matrix[, colnames(normalized_logcounts_matrix) %in% goi_rownames]
 } else {
   stop(
-    "Provided gene identifiers cannot be found in the column names of the 
-    logcounts matrix. You may need to re-run script with `--perform_mapping` to 
+    "Provided gene identifiers cannot be found in the column names of the
+    logcounts matrix. You may need to re-run script with `--perform_mapping` to
     map to Ensembl gene identifiers."
   )
 }
@@ -320,7 +318,7 @@ if(!is.null(goi_list$gene_set)) {
                                goi_list = goi_list,
                                gene_id_column = "gene_id",
                                gene_set = "gene_set")
-  
+
 } else {
   if (!is.null(opt$provided_identifier)) {
     normalized_zscores_matrix <-

@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euo pipefail
- 
+
 ###############################################################################
 # Run the scPCA downstream analysis scripts including the optional genes of
 # interest mapping script in `utils`, and the prepare SingleCellExperiment
-# object, filter, and normalize scripts (which are also optional based on the 
+# object, filter, and normalize scripts (which are also optional based on the
 # format of the data).
 
 # Usage
@@ -32,10 +32,8 @@ set -euo pipefail
 
 # This script should always run as if it were being called from
 # the directory it lives in.
-script_directory="$(perl -e 'use File::Basename;
-  use Cwd "abs_path";
-  print dirname(abs_path(@ARGV[0]));' -- "$0")"
-cd "$script_directory/.." || exit
+# Run from the script file location
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
 RUN_MAPPING=${RUN_MAPPING:-TRUE}
 

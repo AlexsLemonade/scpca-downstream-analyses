@@ -114,7 +114,7 @@ option_list <- list(
     c("--filter_genes"),
     action = "store_true",
     default = FALSE,
-    help = "specifies whether or not to perform gene filtering"
+    help = "specifies whether or not to perform gene filtering. Default is FALSE."
   ),
   optparse::make_option(
     c("--project_root"),
@@ -255,6 +255,9 @@ if(opt$filter_genes) {
     rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
   expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
   filtered_sce <- filtered_sce[detected & expressed,]
+  metadata(filtered_sce)$genes_filtered <- "genes filtered"
+} else {
+  metadata(filtered_sce)$genes_filterd <- "no genes filtered"
 }
 
 # Save sample, library id, and number of cells retained after filtering in 

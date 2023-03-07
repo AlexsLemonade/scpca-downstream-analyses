@@ -36,7 +36,7 @@ rule calculate_goi:
     log: "logs/{basedir}/{library_id}/calculate_goi.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'optional-goi-analysis/goi-calculations.R'"
+        " Rscript --vanilla 'optional-goi-analysis/goi-calculations.R'"
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --input_goi_list {config[goi_list]}"
@@ -49,7 +49,7 @@ rule calculate_goi:
         "  --perform_mapping {config[perform_mapping]}"
         "  --project_root $PWD"
         " &> {log}"
-        
+
 rule generate_goi_report:
     input:
         processed_sce = "{basedir}/{library_id}_processed_sce.rds",
@@ -60,7 +60,7 @@ rule generate_goi_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript -e \
+        Rscript --vanilla -e \
         "rmarkdown::render('optional-goi-analysis/goi-report-template.Rmd', \
                            clean = TRUE, \
                            output_file = '{output}', \
@@ -72,4 +72,4 @@ rule generate_goi_report:
                            envir = new.env())" \
         &> {log}
         """
-        
+

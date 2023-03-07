@@ -41,7 +41,7 @@ rule calculate_clustering:
     log: "logs/{basedir}/{library_id}/calculate_clustering.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'optional-clustering-analysis/clustering-calculations.R'"
+        " Rscript --vanilla 'optional-clustering-analysis/clustering-calculations.R'"
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --cluster_types {config[optional_cluster_types]}"
@@ -65,7 +65,7 @@ rule generate_cluster_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript -e \
+        Rscript --vanilla -e \
         "rmarkdown::render('optional-clustering-analysis/clustering-report-template.Rmd', \
                            clean = TRUE, \
                            output_file = '{output}', \

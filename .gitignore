@@ -13,3 +13,7 @@ example-results/
 .snakemake
 # ignore timestamps
 .snakemake_timestamp
+
+# ignore renv-related files 
+.Rprofile
+renv/

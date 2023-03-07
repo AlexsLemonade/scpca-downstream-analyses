@@ -35,7 +35,7 @@ rule snapshot_renv:
     conda: "envs/scpca-renv.yaml"
     shell:
       """
-      Rscript -e "renv::snapshot()" &> {log}
+      Rscript --vanilla -e "renv::snapshot()" &> {log}
       """
 
 
@@ -51,7 +51,7 @@ rule filter_data:
     log: "logs/{basedir}/{sample_id}/{library_id}/filter_data.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'core-analysis/01-filter-sce.R'"
+        " Rscript --vanilla 'core-analysis/01-filter-sce.R'"
         "  --sample_sce_filepath {input}"
         "  --sample_id {wildcards.sample_id}"
         "  --library_id {wildcards.library_id}"
@@ -76,7 +76,7 @@ rule normalize_data:
     log: "logs/{basename}/normalize_data.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript '{workflow.basedir}/core-analysis/02-normalize-sce.R'"
+        " Rscript --vanilla '{workflow.basedir}/core-analysis/02-normalize-sce.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --output_filepath {output}"
@@ -91,7 +91,7 @@ rule dimensionality_reduction:
     log: "logs/{basename}/dimensionality_reduction.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'core-analysis/03-dimension-reduction.R'"
+        " Rscript --vanilla 'core-analysis/03-dimension-reduction.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --top_n {config[n_genes_pca]}"
@@ -108,7 +108,7 @@ rule clustering:
     log: "logs/{basename}/clustering.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'core-analysis/04-clustering.R'"
+        " Rscript --vanilla 'core-analysis/04-clustering.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --cluster_type {config[core_cluster_type]}"
@@ -127,7 +127,7 @@ rule generate_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript -e \
+        Rscript --vanilla -e \
         "rmarkdown::render('core-analysis/core-analysis-report-template.Rmd', \
                            clean = TRUE, \
                            output_dir = '{wildcards.basedir}/{wildcards.sample_id}', \

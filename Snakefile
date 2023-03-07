@@ -43,7 +43,7 @@ rule setup_renv:
     log: "logs/setup_renv.log"
     shell:
       """
-      Rscript -e "renv::restore()" &> {log}
+      Rscript -e "renv::activate(); renv::restore()" &> {log}
       """
 
 

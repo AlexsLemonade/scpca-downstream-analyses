@@ -499,20 +499,6 @@
       ],
       "Hash": "4006dffe49958d2dd591c17e61e60591"
     },
-    "Matrix.utils": {
-      "Package": "Matrix.utils",
-      "Version": "0.9.8",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "Matrix",
-        "R",
-        "grr",
-        "methods",
-        "stats"
-      ],
-      "Hash": "74d1586cef483fdd0703316240ed8c1e"
-    },
     "MatrixGenerics": {
       "Package": "MatrixGenerics",
       "Version": "1.10.0",
@@ -1411,6 +1397,34 @@
       "Repository": "CRAN",
       "Hash": "f7736a18de97dea803bde0a2daaafb27"
     },
+    "fishpond": {
+      "Package": "fishpond",
+      "Version": "2.4.0",
+      "Source": "Bioconductor",
+      "git_url": "https://git.bioconductor.org/packages/fishpond",
+      "git_branch": "RELEASE_3_16",
+      "git_last_commit": "1b955ca",
+      "git_last_commit_date": "2022-11-01",
+      "Requirements": [
+        "GenomicRanges",
+        "IRanges",
+        "Matrix",
+        "S4Vectors",
+        "SingleCellExperiment",
+        "SummarizedExperiment",
+        "abind",
+        "graphics",
+        "gtools",
+        "jsonlite",
+        "matrixStats",
+        "methods",
+        "qvalue",
+        "stats",
+        "svMisc",
+        "utils"
+      ],
+      "Hash": "b7807ff721fa7bb9c8bb3f8d11b02bba"
+    },
     "flexmix": {
       "Package": "flexmix",
       "Version": "2.3-18",
@@ -1698,16 +1712,6 @@
       ],
       "Hash": "7d7f283939f563670a697165b2cf5560"
     },
-    "grr": {
-      "Package": "grr",
-      "Version": "0.9.5",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "195f3206842ea5ae11968e8d462bb828"
-    },
     "gtable": {
       "Package": "gtable",
       "Version": "0.3.1",
@@ -1718,6 +1722,18 @@
         "grid"
       ],
       "Hash": "36b4265fb818f6a342bed217549cd896"
+    },
+    "gtools": {
+      "Package": "gtools",
+      "Version": "3.9.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "88bb96eaf7140cdf29e374ef74182220"
     },
     "here": {
       "Package": "here",
@@ -2337,6 +2353,17 @@
       "Repository": "CRAN",
       "Hash": "09eb987710984fc2905c7129c7d85e65"
     },
+    "plyr": {
+      "Package": "plyr",
+      "Version": "1.8.8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp"
+      ],
+      "Hash": "d744387aef9047b0b48be2933d78e862"
+    },
     "png": {
       "Package": "png",
       "Version": "0.1-8",
@@ -2467,6 +2494,23 @@
       ],
       "Hash": "b8b2b861526c344a7e16e5991fa5a4ab"
     },
+    "qvalue": {
+      "Package": "qvalue",
+      "Version": "2.30.0",
+      "Source": "Bioconductor",
+      "git_url": "https://git.bioconductor.org/packages/qvalue",
+      "git_branch": "RELEASE_3_16",
+      "git_last_commit": "e8a4c22",
+      "git_last_commit_date": "2022-11-01",
+      "Requirements": [
+        "R",
+        "ggplot2",
+        "grid",
+        "reshape2",
+        "splines"
+      ],
+      "Hash": "27af855e624e3038119dfa91e91183c2"
+    },
     "ragg": {
       "Package": "ragg",
       "Version": "1.2.5",
@@ -2530,6 +2574,19 @@
         "utils"
       ],
       "Hash": "ce3065fc1a0b64a859f55ac3998d6927"
+    },
+    "reshape2": {
+      "Package": "reshape2",
+      "Version": "1.4.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "plyr",
+        "stringr"
+      ],
+      "Hash": "bb5996d0bd962d214a11140d77589917"
     },
     "rhdf5": {
       "Package": "rhdf5",
@@ -2749,39 +2806,39 @@
     },
     "scpcaTools": {
       "Package": "scpcaTools",
-      "Version": "0.1.8",
+      "Version": "0.2.1",
       "Source": "GitHub",
+      "Remotes": "AlexsLemonade/scpcaData",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scpcaTools",
       "RemoteUsername": "AlexsLemonade",
-      "RemoteRef": "v0.1.8",
-      "RemoteSha": "351b1f2d535016164b10c42933b4b35375c606e2",
+      "RemoteRef": "v0.2.1",
+      "RemoteSha": "f58b932dd2cd10dc5ab835006d371bee8fae9b3f",
       "Requirements": [
         "BiocGenerics",
         "DropletUtils",
         "Matrix",
-        "Matrix.utils",
         "R",
         "S4Vectors",
         "SingleCellExperiment",
         "SummarizedExperiment",
         "dplyr",
-        "ggplot2",
+        "fishpond",
+        "flexmix",
         "glue",
         "jsonlite",
-        "kableExtra",
         "methods",
         "miQC",
+        "purrr",
         "rlang",
-        "rmarkdown",
         "scuttle",
         "stringr",
         "tibble",
         "tidyr",
         "tximport"
       ],
-      "Hash": "9ad23e337525713e74bfb6d4299a5632"
+      "Hash": "35c8704138238e12f03501e7c365fd88"
     },
     "scran": {
       "Package": "scran",
@@ -3010,6 +3067,20 @@
         "utils"
       ],
       "Hash": "aea2b8787db7088ba50ba389848569ee"
+    },
+    "svMisc": {
+      "Package": "svMisc",
+      "Version": "1.2.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "stats",
+        "tools",
+        "utils"
+      ],
+      "Hash": "b13f5680860f67c32ccb006ad38f24f4"
     },
     "svglite": {
       "Package": "svglite",

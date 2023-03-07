@@ -175,7 +175,6 @@ dependencies:
   - r-markdown=1.5
   - r-mass=7.3_58.2
   - r-matrix=1.5_3
-  - r-matrix.utils=0.9.8
   - r-matrixmodels=0.5_1
   - r-matrixstats=0.63.0
   - r-memoise=2.0.1

@@ -7,9 +7,13 @@ fi
 
 SCPCATOOLS_VERS="v0.2.1"
 
+# remove any settings for R_LIBS_USER that might have crept in (renv/RStudio?)
+R_LIBS_USER="" 
+
 # install github packages
-Rscript --no-init-file -e \
+Rscript --vanilla -e \
   "
   remotes::install_github('AlexsLemonade/scpcaTools', ref='${SCPCATOOLS_VERS}', upgrade='never')
+  require(scpcaTools) # check installation
   "
 

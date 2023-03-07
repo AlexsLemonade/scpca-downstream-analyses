@@ -36,7 +36,7 @@ The core workflow takes as input the gene expression data for each library being
 
 1. [Filtering](./additional-docs/processing-information.md#filtering-low-quality-cells): Each library is filtered to remove any low quality cells.
 Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g., minimum number of UMI counts).
-In addition to removing low quality cells, genes found in a low percentage of cells in a library are removed.
+In addition to removing low quality cells, genes found in a low percentage of cells in a library can optionally be removed.
 2. [Normalization](./additional-docs/processing-information.md#normalization) and [dimensionality reduction](./processing-information.md#dimensionality-reduction): Cells are normalized using the [deconvolution method from Lun, Bach, and Marioni (2016)](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP).
 Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow.
 3. [Clustering](./additional-docs/processing-information.md#clustering): Cells are assigned to cell clusters using graph-based clustering.

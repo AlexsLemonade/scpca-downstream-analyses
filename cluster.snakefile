@@ -65,18 +65,20 @@ rule generate_cluster_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript --vanilla -e \
-        "rmarkdown::render('optional-clustering-analysis/clustering-report-template.Rmd', \
-                           clean = TRUE, \
-                           output_file = '{output}', \
-                           output_dir = dirname('{output}'), \
-                           params = list(library = '{wildcards.library_id}', \
-                                         processed_sce = '{input.processed_sce}', \
-                                         stats_dir = '{input.stats_dir}', \
-                                         cluster_type = '{config[optional_cluster_types]}', \
-                                         nearest_neighbors_min = {config[nearest_neighbors_min]}, \
-                                         nearest_neighbors_max = {config[nearest_neighbors_max]}, \
-                                         nearest_neighbors_increment = {config[nearest_neighbors_increment]}), \
-                           envir = new.env())" \
-        &> {log}
+        Rscript --vanilla -e "
+          source(file.path('$PWD', 'utils', 'setup-functions.R'))
+          setup_renv(project_filepath = '$PWD')
+          rmarkdown::render('optional-clustering-analysis/clustering-report-template.Rmd',
+                            clean = TRUE,
+                            output_file = '{output}',
+                            output_dir = dirname('{output}'),
+                            params = list(library = '{wildcards.library_id}',
+                                          processed_sce = '{input.processed_sce}',
+                                          stats_dir = '{input.stats_dir}',
+                                          cluster_type = '{config[optional_cluster_types]}',
+                                          nearest_neighbors_min = {config[nearest_neighbors_min]},
+                                          nearest_neighbors_max = {config[nearest_neighbors_max]},
+                                          nearest_neighbors_increment = {config[nearest_neighbors_increment]}),
+                           envir = new.env())
+        " &> {log}
         """

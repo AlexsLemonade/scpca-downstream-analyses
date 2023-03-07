@@ -34,7 +34,15 @@ if (is.null(params$project_root)) {
 # Tell knitr to knit from the project root to be able to load `renv` properly
 # This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
 knitr::opts_knit$set(root.dir = project_root)
+# Source in set up function
+source(file.path(project_root, "utils", "setup-functions.R"))
 ```
+
+```{r, include = FALSE}
+# Load project
+setup_renv(project_filepath = project_root)
+```
+
 
 ```{r}
 # Load libraries

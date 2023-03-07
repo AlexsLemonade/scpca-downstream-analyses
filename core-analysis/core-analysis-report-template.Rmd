@@ -39,28 +39,32 @@ if (is.null(params$project_root)) {
 # Tell knitr to knit from the project root to be able to load `renv` properly
 # This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
 knitr::opts_knit$set(root.dir = project_root)
-
+# Source in set up function
+source(file.path(project_root, "utils", "setup-functions.R"))
 # Source filtering functions
 source(file.path(project_root, "utils", "filtering-functions.R"))
 ```
 
 ```{r include=FALSE}
-# Set theme for plotting
+# Set up renv
+setup_renv(project_filepath = project_root)
+```
+
+```{r}
+# Load libraries
+library(readr)
+library(dplyr)
 library(ggplot2)
+library(ggpubr)
+library(SingleCellExperiment)
+library(miQC)
+library(scater)
+
+# Set ggplot theme
 theme_set(theme_bw())
 ```
 
-```{r include=FALSE}
-# Load libraries
-library(readr)
-library(SingleCellExperiment)
-library(dplyr)
-library(miQC)
-library(ggpubr)
-library(scater)
-```
-
-```{r include=FALSE}
+```{r}
 # Read in SCE objects
 pre_processed_sce <- read_rds(file.path(params$pre_processed_sce))
 

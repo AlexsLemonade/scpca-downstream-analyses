@@ -119,14 +119,17 @@ if(is.null(opt$project_root)){
   project_root <- opt$project_root
 }
 
-# Source in set up function
+# Source in set up functions
 source(file.path(project_root, "utils", "setup-functions.R"))
+
+# Check R version
+check_r_version()
+
+# Set up renv
+setup_renv(project_filepath = project_root)
 
 # Source in goi functions
 source(file.path(project_root, "utils", "provided-goi-analysis-functions.R"))
-
-# Check R and Bioconductor versions
-check_r_bioc_versions()
 
 
 ## Set the seed

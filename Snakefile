@@ -31,11 +31,19 @@ rule target:
 # Rule used to sync renv
 rule snapshot_renv:
     output: "renv.lock"
-    log: "logs/write_renv.log"
+    log: "logs/snapshot_renv.log"
     conda: "envs/scpca-renv.yaml"
     shell:
       """
       Rscript --vanilla -e "renv::snapshot()" &> {log}
+      """
+
+# Rule used to set up renv (for use in the absence of conda)
+rule setup_renv:
+    log: "logs/setup_renv.log"
+    shell:
+      """
+      Rscript -e "renv::restore()" &> {log}
       """
 
 
@@ -127,18 +135,20 @@ rule generate_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript --vanilla -e \
-        "rmarkdown::render('core-analysis/core-analysis-report-template.Rmd', \
-                           clean = TRUE, \
-                           output_dir = '{wildcards.basedir}/{wildcards.sample_id}', \
-                           output_file = '{output}', \
-                           params = list(library = '{wildcards.library_id}', \
-                                         pre_processed_sce = '{input.pre_processed_sce}', \
-                                         processed_sce = '{input.processed_sce}', \
-                                         cluster_type = '{config[core_cluster_type]}', \
-                                         nearest_neighbors = {config[nearest_neighbors]}, \
-                                         mito_file = '{config[mito_file]}', \
-                                         project_root = '$PWD'), \
-                           envir = new.env())" \
-        &> {log}
+        Rscript --vanilla -e "
+          source(file.path('$PWD', 'utils', 'setup-functions.R'))
+          setup_renv(project_filepath = '$PWD')
+          rmarkdown::render('core-analysis/core-analysis-report-template.Rmd',
+                           clean = TRUE,
+                           output_dir = '{wildcards.basedir}/{wildcards.sample_id}',
+                           output_file = '{output}',
+                           params = list(library = '{wildcards.library_id}',
+                                         pre_processed_sce = '{input.pre_processed_sce}',
+                                         processed_sce = '{input.processed_sce}',
+                                         cluster_type = '{config[core_cluster_type]}',
+                                         nearest_neighbors = {config[nearest_neighbors]},
+                                         mito_file = '{config[mito_file]}',
+                                         project_root = '$PWD'),
+                           envir = new.env())
+        " &> {log}
         """

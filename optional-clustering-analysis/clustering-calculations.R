@@ -111,14 +111,17 @@ if(is.null(opt$project_root)){
   project_root <- opt$project_root
 }
 
-# Source in set up function
+# Source in set up functions
 source(file.path(project_root, "utils", "setup-functions.R"))
+
+# Check R version
+check_r_version()
+
+# Set up renv
+setup_renv(project_filepath = project_root)
 
 # source in clustering functions
 source(file.path(project_root, "utils", "clustering-functions.R"))
-
-# Check R and Bioconductor versions
-check_r_bioc_versions()
 
 ## Load libraries
 suppressPackageStartupMessages({

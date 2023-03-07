@@ -13,8 +13,13 @@
 # Source in set up function
 source(file.path("utils", "setup-functions.R"))
 
-# Check R and Bioconductor versions
-check_r_bioc_versions()
+# Check R version
+check_r_version()
+
+# Set up renv
+setup_renv()
+
+
 
 
 ## Load libraries

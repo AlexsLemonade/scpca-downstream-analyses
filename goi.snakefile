@@ -60,16 +60,18 @@ rule generate_goi_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript --vanilla -e \
-        "rmarkdown::render('optional-goi-analysis/goi-report-template.Rmd', \
-                           clean = TRUE, \
-                           output_file = '{output}', \
-                           output_dir = dirname('{output}'), \
-                           params = list(library = '{wildcards.library_id}', \
-                                         normalized_sce = '{input.processed_sce}', \
-                                         goi_input_directory = '{input.goi_dir}', \
-                                         project_root = '$PWD'), \
-                           envir = new.env())" \
-        &> {log}
+        Rscript --vanilla -e "
+          source(file.path('$PWD', 'utils', 'setup-functions.R'))
+          setup_renv(project_filepath = '$PWD')
+          rmarkdown::render('optional-goi-analysis/goi-report-template.Rmd',
+                            clean = TRUE,
+                            output_file = '{output}',
+                            output_dir = dirname('{output}'),
+                            params = list(library = '{wildcards.library_id}',
+                                          normalized_sce = '{input.processed_sce}',
+                                          goi_input_directory = '{input.goi_dir}',
+                                          project_root = '$PWD'),
+                            envir = new.env())
+        " &> {log}
         """
 

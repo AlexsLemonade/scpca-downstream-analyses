@@ -1,11 +1,15 @@
 #!/bin/bash
 #
 # Sets up conda environments for snakemake
-
 set -euo pipefail
 
 # Run from the script file location
 cd "$(dirname "${BASH_SOURCE[0]}")"
+
+# if given argument "clean", remove all snakemake environemnts
+if [[ $# -gt 0 && "$1" == 'clean' && -d .snakemake/conda ]]; then
+  rm -r .snakemake/conda
+fi
 
 # If on OSX with Apple Silicon, build the Intel version of R
 if [[ "$(uname)" == 'Darwin' && "$(uname -m)" == 'arm64' ]]; then

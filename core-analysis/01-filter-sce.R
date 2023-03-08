@@ -9,6 +9,7 @@
 #   --mito_file data/Homo_sapiens.GRCh38.103.mitogenes.txt \
 #   --output_filepath data/anderson-single-cell/results/sample_filtered_sce.rds \
 #   --seed 2021 \
+#   --filter_genes TRUE \
 #   --gene_detected_row_cutoff 5 \
 #   --gene_means_cutoff 0.1 \
 #   --prob_compromised_cutoff 0.75 \
@@ -108,6 +109,12 @@ option_list <- list(
     default = "miQC",
     help = "the selected filtered method -- can be miQC or manual; will be miQC
             by default"
+  ),
+  optparse::make_option(
+    c("--filter_genes"),
+    action = "store_true",
+    default = FALSE,
+    help = "specifies whether or not to perform gene filtering. Default is FALSE."
   ),
   optparse::make_option(
     c("--project_root"),
@@ -237,16 +244,19 @@ if (opt$filtering_method == "manual") {
   }
 }
 
-# Remove old gene-level rowData statistics and recalculate
-drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
-rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
-filtered_sce <- scater::addPerFeatureQC(filtered_sce)
-
-# Filter the genes (rows)
-detected <-
-  rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
-expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
-filtered_sce <- filtered_sce[detected & expressed, ]
+if(opt$filter_genes) {
+  # Remove old gene-level rowData statistics and recalculate
+  drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
+  rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
+  filtered_sce <- scater::addPerFeatureQC(filtered_sce)
+  
+  # Filter the genes (rows)
+  detected <-
+    rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
+  expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
+  filtered_sce <- filtered_sce[detected & expressed,]
+} 
+metadata(filtered_sce)$genes_filtered <- opt$filter_genes
 
 # Save sample, library id, and number of cells retained after filtering in 
 # metadata of filtered object

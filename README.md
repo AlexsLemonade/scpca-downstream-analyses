@@ -38,7 +38,7 @@ The core workflow takes as input the gene expression data for each library being
 
 1. [Filtering](./additional-docs/processing-information.md#filtering-low-quality-cells): Each library is filtered to remove any low quality cells.
 Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g., minimum number of UMI counts).
-In addition to removing low quality cells, genes found in a low percentage of cells in a library are removed.
+In addition to removing low quality cells, genes found in a low percentage of cells in a library can optionally be removed.
 2. [Normalization](./additional-docs/processing-information.md#normalization) and [dimensionality reduction](./processing-information.md#dimensionality-reduction): Cells are normalized using the [deconvolution method from Lun, Bach, and Marioni (2016)](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP).
 Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow.
 3. [Clustering](./additional-docs/processing-information.md#clustering): Cells are assigned to cell clusters using graph-based clustering.
@@ -259,8 +259,9 @@ Below are the parameters required to run either of the filtering methods.
 | `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
 | `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./additional-docs/processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md) | "miQC" |
 | `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
-| `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata | 5 |
-| `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata | 0.1 |
+| `filter_genes` | a binary value indicating whether or not to perform gene fitering | `FALSE` |
+| `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are only filtered if `filter_genes` is set to `TRUE` | 5 |
+| `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is only filtered if `filter_genes` is set to `TRUE` | 0.1 |
 | `mito_percent_cutoff` | maximum percent mitochondrial reads per cell threshold, which is only required when `filtering_method` is set to `manual` | 20 |
 | `detected_gene_cutoff` | minimum number of genes detected per cell, which is only required when `filtering_method` is set to `manual` | 500 |
 | `umi_count_cutoff` | minimum unique molecular identifiers (UMI) per cell, which is only required when `filtering_method` is set to `manual` | 500 |
@@ -337,6 +338,7 @@ In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecel
 | `prob_compromised_cutoff` | The maximum probability of cells being compromised, which is only present when the `filtering_method` is set to `miQC`. |
 | `miQC_model` | The linear mixture model calculated by `miQC` and therefore is only present when `filtering_method` is set to `miQC`. |
 | `mito_percent_cutoff` | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`. |
+| `genes_filtered` | Indicates whether or not genes have been filtered. |
 | `detected_gene_cutoff` | Minimum number of genes detected per cell, which is only present when `filtering_method` is set to `manual`. |
 | `umi_count_cutoff` | Minimum unique molecular identifiers (UMI) per cell, which is only present when `filtering_method` is set to `manual`. |
 | `num_filtered_cells_retained` | The number of cells retained after filtering using the specified filtering method, either `miQC` or `manual`. |

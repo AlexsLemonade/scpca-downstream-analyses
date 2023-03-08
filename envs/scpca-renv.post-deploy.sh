@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # Deactivate system set user library
-R_LIBS_USER='' 
+unset R_LIBS_USER 
 # and make the change permanent
-conda env config vars set R_LIBS_USER=''
+conda env config vars unset R_LIBS_USER
 
 # set conda subdir if on Apple Silicon
 if [[ "$(uname)" == 'Darwin' && "$(uname -m)" == 'arm64' ]]; then

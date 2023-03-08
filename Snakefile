@@ -28,16 +28,22 @@ rule target:
                library = LIBRARY_ID)
 
 
-# Rule used for building conda & renv environment
-rule build_renv:
-    input: "renv.lock"
-    output: "renv/.snakemake_timestamp"
-    log: "logs/build_renv.log"
+# Rule used to sync renv
+rule snapshot_renv:
+    output: "renv.lock"
+    log: "logs/snapshot_renv.log"
     conda: "envs/scpca-renv.yaml"
     shell:
       """
-      Rscript -e "renv::restore(lockfile = '{input}')" &> {log}
-      date -u -Iseconds  > {output}
+      Rscript --vanilla -e "renv::snapshot()" &> {log}
+      """
+
+# Rule used to set up renv (for use in the absence of conda)
+rule setup_renv:
+    log: "logs/setup_renv.log"
+    shell:
+      """
+      Rscript -e "renv::activate(); renv::restore()" &> {log}
       """
 
 
@@ -53,7 +59,7 @@ rule filter_data:
     log: "logs/{basedir}/{sample_id}/{library_id}/filter_data.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'core-analysis/01-filter-sce.R'"
+        " Rscript --vanilla 'core-analysis/01-filter-sce.R'"
         "  --sample_sce_filepath {input}"
         "  --sample_id {wildcards.sample_id}"
         "  --library_id {wildcards.library_id}"
@@ -78,7 +84,7 @@ rule normalize_data:
     log: "logs/{basename}/normalize_data.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript '{workflow.basedir}/core-analysis/02-normalize-sce.R'"
+        " Rscript --vanilla '{workflow.basedir}/core-analysis/02-normalize-sce.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --output_filepath {output}"
@@ -93,7 +99,7 @@ rule dimensionality_reduction:
     log: "logs/{basename}/dimensionality_reduction.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'core-analysis/03-dimension-reduction.R'"
+        " Rscript --vanilla 'core-analysis/03-dimension-reduction.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --top_n {config[n_genes_pca]}"
@@ -110,7 +116,7 @@ rule clustering:
     log: "logs/{basename}/clustering.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'core-analysis/04-clustering.R'"
+        " Rscript --vanilla 'core-analysis/04-clustering.R'"
         "  --sce {input}"
         "  --seed {config[seed]}"
         "  --cluster_type {config[core_cluster_type]}"
@@ -129,18 +135,20 @@ rule generate_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript -e \
-        "rmarkdown::render('core-analysis/core-analysis-report-template.Rmd', \
-                           clean = TRUE, \
-                           output_dir = '{wildcards.basedir}/{wildcards.sample_id}', \
-                           output_file = '{output}', \
-                           params = list(library = '{wildcards.library_id}', \
-                                         pre_processed_sce = '{input.pre_processed_sce}', \
-                                         processed_sce = '{input.processed_sce}', \
-                                         cluster_type = '{config[core_cluster_type]}', \
-                                         nearest_neighbors = {config[nearest_neighbors]}, \
-                                         mito_file = '{config[mito_file]}', \
-                                         project_root = '$PWD'), \
-                           envir = new.env())" \
-        &> {log}
+        Rscript --vanilla -e "
+          source(file.path('$PWD', 'utils', 'setup-functions.R'))
+          setup_renv(project_filepath = '$PWD')
+          rmarkdown::render('core-analysis/core-analysis-report-template.Rmd',
+                           clean = TRUE,
+                           output_dir = '{wildcards.basedir}/{wildcards.sample_id}',
+                           output_file = '{output}',
+                           params = list(library = '{wildcards.library_id}',
+                                         pre_processed_sce = '{input.pre_processed_sce}',
+                                         processed_sce = '{input.processed_sce}',
+                                         cluster_type = '{config[core_cluster_type]}',
+                                         nearest_neighbors = {config[nearest_neighbors]},
+                                         mito_file = '{config[mito_file]}',
+                                         project_root = '$PWD'),
+                           envir = new.env())
+        " &> {log}
         """

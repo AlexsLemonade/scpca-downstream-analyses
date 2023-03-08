@@ -30,7 +30,6 @@ manual_cell_filtering <- function(sce,
   # Include note in metadata re: filtering
   metadata(filtered_sce)$filtering <- "manually filtered"
   metadata(filtered_sce)$mito_percent_cutoff <- mito_percent_cutoff
-  metadata(filtered_sce)$detected_gene_cutoff <- detected_gene_cutoff
   metadata(filtered_sce)$umi_count_cutoff <- umi_count_cutoff
   
   return(filtered_sce)

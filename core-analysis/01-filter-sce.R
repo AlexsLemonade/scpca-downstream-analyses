@@ -83,10 +83,10 @@ option_list <- list(
     metavar = "double"
   ),
   optparse::make_option(
-    c("-p", "--detected_gene_cutoff"),
+    c("-p", "--min_gene_cutoff"),
     type = "integer",
-    default = 500,
-    help = "cell detected genes cutoff -- not needed for miQC filtering",
+    default = 200,
+    help = "cell detected genes cutoff",
     metavar = "integer"
   ),
   optparse::make_option(
@@ -197,6 +197,7 @@ if (opt$filtering_method == "manual") {
                                         mito_percent_cutoff = opt$mito_percent_cutoff,
                                         detected_gene_cutoff = opt$detected_gene_cutoff,
                                         umi_count_cutoff = opt$umi_count_cutoff)
+  metadata(filtered_sce)$scpca_filter_method <- "Minimum_gene_cutoff"
 
 
 } else if (opt$filtering_method == "miQC") {
@@ -218,12 +219,15 @@ if (opt$filtering_method == "manual") {
                           model = model,
                           posterior_cutoff = opt$prob_compromised_cutoff,
                           verbose = FALSE)
-
+      
+      # filter detected genes
+      filtered_sce <- filtered_sce[, colData(filtered_sce)$detected >= opt$min_gene_cutoff]
+      
       # Save model in metadata for plotting later
       metadata(filtered_sce)$miQC_model <- model
 
       # Include note in metadata re: filtering
-      metadata(filtered_sce)$filtering <- "miQC filtered"
+      metadata(filtered_sce)$scpca_filter_method <- "miQC"
       metadata(filtered_sce)$probability_compromised_cutoff <- opt$prob_compromised_cutoff
 
     }, silent = TRUE)
@@ -239,8 +243,9 @@ if (opt$filtering_method == "manual") {
     # manually filter the cells
     filtered_sce <- manual_cell_filtering(sce = sce_qc,
                                           mito_percent_cutoff = opt$mito_percent_cutoff,
-                                          detected_gene_cutoff = opt$detected_gene_cutoff,
+                                          detected_gene_cutoff = opt$min_gene_cutoff,
                                           umi_count_cutoff = opt$umi_count_cutoff)
+    metadata(filtered_sce)$scpca_filter_method <- "Minimum_gene_cutoff"
 
   }
 }
@@ -264,6 +269,7 @@ metadata(filtered_sce)$genes_filtered <- opt$filter_genes
 metadata(filtered_sce)$sample <- opt$sample_id
 metadata(filtered_sce)$library <- opt$library_id
 metadata(filtered_sce)$num_filtered_cells_retained <- dim(filtered_sce)[2]
+metadata(filtered_sce)$min_gene_cutoff <- opt$min_gene_cutoff
 
 # Save output filtered sce
 readr::write_rds(filtered_sce, output_file)

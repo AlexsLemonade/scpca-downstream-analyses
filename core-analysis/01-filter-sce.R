@@ -255,10 +255,8 @@ if(opt$filter_genes) {
     rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
   expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
   filtered_sce <- filtered_sce[detected & expressed,]
-  metadata(filtered_sce)$genes_filtered <- "genes filtered"
-} else {
-  metadata(filtered_sce)$genes_filterd <- "no genes filtered"
-}
+} 
+metadata(filtered_sce)$genes_filtered <- opt$filter_genes
 
 # Save sample, library id, and number of cells retained after filtering in 
 # metadata of filtered object

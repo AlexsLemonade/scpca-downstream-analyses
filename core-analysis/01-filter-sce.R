@@ -242,7 +242,7 @@ if (opt$filtering_method == "manual") {
     # manually filter the cells
     filtered_sce <- manual_cell_filtering(sce = sce_qc,
                                           mito_percent_cutoff = opt$mito_percent_cutoff,
-                                          detected_gene_cutoff = opt$min_gene_cutoff,
+                                          min_gene_cutoff = opt$min_gene_cutoff,
                                           umi_count_cutoff = opt$umi_count_cutoff)
     metadata(filtered_sce)$scpca_filter_method <- "manual"
 

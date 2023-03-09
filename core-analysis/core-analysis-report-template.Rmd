@@ -98,7 +98,9 @@ sample_information <- tibble::tibble(
   "Cells after filtering" = 
     format(num_filtered_cells, big.mark = ',', scientific = FALSE),
   "Filtering type" =
-    format(processed_meta$scpca_filter_method, big.mark = ',', scientific = FALSE)
+    format(processed_meta$scpca_filter_method, big.mark = ',', scientific = FALSE),
+  "Minimum genes cutoff" = 
+        format(processed_meta$min_gene_cutoff, big.mark = ',', scientific = FALSE)
 )
 
 if (processed_meta$scpca_filter_method == "manual"){
@@ -108,9 +110,7 @@ if (processed_meta$scpca_filter_method == "manual"){
       "UMI count cutoff" = 
         format(processed_meta$umi_count_cutoff, big.mark = ',', scientific = FALSE),
       "Percent mito cutoff" = 
-        format(processed_meta$mito_percent_cutoff, big.mark = ',', scientific = FALSE),
-      "Minimum genes cutoff" = 
-        format(processed_meta$min_gene_cutoff, big.mark = ',', scientific = FALSE)
+        format(processed_meta$mito_percent_cutoff, big.mark = ',', scientific = FALSE)
     )
 }
 

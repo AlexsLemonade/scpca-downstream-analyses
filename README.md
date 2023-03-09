@@ -334,7 +334,7 @@ In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecel
 
 | Metadata Key       | Description |
 |----------------------------|-------------|
-| `scpca_filter_method` | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or manually using a `Minimum_gene_cutoff`) on the expression data. |
+| `scpca_filter_method` | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data. |
 | `prob_compromised_cutoff` | The maximum probability of cells being compromised, which is only present when the `filtering_method` is set to `miQC`. |
 | `miQC_model` | The linear mixture model calculated by `miQC` and therefore is only present when `filtering_method` is set to `miQC`. |
 | `mito_percent_cutoff` | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`. |

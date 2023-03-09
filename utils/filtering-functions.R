@@ -7,7 +7,7 @@
 
 manual_cell_filtering <- function(sce,
                                   mito_percent_cutoff,
-                                  detected_gene_cutoff,
+                                  min_gene_cutoff,
                                   umi_count_cutoff){
   # Purpose: Remove low quality cells from a SingleCellExperiment object using 
   # provided manual thresholds. 
@@ -15,20 +15,19 @@ manual_cell_filtering <- function(sce,
   # Args:
   #   sce: Unfiltered SingleCellExperiment object
   #   mito_percent_cutoff: Maximum percentage of mitochondrial reads per cell after filtering. 
-  #   detected_gene_cutoff: Minimum number of genes detected per cell after filtering. 
+  #   min_gene_cutoff: Minimum number of genes detected per cell after filtering. 
   #   umi_count_cutoff: Minimum number of UMI per cell after filtering. 
   
   # filter cells based on provided cutoffs
   mito_filter <-
     colData(sce)$subsets_mito_percent < mito_percent_cutoff
   gene_filter <-
-    colData(sce)$detected > detected_gene_cutoff
+    colData(sce)$detected > min_gene_cutoff
   sum_filter <- colData(sce)$sum > umi_count_cutoff
   filtered_sce <-
     sce[, mito_filter & gene_filter & sum_filter]
 
-  # Include note in metadata re: filtering
-  metadata(filtered_sce)$filtering <- "manually filtered"
+  # Include note in metadata re: filtering cutoffs
   metadata(filtered_sce)$mito_percent_cutoff <- mito_percent_cutoff
   metadata(filtered_sce)$umi_count_cutoff <- umi_count_cutoff
   

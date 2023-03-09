@@ -101,7 +101,7 @@ sample_information <- tibble::tibble(
     format(processed_meta$scpca_filter_method, big.mark = ',', scientific = FALSE)
 )
 
-if (processed_meta$scpca_filter_method == "Minimum_gene_cutoff"){
+if (processed_meta$scpca_filter_method == "manual"){
 
   sample_information <- sample_information %>%
     mutate(
@@ -109,8 +109,8 @@ if (processed_meta$scpca_filter_method == "Minimum_gene_cutoff"){
         format(processed_meta$umi_count_cutoff, big.mark = ',', scientific = FALSE),
       "Percent mito cutoff" = 
         format(processed_meta$mito_percent_cutoff, big.mark = ',', scientific = FALSE),
-      "Detected genes cutoff" = 
-        format(processed_meta$detected_gene_cutoff, big.mark = ',', scientific = FALSE)
+      "Minimum genes cutoff" = 
+        format(processed_meta$min_gene_cutoff, big.mark = ',', scientific = FALSE)
     )
 }
 
@@ -162,7 +162,7 @@ if (is.null(pre_processed_sce$detected)) {
 
 
 ```{r}
-if (processed_meta$scpca_filter_method == "Minimum_gene_cutoff"){
+if (processed_meta$scpca_filter_method == "manual"){
   # Plot manual filtering thresholds
   filtered_cell_plot <- plot_manual_filtering(
     sce = pre_processed_sce,

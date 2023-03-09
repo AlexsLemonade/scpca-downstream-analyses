@@ -36,14 +36,14 @@ manual_cell_filtering <- function(sce,
 }
 
 plot_manual_filtering <- function(sce,
-                                  detected_gene_cutoff,
+                                  min_gene_cutoff,
                                   umi_count_cutoff){
   
   # Purpose: Create summary plot of manual filtering. 
   
   # Args: 
   #   sce: Unfiltered SingleCellExperiment object.
-  #   detected_gene_cutoff: Minimum number of genes detected per cell after filtering. 
+  #   min_gene_cutoff: Minimum number of genes detected per cell after filtering. 
   #   umi_count_cutoff: Minimum number of UMI per cell after filtering. 
   
   # grab coldata as dataframe from sce
@@ -57,7 +57,7 @@ plot_manual_filtering <- function(sce,
          y = "Number of Genes Expressed",
          color = "Mitochondrial\nFraction") +
     theme_classic() +
-    geom_hline(yintercept = detected_gene_cutoff) +
+    geom_hline(yintercept = min_gene_cutoff) +
     geom_vline(xintercept = umi_count_cutoff)
   
   return(filtered_cell_plot)

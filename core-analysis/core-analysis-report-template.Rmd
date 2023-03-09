@@ -166,7 +166,7 @@ if (processed_meta$scpca_filter_method == "manual"){
   # Plot manual filtering thresholds
   filtered_cell_plot <- plot_manual_filtering(
     sce = pre_processed_sce,
-    detected_gene_cutoff = processed_meta$detected_gene_cutoff,
+    min_gene_cutoff = processed_meta$min_gene_cutoff,
     umi_count_cutoff = processed_meta$umi_count_cutoff
   )
 }

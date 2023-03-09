@@ -97,12 +97,12 @@ sample_information <- tibble::tibble(
     format(num_cells_pre_processed, big.mark = ',', scientific = FALSE),
   "Cells after filtering" = 
     format(num_filtered_cells, big.mark = ',', scientific = FALSE),
-  "Filtering type" = 
-    format(processed_meta$filtering, big.mark = ',', scientific = FALSE)
+  "Filtering type" =
+    format(processed_meta$scpca_filter_method, big.mark = ',', scientific = FALSE)
 )
 
-if (processed_meta$filtering == "manually filtered"){
-  
+if (processed_meta$scpca_filter_method == "Minimum_gene_cutoff"){
+
   sample_information <- sample_information %>%
     mutate(
       "UMI count cutoff" = 
@@ -114,8 +114,8 @@ if (processed_meta$filtering == "manually filtered"){
     )
 }
 
-if (processed_meta$filtering == "miQC filtered" ){
-  
+if (processed_meta$scpca_filter_method == "miQC" ){
+
   sample_information <- sample_information %>%
     mutate("Probability compromised cutoff" = 
              format(processed_meta$probability_compromised_cutoff, big.mark = ',', scientific = FALSE))
@@ -147,7 +147,7 @@ The lines on the plot indicate the cutoffs, where cells with number of genes exp
 Additionally, cells are colored by percent mitochondrial reads. 
 Cells with percent mitochondrial reads above the provided cutoff are removed prior to downstream analysis.
 
-Here, cells were `r processed_meta$filtering`.
+Here, cells were filtered by `r processed_meta$scpca_filter_method`.
 
 
 ```{r}
@@ -162,7 +162,7 @@ if (is.null(pre_processed_sce$detected)) {
 
 
 ```{r}
-if (processed_meta$filtering == "manually filtered"){
+if (processed_meta$scpca_filter_method == "Minimum_gene_cutoff"){
   # Plot manual filtering thresholds
   filtered_cell_plot <- plot_manual_filtering(
     sce = pre_processed_sce,
@@ -170,7 +170,7 @@ if (processed_meta$filtering == "manually filtered"){
     umi_count_cutoff = processed_meta$umi_count_cutoff
   )
 }
-if (processed_meta$filtering == "miQC filtered" ){
+if (processed_meta$scpca_filter_method == "miQC" ){
   # Remove `prob_compromised` if it exists
   pre_processed_sce$prob_compromised <- NULL
   # Plot model

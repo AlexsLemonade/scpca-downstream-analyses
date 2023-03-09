@@ -124,6 +124,7 @@ dependencies:
   - r-gert=1.9.2
   - r-getopt=1.20.3
   - r-getoptlong=1.0.5
+  - r-geometry=0.4.7
   - r-ggbeeswarm=0.7.1
   - r-ggforce=0.4.1
   - r-ggplot2=3.4.1
@@ -169,10 +170,13 @@ dependencies:
   - r-lattice=0.20_45
   - r-lava=1.7.2.1
   - r-lifecycle=1.0.3
+  - r-linprog=0.9_4
   - r-listenv=0.9.0
   - r-lme4=1.1_31
   - r-locfit=1.5_9.7
+  - r-lpsolve=5.6.18
   - r-lubridate=1.9.2
+  - r-magic=1.6_1
   - r-magrittr=2.0.3
   - r-maptools=1.1_6
   - r-markdown=1.5
@@ -197,6 +201,7 @@ dependencies:
   - r-optparse=1.7.3
   - r-parallelly=1.34.0
   - r-pbkrtest=0.5.2
+  - r-pdfcluster=1.0_4
   - r-pheatmap=1.0.12
   - r-pillar=1.8.1
   - r-pkgbuild=1.4.0

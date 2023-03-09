@@ -1525,6 +1525,21 @@
       ],
       "Hash": "15e9634c0fcd294799e9b2e929ed1b86"
     },
+    "geometry": {
+      "Package": "geometry",
+      "Version": "0.4.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "RcppProgress",
+        "linprog",
+        "lpSolve",
+        "magic"
+      ],
+      "Hash": "8e5ba8a115dee2730bab618934db4b85"
+    },
     "getopt": {
       "Package": "getopt",
       "Version": "1.20.3",
@@ -2014,6 +2029,17 @@
       ],
       "Hash": "8d6904411e61fdbebacaf7ec69ba3e56"
     },
+    "linprog": {
+      "Package": "linprog",
+      "Version": "0.9-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "lpSolve"
+      ],
+      "Hash": "66e9d4ebd71ddcd6f86a2a9a34f5cdc5"
+    },
     "lme4": {
       "Package": "lme4",
       "Version": "1.1-31",
@@ -2050,6 +2076,24 @@
         "lattice"
       ],
       "Hash": "08c4156abea85c9b6d4e7798427a887d"
+    },
+    "lpSolve": {
+      "Package": "lpSolve",
+      "Version": "5.6.18",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "12c7a918599d5700e4265dd8a21f684f"
+    },
+    "magic": {
+      "Package": "magic",
+      "Version": "1.6-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "abind"
+      ],
+      "Hash": "1da6217cea8a3ef496258819b80770e1"
     },
     "magrittr": {
       "Package": "magrittr",
@@ -2281,6 +2325,17 @@
         "parallel"
       ],
       "Hash": "3b5b99f4d3f067bb9c1d59317d071370"
+    },
+    "pdfCluster": {
+      "Package": "pdfCluster",
+      "Version": "1.0-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "geometry",
+        "methods"
+      ],
+      "Hash": "51e3a7a4af0b863e5d380575cbd33cda"
     },
     "pheatmap": {
       "Package": "pheatmap",

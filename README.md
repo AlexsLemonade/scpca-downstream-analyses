@@ -53,12 +53,12 @@ You can read more details about the individual steps of the workflow in the proc
 
 To run the core analysis workflow you will want to implement the following steps in order:
 
-1. Clone the repository and install Snakemake using the [instructions provided in the Snakemake docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
+1. Clone the repository and install Snakemake using the [instructions provided in the Snakemake docs](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda-mamba).
 2. [Install the packages and dependencies](#c-additional-dependencies) that are required to run the workflow.
 3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#2-input-data-format)).
 The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data.
-4. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
-5. Open terminal to run the workflow using the following snakemake command and the `--config` flag to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 3:
+1. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
+2. Open terminal to run the workflow using the following snakemake command and the `--config` flag to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 3:
 
 ```
 snakemake --cores 2 \
@@ -108,9 +108,9 @@ Once the repository is successfully cloned, a folder named `scpca-downstream-ana
 
 The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using a Snakemake workflow.
 Therefore, you will also need to install Snakemake before running the pipeline.
-Note that the **minimum** version of Snakemake you will need to have installed to be compatible with conda is version **5.23.0**.
+Note that the **minimum** version of Snakemake you will need to have installed is version **7.20.0**.
 
-You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/v7.3.8/getting_started/installation.html#installation-via-conda-mamba).
+You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda-mamba).
 
 Snakemake recommends installing it using the conda package manager.
 Here are the instructions to [install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
@@ -132,14 +132,14 @@ conda activate snakemake
 
 ### c) Additional dependencies
 
-To run the Snakemake workflow, you will need to have R version 4.2 installed, as well as the `renv` package and pandoc.
-This can be done independently, or you can use Snakemake's conda integration to set up an R environment that the workflow will use.
+To run the Snakemake workflow, you will need to have R version 4.2 installed, as well as the `optparse` and `renv` packages and pandoc.
+This can be done independently if desired, but we recommend using Snakemake's conda integration to set up the R environment and all dependencies that the workflow will use, as described below.
 
 
 #### Snakemake/conda installation
 
-Snakemake can also handle the dependencies by creating its own conda environments, which we have provided as an option.
-To create the necessary environment, which includes an isolated version of R, pandoc, and the `renv` package installation, run the following command from the base of the repository:
+Snakemake can handle the required dependencies by creating its own conda environments, which we have provided as an option.
+To create the necessary environment, which includes an isolated version of R, pandoc, and all required dependencies, run the following command from the base of the repository:
 
 ```
 bash setup_envs.sh

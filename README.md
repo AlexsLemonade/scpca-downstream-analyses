@@ -263,7 +263,7 @@ Below are the parameters required to run either of the filtering methods.
 | `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are only filtered if `filter_genes` is set to `TRUE` | 5 |
 | `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is only filtered if `filter_genes` is set to `TRUE` | 0.1 |
 | `mito_percent_cutoff` | maximum percent mitochondrial reads per cell threshold, which is only required when `filtering_method` is set to `manual` | 20 |
-| `detected_gene_cutoff` | minimum number of genes detected per cell, which is only required when `filtering_method` is set to `manual` | 500 |
+| `min_gene_cutoff` | minimum number of genes detected per cell | 200 |
 | `umi_count_cutoff` | minimum unique molecular identifiers (UMI) per cell, which is only required when `filtering_method` is set to `manual` | 500 |
 
 #### Dimensionality reduction and clustering parameters
@@ -334,7 +334,7 @@ In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecel
 
 | Metadata Key       | Description |
 |----------------------------|-------------|
-| `filtering_method`           | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data. |
+| `scpca_filter_method` | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data. |
 | `prob_compromised_cutoff` | The maximum probability of cells being compromised, which is only present when the `filtering_method` is set to `miQC`. |
 | `miQC_model` | The linear mixture model calculated by `miQC` and therefore is only present when `filtering_method` is set to `miQC`. |
 | `mito_percent_cutoff` | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`. |

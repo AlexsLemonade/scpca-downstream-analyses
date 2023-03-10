@@ -63,7 +63,7 @@ rule filter_data:
         "  --gene_detected_row_cutoff {config[gene_detected_row_cutoff]}"
         "  --gene_means_cutoff {config[gene_means_cutoff]}"
         "  --mito_percent_cutoff {config[mito_percent_cutoff]}"
-        "  --detected_gene_cutoff {config[detected_gene_cutoff]}"
+        "  --min_gene_cutoff {config[min_gene_cutoff]}"
         "  --umi_count_cutoff {config[umi_count_cutoff]}"
         "  --prob_compromised_cutoff {config[prob_compromised_cutoff]}"
         "  --filtering_method {config[filtering_method]}"

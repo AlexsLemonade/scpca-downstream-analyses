@@ -317,3 +317,4 @@ dependencies:
   - r-zip=2.2.2
 variables:
   R_LIBS_USER: null
+  RENV_PROJECT: null

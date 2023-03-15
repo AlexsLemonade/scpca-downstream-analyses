@@ -58,7 +58,7 @@ source(file.path(project_root, "utils", "setup-functions.R"))
 source(file.path(project_root, "utils", "clustering-functions.R"))
 ```
 
-```{r}
+```{r, include = FALSE}
 # Load project
 setup_renv(project_filepath = project_root)
 ```

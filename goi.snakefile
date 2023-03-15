@@ -36,7 +36,7 @@ rule calculate_goi:
     log: "logs/{basedir}/{library_id}/calculate_goi.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'optional-goi-analysis/goi-calculations.R'"
+        " Rscript --vanilla 'optional-goi-analysis/goi-calculations.R'"
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --input_goi_list {config[goi_list]}"
@@ -49,7 +49,7 @@ rule calculate_goi:
         "  --perform_mapping {config[perform_mapping]}"
         "  --project_root $PWD"
         " &> {log}"
-        
+
 rule generate_goi_report:
     input:
         processed_sce = "{basedir}/{library_id}_processed.rds",
@@ -60,16 +60,18 @@ rule generate_goi_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript -e \
-        "rmarkdown::render('optional-goi-analysis/goi-report-template.Rmd', \
-                           clean = TRUE, \
-                           output_file = '{output}', \
-                           output_dir = dirname('{output}'), \
-                           params = list(library = '{wildcards.library_id}', \
-                                         normalized_sce = '{input.processed_sce}', \
-                                         goi_input_directory = '{input.goi_dir}', \
-                                         project_root = '$PWD'), \
-                           envir = new.env())" \
-        &> {log}
+        Rscript --vanilla -e "
+          source(file.path('$PWD', 'utils', 'setup-functions.R'))
+          setup_renv(project_filepath = '$PWD')
+          rmarkdown::render('optional-goi-analysis/goi-report-template.Rmd',
+                            clean = TRUE,
+                            output_file = '{output}',
+                            output_dir = dirname('{output}'),
+                            params = list(library = '{wildcards.library_id}',
+                                          normalized_sce = '{input.processed_sce}',
+                                          goi_input_directory = '{input.goi_dir}',
+                                          project_root = '$PWD'),
+                            envir = new.env())
+        " &> {log}
         """
-        
+

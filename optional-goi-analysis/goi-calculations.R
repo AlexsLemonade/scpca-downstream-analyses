@@ -6,7 +6,7 @@
 # Command line usage:
 
 # Rscript --vanilla goi-calculations.R \
-#   --sce "example-results/sample01/library01_miQC_processed_sce.rds" \
+#   --sce "example-results/sample01/library01_processed.rds" \
 #   --library_id "library01" \
 #   --seed 2021 \
 #   --input_goi_list "example-data/goi-lists/sample01_goi_list.tsv" \

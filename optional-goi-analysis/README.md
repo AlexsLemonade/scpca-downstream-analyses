@@ -171,3 +171,5 @@ For each provided `SingleCellExperiment` RDS file and associated `library_id`, t
 2. A `_normalized_zscores.mtx` matrix file with the z-scored matrix calculated using the normalized data specific to the provided genes of interest.
 3. A `_heatmap_annotation.rds` file with the annotations to be used when plotting the heatmap for the html report.
 4. The `_goi_report.html` file, which is the summary html report with plots containing the GOI results.
+
+You can download a ZIP file with an example of the output from running the genes of interest workflow, including the summary HTML report, the mapped genes TSV file, a `mtx` file containing z-scores, and the heatmap annotation RDS file [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/goi_example_results.zip).

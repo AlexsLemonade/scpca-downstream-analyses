@@ -9,6 +9,8 @@
 - [1. How to install the core downstream analyses workflow](#1-how-to-install-the-core-downstream-analyses-workflow)
   - [a) Clone the repository](#a-clone-the-repository)
   - [b) Install Snakemake](#b-install-snakemake)
+    - [What is Snakemake?](#what-is-snakemake)
+    - [How to install Snakemake](#how-to-install-snakemake)
   - [c) Additional dependencies](#c-additional-dependencies)
     - [Snakemake/conda installation](#snakemakeconda-installation)
 - [2. Input data format](#2-input-data-format)
@@ -36,7 +38,7 @@ The core workflow takes as input the gene expression data for each library being
 
 1. [Filtering](./additional-docs/processing-information.md#filtering-low-quality-cells): Each library is filtered to remove any low quality cells.
 Here filtering and removal of low quality cells can be performed using [`miQC::filterCells()`](https://rdrr.io/github/greenelab/miQC/man/filterCells.html) or through setting a series of manual thresholds (e.g., minimum number of UMI counts).
-In addition to removing low quality cells, genes found in a low percentage of cells in a library are removed.
+In addition to removing low quality cells, genes found in a low percentage of cells in a library can optionally be removed.
 2. [Normalization](./additional-docs/processing-information.md#normalization) and [dimensionality reduction](./processing-information.md#dimensionality-reduction): Cells are normalized using the [deconvolution method from Lun, Bach, and Marioni (2016)](https://doi.org/10.1186/s13059-016-0947-7) and reduced dimensions are calculated using both principal component analysis (PCA) and uniform manifold approximation and projection (UMAP).
 Normalized log counts and embeddings from PCA and UMAP are stored in the `SingleCellExperiment` object returned by the workflow.
 3. [Clustering](./additional-docs/processing-information.md#clustering): Cells are assigned to cell clusters using graph-based clustering.
@@ -88,6 +90,7 @@ There are two expected output files thay will be associated with each provided `
     - Clustering that was performed within the workflow
 
 See the [expected output section](#5-expected-output) for more information on these output files.
+You can also download a ZIP file with an example of the output from running the core workflow, including the summary HTML report and processed `SingleCellExperiment` objects stored as RDS files [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/core_example_results.zip).
 
 ## 1. How to install the core downstream analyses workflow
 
@@ -106,8 +109,14 @@ Once the repository is successfully cloned, a folder named `scpca-downstream-ana
 
 ### b) Install Snakemake
 
-The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using a Snakemake workflow.
+#### What is Snakemake?
+
+The core downstream single-cell analysis pipeline, which includes filtering, normalization, dimensionality reduction, and clustering is implemented using the [Snakemake](https://snakemake.github.io/) workflow manager.
+With Snakemake, users can run the core downstream analysis pipeline with a single call, rather than having to run each [core downstream analysis script](core-analysis/) on its own.
 Therefore, you will also need to install Snakemake before running the pipeline.
+
+#### How to install Snakemake
+
 Note that the **minimum** version of Snakemake you will need to have installed is version **7.20.0**.
 
 You can install Snakemake by following the [instructions provided in Snakemake's docs](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda-mamba).
@@ -247,10 +256,11 @@ Below are the parameters required to run either of the filtering methods.
 | `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
 | `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./additional-docs/processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md) | "miQC" |
 | `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
-| `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are filtered regardless of the `filtering_method` specified in the project metadata | 5 |
-| `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is filtered regardless of the `filtering_method` specified in the project metadata | 0.1 |
+| `filter_genes` | a binary value indicating whether or not to perform gene fitering | `FALSE` |
+| `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are only filtered if `filter_genes` is set to `TRUE` | 5 |
+| `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is only filtered if `filter_genes` is set to `TRUE` | 0.1 |
 | `mito_percent_cutoff` | maximum percent mitochondrial reads per cell threshold, which is only required when `filtering_method` is set to `manual` | 20 |
-| `detected_gene_cutoff` | minimum number of genes detected per cell, which is only required when `filtering_method` is set to `manual` | 500 |
+| `min_gene_cutoff` | minimum number of genes detected per cell | 200 |
 | `umi_count_cutoff` | minimum unique molecular identifiers (UMI) per cell, which is only required when `filtering_method` is set to `manual` | 500 |
 
 #### Dimensionality reduction and clustering parameters
@@ -299,12 +309,14 @@ Below is an example of the nested file structure you can expect.
 example_results
 └── sample_id
 	 ├── <library_id>_core_analysis_report.html
-	 └── <library_id>_processed_sce.rds
+	 └── <library_id>_processed.rds
 ```
 
 The `<library_id>_core_analysis_report.html` file is the [html file](https://bookdown.org/yihui/rmarkdown/html-document.html#html-document) that contains the summary report of the filtering, dimensionality reduction, and clustering results associated with the processed `SingleCellExperiment` object.
 
-The `<library_id>_processed_sce.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+The `<library_id>_processed.rds` file is the [RDS file](https://rstudio-education.github.io/hopr/dataio.html#saving-r-files) that contains the final processed `SingleCellExperiment` object (which contains the filtered, normalized data and clustering results).
+
+You can also download a ZIP file with an example of the output from running the core workflow, including the summary HTML report and processed `SingleCellExperiment` objects stored as RDS files [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/core_example_results.zip).
 
 ### What to expect in the output `SingleCellExperiment` object
 
@@ -319,15 +331,16 @@ In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecel
 
 | Metadata Key       | Description |
 |----------------------------|-------------|
-| `filtering_method`           | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data. |
+| `scpca_filter_method` | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data. |
 | `prob_compromised_cutoff` | The maximum probability of cells being compromised, which is only present when the `filtering_method` is set to `miQC`. |
 | `miQC_model` | The linear mixture model calculated by `miQC` and therefore is only present when `filtering_method` is set to `miQC`. |
 | `mito_percent_cutoff` | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`. |
+| `genes_filtered` | Indicates whether or not genes have been filtered. |
 | `detected_gene_cutoff` | Minimum number of genes detected per cell, which is only present when `filtering_method` is set to `manual`. |
 | `umi_count_cutoff` | Minimum unique molecular identifiers (UMI) per cell, which is only present when `filtering_method` is set to `manual`. |
 | `num_filtered_cells_retained` | The number of cells retained after filtering using the specified filtering method, either `miQC` or `manual`. |
-| `normalization` | Indicates if clustering of similar cells using [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) prior to normalization with `scater::logNormCounts()` was successful. |
-| `variable_genes` | The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html). |
+| `normalization` | The type of normalization performed (`log-normalization` or `deconvolution` when clustering of similar cells using [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) prior to normalization with `scater::logNormCounts()` is successful). |
+| `highly_variable_genes` | The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html). |
 
 You can find more information on the above in the [processing information documentation](./additional-docs/processing-information.md).
 

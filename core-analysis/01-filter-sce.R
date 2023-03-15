@@ -9,6 +9,7 @@
 #   --mito_file data/Homo_sapiens.GRCh38.103.mitogenes.txt \
 #   --output_filepath data/anderson-single-cell/results/sample_filtered_sce.rds \
 #   --seed 2021 \
+#   --filter_genes TRUE \
 #   --gene_detected_row_cutoff 5 \
 #   --gene_means_cutoff 0.1 \
 #   --prob_compromised_cutoff 0.75 \
@@ -82,10 +83,10 @@ option_list <- list(
     metavar = "double"
   ),
   optparse::make_option(
-    c("-p", "--detected_gene_cutoff"),
+    c("-p", "--min_gene_cutoff"),
     type = "integer",
-    default = 500,
-    help = "cell detected genes cutoff -- not needed for miQC filtering",
+    default = 200,
+    help = "cell detected genes cutoff",
     metavar = "integer"
   ),
   optparse::make_option(
@@ -108,6 +109,12 @@ option_list <- list(
     default = "miQC",
     help = "the selected filtered method -- can be miQC or manual; will be miQC
             by default"
+  ),
+  optparse::make_option(
+    c("--filter_genes"),
+    action = "store_true",
+    default = FALSE,
+    help = "specifies whether or not to perform gene filtering. Default is FALSE."
   ),
   optparse::make_option(
     c("--project_root"),
@@ -188,8 +195,9 @@ if (opt$filtering_method == "manual") {
   # manually filter the cells
   filtered_sce <- manual_cell_filtering(sce = sce_qc,
                                         mito_percent_cutoff = opt$mito_percent_cutoff,
-                                        detected_gene_cutoff = opt$detected_gene_cutoff,
+                                        min_gene_cutoff = opt$min_gene_cutoff,
                                         umi_count_cutoff = opt$umi_count_cutoff)
+  metadata(filtered_sce)$scpca_filter_method <- "manual"
 
 
 } else if (opt$filtering_method == "miQC") {
@@ -211,12 +219,15 @@ if (opt$filtering_method == "manual") {
                           model = model,
                           posterior_cutoff = opt$prob_compromised_cutoff,
                           verbose = FALSE)
-
+      
+      # filter detected genes
+      filtered_sce <- filtered_sce[, colData(filtered_sce)$detected >= opt$min_gene_cutoff]
+      
       # Save model in metadata for plotting later
       metadata(filtered_sce)$miQC_model <- model
 
       # Include note in metadata re: filtering
-      metadata(filtered_sce)$filtering <- "miQC filtered"
+      metadata(filtered_sce)$scpca_filter_method <- "miQC"
       metadata(filtered_sce)$probability_compromised_cutoff <- opt$prob_compromised_cutoff
 
     }, silent = TRUE)
@@ -232,28 +243,33 @@ if (opt$filtering_method == "manual") {
     # manually filter the cells
     filtered_sce <- manual_cell_filtering(sce = sce_qc,
                                           mito_percent_cutoff = opt$mito_percent_cutoff,
-                                          detected_gene_cutoff = opt$detected_gene_cutoff,
+                                          min_gene_cutoff = opt$min_gene_cutoff,
                                           umi_count_cutoff = opt$umi_count_cutoff)
+    metadata(filtered_sce)$scpca_filter_method <- "manual"
 
   }
 }
 
-# Remove old gene-level rowData statistics and recalculate
-drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
-rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
-filtered_sce <- scater::addPerFeatureQC(filtered_sce)
-
-# Filter the genes (rows)
-detected <-
-  rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
-expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
-filtered_sce <- filtered_sce[detected & expressed, ]
+if(opt$filter_genes) {
+  # Remove old gene-level rowData statistics and recalculate
+  drop_cols = colnames(rowData(filtered_sce)) %in% c('mean', 'detected')
+  rowData(filtered_sce) <- rowData(filtered_sce)[!drop_cols]
+  filtered_sce <- scater::addPerFeatureQC(filtered_sce)
+  
+  # Filter the genes (rows)
+  detected <-
+    rowData(filtered_sce)$detected > opt$gene_detected_row_cutoff
+  expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
+  filtered_sce <- filtered_sce[detected & expressed,]
+} 
+metadata(filtered_sce)$genes_filtered <- opt$filter_genes
 
 # Save sample, library id, and number of cells retained after filtering in
 # metadata of filtered object
 metadata(filtered_sce)$sample <- opt$sample_id
 metadata(filtered_sce)$library <- opt$library_id
 metadata(filtered_sce)$num_filtered_cells_retained <- dim(filtered_sce)[2]
+metadata(filtered_sce)$min_gene_cutoff <- opt$min_gene_cutoff
 
 # Save output filtered sce
 readr::write_rds(filtered_sce, output_file)

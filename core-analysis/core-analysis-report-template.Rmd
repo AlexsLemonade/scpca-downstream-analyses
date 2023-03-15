@@ -12,7 +12,7 @@ params:
 title: "`r glue::glue('Core analysis report for {params$library}')`"
 author: "CCDL"
 date: "`r params$date`"
-output: 
+output:
   html_document:
     toc: true
     toc_depth: 2
@@ -29,43 +29,42 @@ knitr::opts_chunk$set(
   warning = FALSE
 )
 
-# If project root is not provided use here::here() 
+# If project root is not provided use here::here()
 if (is.null(params$project_root)) {
   project_root <- here::here()
 } else {
   project_root <- params$project_root
-} 
+}
 
 # Tell knitr to knit from the project root to be able to load `renv` properly
 # This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
 knitr::opts_knit$set(root.dir = project_root)
-
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
-# Source filtering functions 
+# Source filtering functions
 source(file.path(project_root, "utils", "filtering-functions.R"))
 ```
 
 ```{r include=FALSE}
-# Load project
+# Set up renv
 setup_renv(project_filepath = project_root)
+```
 
-# Set theme for plotting
+```{r}
+# Load libraries
+library(readr)
+library(dplyr)
 library(ggplot2)
+library(ggpubr)
+library(SingleCellExperiment)
+library(miQC)
+library(scater)
+
+# Set ggplot theme
 theme_set(theme_bw())
 ```
 
-```{r include=FALSE}
-# Load libraries
-library(readr)
-library(SingleCellExperiment)
-library(dplyr)
-library(miQC)
-library(ggpubr)
-library(scater)
-```
-
-```{r include=FALSE}
+```{r}
 # Read in SCE objects
 pre_processed_sce <- read_rds(file.path(params$pre_processed_sce))
 
@@ -93,31 +92,31 @@ if(is.null(processed_meta$sample)){
 sample_information <- tibble::tibble(
   "Sample id" = sample,
   "Library id" = params$library,
-  "Cells before filtering" = 
+  "Cells before filtering" =
     format(num_cells_pre_processed, big.mark = ',', scientific = FALSE),
-  "Cells after filtering" = 
+  "Cells after filtering" =
     format(num_filtered_cells, big.mark = ',', scientific = FALSE),
-  "Filtering type" = 
+  "Filtering type" =
     format(processed_meta$filtering, big.mark = ',', scientific = FALSE)
 )
 
 if (processed_meta$filtering == "manually filtered"){
-  
+
   sample_information <- sample_information %>%
     mutate(
-      "UMI count cutoff" = 
+      "UMI count cutoff" =
         format(processed_meta$umi_count_cutoff, big.mark = ',', scientific = FALSE),
-      "Percent mito cutoff" = 
+      "Percent mito cutoff" =
         format(processed_meta$mito_percent_cutoff, big.mark = ',', scientific = FALSE),
-      "Detected genes cutoff" = 
+      "Detected genes cutoff" =
         format(processed_meta$detected_gene_cutoff, big.mark = ',', scientific = FALSE)
     )
 }
 
 if (processed_meta$filtering == "miQC filtered" ){
-  
+
   sample_information <- sample_information %>%
-    mutate("Probability compromised cutoff" = 
+    mutate("Probability compromised cutoff" =
              format(processed_meta$probability_compromised_cutoff, big.mark = ',', scientific = FALSE))
 }
 
@@ -137,14 +136,14 @@ knitr::kable(sample_information, align = 'r') %>%
 
 The filtering plots below represent the cutoffs used to filter and remove low-quality cells.
 When `miQC` filtering is implemented, two plots are displayed.
-`miQC` relies on fitting a mixture model using the number of genes expressed by a cell and the percentage of mitochondrial reads. 
+`miQC` relies on fitting a mixture model using the number of genes expressed by a cell and the percentage of mitochondrial reads.
 The first plot will show the model fit by `miQC` with two model fit lines and each cell being colored by the probability of that cell being compromised.
 The second plot indicates which cells have been removed based on the cutoff used for a cell's probability of being compromised.
 Cells labeled with `TRUE` are kept for downstream analysis, while all other cells were removed.
 When `manual` filtering is implemented, one plot is displayed.
 The plot in this case represents the manual filtering cutoffs for the minimum number of genes detected per cell and the minimum unique molecular identifiers (UMI) per cell.
 The lines on the plot indicate the cutoffs, where cells with number of genes expressed and unique molecular identifiers (UMI) that are both above the minimum cutoffs are kept for downstream analysis.
-Additionally, cells are colored by percent mitochondrial reads. 
+Additionally, cells are colored by percent mitochondrial reads.
 Cells with percent mitochondrial reads above the provided cutoff are removed prior to downstream analysis.
 
 Here, cells were `r processed_meta$filtering`.
@@ -176,7 +175,7 @@ if (processed_meta$filtering == "miQC filtered" ){
   # Plot model
   filtered_model_plot <- miQC::plotModel(pre_processed_sce, processed_meta$miQC_model)
   # Plot filtering
-  filtered_cell_plot <- miQC::plotFiltering(pre_processed_sce, 
+  filtered_cell_plot <- miQC::plotFiltering(pre_processed_sce,
                                             processed_meta$miQC_model,
                                             posterior_cutoff = processed_meta$probability_compromised_cutoff)
   # Combine plots
@@ -186,13 +185,13 @@ if (processed_meta$filtering == "miQC filtered" ){
               ncol = 1,
               nrow = 2)
 }
-  
+
 filtered_cell_plot
 ```
 
 ## Clustering results for `r params$library`
 
-Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment. 
+Below is a UMAP plot where each cell has been colored based on the cell's cluster assignment.
 Here clustering was performed using `r params$cluster_type` clustering with a nearest neighbors value of `r params$nearest_neighbors`.
 
 ```{r}

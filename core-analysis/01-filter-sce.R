@@ -120,6 +120,11 @@ option_list <- list(
 opt_parser <- optparse::OptionParser(option_list = option_list)
 opt <- optparse::parse_args(opt_parser)
 
+# Check that input arguments are valid
+if (!opt$filtering_method %in% c("manual", "miQC")) {
+  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
+}
+
 # if project root is not provided use here::here()
 if(is.null(opt$project_root)){
   project_root <- here::here()
@@ -130,15 +135,11 @@ if(is.null(opt$project_root)){
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 
-# Load project
-setup_renv(project_filepath = project_root)
-# Check R and Bioconductor versions
-check_r_bioc_versions()
+# Check R version
+check_r_version()
 
-# Check that input arguments are valid
-if (!opt$filtering_method %in% c("manual", "miQC")) {
-  stop("Incorrect filtering method. Specify `manual` or `miQC` filtering.")
-}
+# Set up renv
+setup_renv(project_filepath = project_root)
 
 ## Load libraries
 suppressPackageStartupMessages({
@@ -248,7 +249,7 @@ detected <-
 expressed <- rowData(filtered_sce)$mean > opt$gene_means_cutoff
 filtered_sce <- filtered_sce[detected & expressed, ]
 
-# Save sample, library id, and number of cells retained after filtering in 
+# Save sample, library id, and number of cells retained after filtering in
 # metadata of filtered object
 metadata(filtered_sce)$sample <- opt$sample_id
 metadata(filtered_sce)$library <- opt$library_id

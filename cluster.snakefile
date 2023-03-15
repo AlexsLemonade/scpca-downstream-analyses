@@ -41,7 +41,7 @@ rule calculate_clustering:
     log: "logs/{basedir}/{library_id}/calculate_clustering.log"
     conda: "envs/scpca-renv.yaml"
     shell:
-        " Rscript 'optional-clustering-analysis/clustering-calculations.R'"
+        " Rscript --vanilla 'optional-clustering-analysis/clustering-calculations.R'"
         "  --sce {input}"
         "  --library_id {wildcards.library_id}"
         "  --cluster_types {config[optional_cluster_types]}"
@@ -65,18 +65,20 @@ rule generate_cluster_report:
     conda: "envs/scpca-renv.yaml"
     shell:
         """
-        Rscript -e \
-        "rmarkdown::render('optional-clustering-analysis/clustering-report-template.Rmd', \
-                           clean = TRUE, \
-                           output_file = '{output}', \
-                           output_dir = dirname('{output}'), \
-                           params = list(library = '{wildcards.library_id}', \
-                                         processed_sce = '{input.processed_sce}', \
-                                         stats_dir = '{input.stats_dir}', \
-                                         cluster_type = '{config[optional_cluster_types]}', \
-                                         nearest_neighbors_min = {config[nearest_neighbors_min]}, \
-                                         nearest_neighbors_max = {config[nearest_neighbors_max]}, \
-                                         nearest_neighbors_increment = {config[nearest_neighbors_increment]}), \
-                           envir = new.env())" \
-        &> {log}
+        Rscript --vanilla -e "
+          source(file.path('$PWD', 'utils', 'setup-functions.R'))
+          setup_renv(project_filepath = '$PWD')
+          rmarkdown::render('optional-clustering-analysis/clustering-report-template.Rmd',
+                            clean = TRUE,
+                            output_file = '{output}',
+                            output_dir = dirname('{output}'),
+                            params = list(library = '{wildcards.library_id}',
+                                          processed_sce = '{input.processed_sce}',
+                                          stats_dir = '{input.stats_dir}',
+                                          cluster_type = '{config[optional_cluster_types]}',
+                                          nearest_neighbors_min = {config[nearest_neighbors_min]},
+                                          nearest_neighbors_max = {config[nearest_neighbors_max]},
+                                          nearest_neighbors_increment = {config[nearest_neighbors_increment]}),
+                           envir = new.env())
+        " &> {log}
         """

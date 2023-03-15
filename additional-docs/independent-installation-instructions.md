@@ -1,6 +1,7 @@
 # Independent installation instructions
 
-If you would like to perform package and dependency installation without the conda environments as described in the main `README.md` file [here](./README.md##snakemakeconda-installation), you can do so after confirming that you have R version 4.2 installed, you will want to make sure that all of the R packages are installed as well.
+If you would like to perform package and dependency installation without the conda environments as described in the main `README.md` file [here](./README.md##snakemakeconda-installation), you can do so after confirming that you have R version 4.2 installed.
+Then follow the below instructions to ensure that you have all of the necessary R packages to run the workflow installed as well.
 First install the `optparse` and `renv` packages by your preferred method.
 Then, from within the `scpca-downstream-analyses` directory, run the following command to install all of the additional required packages:
 

@@ -7,13 +7,14 @@ example-results/
 
 # ignore hidden `DS_Store`
 .DS_Store
-.Rproj.user
 
 # ignore hidden snakemake logs
 .snakemake
 # ignore timestamps
 .snakemake_timestamp
 
-# ignore renv-related files 
+# ignore R and renv-related files 
+.Rhistory
+.Rproj.user
 .Rprofile
 renv/

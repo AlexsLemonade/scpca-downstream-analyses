@@ -3,7 +3,7 @@
 This directory includes a genes of interest analysis workflow to help users evaluate expression of a specific list of genes in a sample dataset.
 
 
-**The genes of interest (GOI) analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file.**
+**The genes of interest (GOI) analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file or have downloaded data from the [ScPCA portal](https://scpca.alexslemonade.org/).**
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -64,11 +64,13 @@ See more information on project metadata in the [expected input section](#expect
 
 To run this workflow, you will need to provide:
 
-1. The RDS file containing the normalized [output `SingleCellExperiment` object](../README.md#expected-output) from the core dowstream analyses workflow.
+1. The RDS file containing the normalized [output `SingleCellExperiment` object](../README.md#expected-output) from the core dowstream analyses workflow or the processed object downloaded from the ScPCA portal.
 This `SingleCellExperiment` object must contain a log-normalized counts matrix in an assay named `logcounts`.
-2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow should be used here (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](../project-metadata/example-library-metadata.tsv)).
+2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow can be used here (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](../project-metadata/example-library-metadata.tsv)).
 3. The genes of interest list, stored as a tab-separated value (TSV) file.
 This file should contain at least one column named `gene_id` with the relevant gene identifiers, and can optionally contain an additional column named `gene_set` that denotes the gene set that each gene identifier belongs to (see an example of this genes of interest file [here](../example-data/goi-lists/sample01_goi_list.tsv)).
+
+If working with data from the ScPCA portal, see our guide on preparing that data to run the genes of interest workflow [here](./additional-docs/working-with-scpca-portal-data.md).
 
 ## Parameters and config file
 

@@ -2,17 +2,18 @@
 
 Downloads from the ScPCA Portal include gene expression data, a QC report, and associated metadata for each processed sample.
 These files are delivered as a zip file.
-To find more information, visit the [ScPCA portal](https://scpca.alexslemonade.org/).
+To find more information on data available in the portal, visit the [ScPCA portal](https://scpca.alexslemonade.org/).
 
 ## Preparing the downloaded data for core workflow
 
-You can run the core downstream analysis workflow using the filtered RDS file and the metadata file found within the zip file downloaded from the ScPCA portal.
+The core downstream analysis workflow can take as input the `SingleCellExperiment` objects that are available in the filtered RDS files on the portal, files ending in `_filtered.rds`.
+You will also need information obtained in the metadata file found within the zip file downloaded from the ScPCA portal, `single_cell_metadata.tsv`.
 Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
 The metadata file should contain the following columns:
 
 - `sample_id`, the unique ID for each piece of tissue or sample that cells were obtained from, which can be found in the `scpca_sample_id` column of the downloaded `single_cell_metadata.tsv` file.
 - `library_id`, the unique ID used for each set of cells that has been prepped and sequenced separately, which can be found in the `scpca_library_id` columns of the downloaded `single_cell_metadata.tsv` file.
-- `filepath`, the full path to the `_filtered.rds` file containing the filtered `SingleCellExperiment` object.
+- `filepath`, the full path to the `_filtered.rds` file containing the filtered `SingleCellExperiment` object downloaded from the ScPCA portal.
 Each library ID should have a unique `filepath`.
 
 An example of the project metadata file would be as follows:
@@ -30,34 +31,43 @@ The below code is an example of running the Snakemake workflow using the project
 snakemake --cores 2 \
   --use-conda \
   --config results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>" \
-  mito_file="<FULL PATH TO MITOCHONDRIAL GENES TXT FILE>"
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
 ## Preparing the downloaded data to run additional modules
 
-You can run the downstream analysis clustering and genes of interest workflows using the processed RDS file and the metadata file found within the zip file downloaded from the ScPCA portal.
+You can run any of the additional modules available (e.g., clustering or the genes of interest workflows) using the processed RDS file (ending in `_processed.rds`) and the metadata file (`single_cell_metadata.tsv`) found within the zip file downloaded from the ScPCA portal.
 Before running any of these workflows, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
 The metadata file should contain the following columns:
 
 - `sample_id`, the unique ID for each piece of tissue or sample that cells were obtained from, which can be found in the `scpca_sample_id` column of the downloaded `single_cell_metadata.tsv` file.
 - `library_id`, the unique ID used for each set of cells that has been prepped and sequenced separately, which can be found in the `scpca_library_id` columns of the downloaded `single_cell_metadata.tsv` file.
-- `filepath`, the full path to the `_processed.rds` file containing the processed `SingleCellExperiment` object.
-Each library ID should have a unique `filepath`.
 
 An example of the project metadata file would be as follows:
 
-| sample_id | library_id | filepath |
-| --------- | ---------- | --------- |
-| SCPCS000122 | SCPCL000141 | example-data/SCPCS000122/SCPCL000141_processed.rds |
-| SCPCS000123	 | SCPCL000142 | example-data/SCPCS000123/SCPCL000142_processed.rds |
+| sample_id | library_id |
+| --------- | ---------- |
+| SCPCS000122 | SCPCL000141 |
+| SCPCS000123	 | SCPCL000142 |
+
+The required `input_data_dir` should also contain the downloaded input files as follows:
+
+```
+input_data_dir
+   ├── SCPCS000122
+   │   ├── SCPCL000141_processed.rds
+   │   └── single_cell_metadata.tsv
+   ├── SCPCS000123
+   │   ├── SCPCL000142_processed.rds
+   │   └── single_cell_metadata.tsv
+```
 
 ### Running the workflow
 
-The below code is an example of running the Snakemake clustering workflow using the project-specific parameters.
+The below code is an example of running the additional workflow(s) using the project-specific parameters, where `<module.snakefile>` would be replaced with the name of the snakefile associated with the desired module.
 
 ```
-snakemake --snakefile cluster.snakefile \ 
+snakemake --snakefile <module.snakefile> \ 
   --cores 2 \
   --use-conda \
   --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
@@ -65,13 +75,6 @@ snakemake --snakefile cluster.snakefile \
   project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
-The below code is an example of running the Snakemake genes of interest workflow using the project-specific parameters.
+To run the clustering workflow, see ["running the workflow"](../optional-clustering-analysis/README.md#running-the-workflow) in the clustering module `README.md`.
 
-```
-snakemake --snakefile goi.snakefile \ 
-  --cores 2 \
-  --use-conda \
-  --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
-```
+To run the genes of interest workflow, see ["running the workflow"](../optional-goi-analysis/README.md#running-the-workflow) in the genes of interest module `README.md`.

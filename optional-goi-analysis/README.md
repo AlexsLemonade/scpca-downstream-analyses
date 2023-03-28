@@ -64,9 +64,9 @@ See more information on project metadata in the [expected input section](#expect
 
 To run this workflow, you will need to provide:
 
-1. The RDS file containing the normalized [output `SingleCellExperiment` object](../README.md#expected-output) from the core dowstream analyses workflow or the processed object downloaded from the ScPCA portal.
+1. The RDS file containing the normalized [output `SingleCellExperiment` object](../README.md#expected-output) from the core dowstream analyses workflow or the processed `SingleCellExperiment` object downloaded from the ScPCA portal (found in the `_processed.rds` file).
 This `SingleCellExperiment` object must contain a log-normalized counts matrix in an assay named `logcounts`.
-2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow can be used here (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](../project-metadata/example-library-metadata.tsv)).
+2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, the same metadata file used in the core workflow can be used here -- although only the `sample_id` and `library_id` columns are required for this workflow (see more on this in the ["Metadata file format" section](../README.md#metadata-file-format) and an example of this metadata file [here](../project-metadata/example-library-metadata.tsv)).
 3. The genes of interest list, stored as a tab-separated value (TSV) file.
 This file should contain at least one column named `gene_id` with the relevant gene identifiers, and can optionally contain an additional column named `gene_set` that denotes the gene set that each gene identifier belongs to (see an example of this genes of interest file [here](../example-data/goi-lists/sample01_goi_list.tsv)).
 

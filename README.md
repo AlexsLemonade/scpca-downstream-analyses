@@ -59,7 +59,7 @@ To run the core analysis workflow you will want to implement the following steps
 1. Clone the repository and install Snakemake using the [instructions provided in the Snakemake docs](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html#installation-via-conda-mamba).
 2. [Install the packages and dependencies](#c-additional-dependencies) that are required to run the workflow.
 3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#2-input-data-format)).
-The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data.
+The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data. If working with data from the ScPCA portal, see more information on preparing that data to run the core workflow [here](./additional-docs/working-with-scpca-portal-data.md).
 4. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
 5. Configure the config file to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 4.
 6. Open terminal to run the workflow using the following snakemake command:
@@ -166,6 +166,8 @@ The full path to each individual RDS file should be defined in the project metad
 The pipeline in this repository is setup to process data available on the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) and output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf) where single-cell/single-nuclei gene expression data is mapped and quantified using [alevin-fry](https://alevin-fry.readthedocs.io/en/latest/).
 For more information on the this pre-processing, please see the [ScPCA Portal docs](https://scpca.readthedocs.io/en/latest/).
 Note however that the input for this pipeline is **not required** to be scpca-nf processed output.
+
+If you are working with data downloaded from the ScPCA portal, see our guide on preparing that data to run the core workflow [here](./additional-docs/working-with-scpca-portal-data.md).
 
 ## 3. Create Metadata File
 

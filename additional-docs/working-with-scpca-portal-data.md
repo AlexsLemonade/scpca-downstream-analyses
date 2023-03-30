@@ -1,7 +1,6 @@
 # Working with ScPCA portal data
 
 Downloads from the ScPCA Portal include gene expression data, a QC report, and associated metadata for each processed sample.
-These files are delivered as a zip file.
 Each sample's zip file should include a `SingleCellExperiment` object stored as `_filtered.rds` that can be used as input to the core analysis workflow, or to skip directly to the additional analysis modules, use the processed `SingleCellExperiment` object stored as `_processed.rds`.
 To find more information on data available in the portal, visit the [ScPCA portal](https://scpca.alexslemonade.org/).
 

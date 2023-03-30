@@ -65,12 +65,12 @@ The workflow can directly take as input the `filtered` RDS files downloaded from
 ```
 snakemake --cores 2 \
   --use-conda \
-  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
+  --config results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
 **You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.**
-Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
+Where `results_dir` is the full path to the results directory where all results from running the workflow will be stored and `project_metadata` is the full path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in [section 3](#3-metadata-file-format) below.
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
@@ -202,8 +202,8 @@ These include the following parameters:
 
 | Parameter        | Description |
 |------------------|-------------|
-| `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
-| `project_metadata` | relative path to your specific project metadata TSV file |
+| `results_dir` | full path to the directory where output files from running the core workflow will be stored |
+| `project_metadata` | full path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
 
 **Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome.
@@ -222,8 +222,8 @@ The below code is an example of running the Snakemake workflow using the project
 ```
 snakemake --cores 2 \
   --use-conda \
-  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE_PATH TO YOUR PROJECT METADATA TSV>" \
+  --config results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>" \
   mito_file="<FULL PATH TO MITOCHONDRIAL GENES TXT FILE>"
 ```
 

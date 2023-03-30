@@ -54,13 +54,13 @@ After navigating to within the root directory of the `scpca-downstream-analyses`
 snakemake --snakefile cluster.snakefile \ 
   --cores 2 \
   --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
+  --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
+  results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
 **You will want to replace the paths for `input_data_dir`, `results_dir` and `project_metadata` to successfully run the workflow.** 
-Where `input_data_dir` is the relative path to the directory where the input data files can be found, `results_dir` is the relative path to the directory where all results from running the workflow will be stored, and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
+Where `input_data_dir` is the full path to the directory where the input data files can be found, `results_dir` is the full path to the directory where all results from running the workflow will be stored, and `project_metadata` is the full path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in the [expected input section](#expected-input) below.
 
 **Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
@@ -88,9 +88,9 @@ These include the following parameters:
 
 | Parameter        | Description | Default value |
 |------------------|-------------| --------------|
-| `input_data_dir` | relative path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
-| `results_dir` | relative path to the directory where output files will be stored | `"example-results"` |
-| `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
+| `input_data_dir` | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
+| `results_dir` | full path to the directory where output files will be stored | `"example-results"` |
+| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
 
 |[View Config File](../config/config.yaml)|
 |---|
@@ -106,9 +106,9 @@ The below code is an example of running the clustering workflow using the requir
 snakemake --snakefile cluster.snakefile \ 
   --cores 2 \
   --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
+  --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
+  results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
 ### Clustering parameters

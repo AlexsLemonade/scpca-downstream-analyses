@@ -48,13 +48,13 @@ After navigating to within the root directory of the `scpca-downstream-analyses`
 snakemake --snakefile goi.snakefile \ 
   --cores 2 \
   --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
+  --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
+  results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
 **You will want to replace the paths for `input_data_dir`, `results_dir` and `project_metadata` to successfully run the workflow.** 
-Where `input_data_dir` is the relative path to the directory where the input data files can be found, `results_dir` is the relative path to the directory where all results from running the workflow will be stored, and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
+Where `input_data_dir` is the full path to the directory where the input data files can be found, `results_dir` is the full path to the directory where all results from running the workflow will be stored, and `project_metadata` is the full path to the TSV file containing the relevant information about your input files.
 See more information on project metadata in the [expected input section](#expected-input) below.
 
 **Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
@@ -84,10 +84,10 @@ These include the following parameters:
 
 | Parameter        | Description | Default value |
 |------------------|-------------| --------------|
-| `input_data_dir` | relative path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
-| `results_dir` | relative path to the directory where output files will be stored | `"example-results"` |
-| `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
-| `goi_list` | the file path to a tsv file containing the list of genes that are of interest | `"example-data/goi-lists/example_goi_list.tsv"` |
+| `input_data_dir` | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
+| `results_dir` | full path to the directory where output files will be stored | `"example-results"` |
+| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
+| `goi_list` | full path to a tsv file containing the list of genes that are of interest | `"example-data/goi-lists/example_goi_list.tsv"` |
 | `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"`; see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html) | `"SYMBOL"` |
 | `overwrite` | a binary value indicating whether or not to overwrite existing output files | `TRUE` |
 
@@ -102,10 +102,10 @@ The below code is an example of running the genes of interest workflow using the
 snakemake --snakefile goi.snakefile \ 
   --cores 2 \
   --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
-  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
+  --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
+  results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>" \
+  goi_list="<FULL PATH TO YOUR GENES OF INTEREST LIST>" \
   provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
 ```
 
@@ -122,10 +122,10 @@ To run the workflow with the gene mapping step, you will only need to provide th
 snakemake --snakefile goi.snakefile \ 
   --cores 2 \
   --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
-  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
+  --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
+  results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>" \
+  goi_list="<FULL PATH TO YOUR GENES OF INTEREST LIST>" \
   provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
 ```
 
@@ -135,10 +135,10 @@ To run the workflow without the gene mapping step, you can run the below command
 snakemake --snakefile goi.snakefile \ 
   --cores 2 \
   --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
-  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
+  --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
+  results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
+  project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>" \
+  goi_list="<FULL PATH TO YOUR GENES OF INTEREST LIST>" \
   provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>" \
   perform_mapping=FALSE
 ```

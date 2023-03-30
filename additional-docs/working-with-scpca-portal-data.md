@@ -1,7 +1,7 @@
 # Working with ScPCA portal data
 
 Downloads from the ScPCA Portal include gene expression data, a QC report, and associated metadata for each processed sample.
-These files are delivered as a zip file.
+Each sample's zip file should include a `SingleCellExperiment` object stored as `_filtered.rds` that can be used as input to the core analysis workflow, or to skip directly to the additional analysis modules, use the processed `SingleCellExperiment` object stored as `_processed.rds`.
 To find more information on data available in the portal, visit the [ScPCA portal](https://scpca.alexslemonade.org/).
 
 ## Preparing the downloaded data for core workflow
@@ -14,7 +14,8 @@ The metadata file should contain the following columns:
 - `sample_id`, the unique ID for each piece of tissue or sample that cells were obtained from, which can be found in the `scpca_sample_id` column of the downloaded `single_cell_metadata.tsv` file.
 - `library_id`, the unique ID used for each set of cells that has been prepped and sequenced separately, which can be found in the `scpca_library_id` columns of the downloaded `single_cell_metadata.tsv` file.
 - `filepath`, the full path to the `_filtered.rds` file containing the filtered `SingleCellExperiment` object downloaded from the ScPCA portal.
-Each library ID should have a unique `filepath`.
+Each library ID should have a unique `filepath` and will probably look something like this for each file: 
+`<full path to directory storing data downloaded from ScPCA/scpca_sample_id/scpca_library_id_filtered.rds`.
 
 An example of the project metadata file would be as follows:
 
@@ -50,7 +51,8 @@ An example of the project metadata file would be as follows:
 | SCPCS000122 | SCPCL000141 |
 | SCPCS000123	 | SCPCL000142 |
 
-The required `input_data_dir` should also contain the downloaded input files as follows:
+**Note:** Any of the additional modules will also need the parameter `input_data_dir` to be specified.
+The required `input_data_dir` should contain the downloaded input files as follows:
 
 ```
 input_data_dir

@@ -61,7 +61,7 @@ To run the core analysis workflow you will want to implement the following steps
 3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#2-input-data-format)).
 The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data. If working with data from the ScPCA portal, see more information on preparing that data to run the core workflow [here](./additional-docs/working-with-scpca-portal-data.md).
 4. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
-5. Configure the config file to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 4.
+5. Configure the config file to adjust the `results_dir` and `project_metadata` parameters to point to the full path to your desired results directory and project metadata file that you created in step 4.
 6. Open terminal to run the workflow using the following snakemake command:
 
 ```
@@ -156,7 +156,7 @@ To use the environment you have just created, you will need to run Snakemake wit
 
 If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/additional-docs/independent-installation-instructions.md).
 
-## 2. Verify Input Data Format
+## 2. Verify input data format
 
 The expected input for our core single-cell downstream analysis pipeline is a [`SingleCellExperiment` object](https://rdrr.io/bioc/SingleCellExperiment/man/SingleCellExperiment.html) that has been stored as a RDS file.
 This `SingleCellExperiment` object should contain non-normalized gene expression data with barcodes as the column names and gene identifiers as the row names.
@@ -169,7 +169,7 @@ Note however that the input for this pipeline is **not required** to be scpca-nf
 
 If you are working with data downloaded from the ScPCA portal, see our guide on preparing that data to run the core workflow [here](./additional-docs/working-with-scpca-portal-data.md).
 
-## 3. Create Metadata File
+## 3. Create metadata file
 
 Now the environment should be all set to implement the Snakemake workflow.
 Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
@@ -183,12 +183,12 @@ Each library ID should have a unique `filepath`.
 |[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-library-metadata.tsv)|
 |---|
 
-## 4. Configure Config File
+## 4. Configure config file
 
 We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](config/config.yaml) which defines all parameters needed to run the workflow.
 
 You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
-There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow.
+There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow with your own data.
 These parameters are specific to the project or dataset being processed.
 These project-specific parameterscan be found under the [`Project-specific parameters` section](./config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](./config/config.yaml#L11).
 
@@ -265,7 +265,7 @@ Changes will be pushed to the `main` branch once changes are ready for a new rel
 
 ## 5. Running the workflow
 
-You can run the snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
+After you have successfully modified the required parameters in the config file, you can run the snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
 
 ```
 snakemake --cores 2 --use-conda

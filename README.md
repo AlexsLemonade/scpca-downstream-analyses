@@ -190,7 +190,7 @@ We have provided an example [snakemake configuration file](https://snakemake.rea
 You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
 There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow with your own data.
 These parameters are specific to the project or dataset being processed.
-These project-specific parameterscan be found under the [`Project-specific parameters` section](./config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](./config/config.yaml#L11).
+These project-specific parameters can be found under the [`Project-specific parameters` section](./config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](./config/config.yaml#L11).
 
 See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps.
 

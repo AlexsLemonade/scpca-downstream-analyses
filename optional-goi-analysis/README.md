@@ -10,12 +10,12 @@ This directory includes a genes of interest analysis workflow to help users eval
 **Table of Contents**
 
 - [Analysis overview](#analysis-overview)
-- [Running the workflow](#running-the-workflow)
 - [Expected input](#expected-input)
-- [Parameters and config file](#parameters-and-config-file)
+- [Configure config file](#configure-config-file)
   - [Project-specific parameters](#project-specific-parameters)
 - [Gene mapping](#gene-mapping)
   - [Gene mapping parameters](#gene-mapping-parameters)
+- [Running the workflow](#running-the-workflow)
 - [Expected output](#expected-output)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -38,28 +38,6 @@ R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which must be installed locally prior to running the workflow.
 If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
 
-## Running the workflow
-
-The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
-To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
-After navigating to within the root directory of the `scpca-downstream-analyses` repository, the below example command can be used to run the genes of interest workflow:
-
-```
-snakemake --snakefile goi.snakefile \ 
-  --cores 2 \
-  --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
-```
-
-**You will want to replace the paths for `input_data_dir`, `results_dir` and `project_metadata` to successfully run the workflow.** 
-Where `input_data_dir` is the relative path to the directory where the input data files can be found, `results_dir` is the relative path to the directory where all results from running the workflow will be stored, and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
-See more information on project metadata in the [expected input section](#expected-input) below.
-
-**Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
-
-
 ## Expected input
 
 To run this workflow, you will need to provide:
@@ -72,9 +50,14 @@ This file should contain at least one column named `gene_id` with the relevant g
 
 If working with data from the ScPCA portal, see our guide on preparing that data to run the genes of interest workflow [here](./additional-docs/working-with-scpca-portal-data.md).
 
-## Parameters and config file
+## Configure config file
 
 As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/config.yaml` which sets the defaults for project-specific parameters needed to run the genes of interest workflow.
+
+You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
+There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow with your own data.
+These parameters are specific to the project or dataset being processed.
+These project-specific parameters can be found under the [`Project-specific parameters` section](../config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found in [`goi_config.yaml`](../config/goi_config.yaml).
 
 ### Project-specific parameters
 
@@ -91,24 +74,6 @@ These include the following parameters:
 | `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"`; see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html) | `"SYMBOL"` |
 | `overwrite` | a binary value indicating whether or not to overwrite existing output files | `TRUE` |
 
-The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
-You must also specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
-If `--cores` is given without a number, all available cores are used to run the workflow.
-If you installed dependencies for the workflow [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to provide the `--use_conda` flag as well.
-
-The below code is an example of running the genes of interest workflow using the required parameters.
-
-```
-snakemake --snakefile goi.snakefile \ 
-  --cores 2 \
-  --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
-  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
-  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
-```
-
 ## Gene mapping
 
 The first step in the workflow is to ensure that the input gene identifiers provided in the genes of interest list match the gene identifiers present in the `SingleCellExperiment` object. 
@@ -116,32 +81,9 @@ The `SingleCellExperiment` objects that are returned by the core workflow will c
 If the provided genes of interest list contains another identifier type (e.g., gene symbol, Entrez id) that does not match the gene names present in the `SingleCellExperiment` objects, then mapping must be performed.
 The `perform_mapping` flag is used to indicate whether or not gene mapping will be performed and by default is set to `TRUE`.
 
-To run the workflow with the gene mapping step, you will only need to provide the required parameters mentioned in the [project-specific parameters section](#project-specific-parameters).
+To run the workflow with the gene mapping step, you will only need to modify the required parameters mentioned in the [project-specific parameters section](#project-specific-parameters).
 
-```
-snakemake --snakefile goi.snakefile \ 
-  --cores 2 \
-  --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
-  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
-  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>"
-```
-
-To run the workflow without the gene mapping step, you can run the below command:
-
-```
-snakemake --snakefile goi.snakefile \ 
-  --cores 2 \
-  --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>" \
-  goi_list="<RELATIVE PATH TO YOUR GENES OF INTEREST LIST>" \
-  provided_identifier="<TYPE OF GENE IDENTIFIER USED IN GOI LIST>" \
-  perform_mapping=FALSE
-```
+To run the workflow without the gene mapping step, you will need to modify the `perform_mapping` parameter to be `FALSE` in the `config/goi_config.yaml` file.
 
 ### Gene mapping parameters
 
@@ -161,6 +103,24 @@ The following gene mapping parameters found in the `config/goi_config.yaml` file
 
 |[View Genes of Interest Config File](../config/goi_config.yaml)|
 |---|
+
+## Running the workflow
+
+The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
+To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
+After you have successfully modified the required parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
+
+```
+snakemake --snakefile goi.snakefile --cores 2 --use-conda
+```
+
+It is mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
+If `--cores` is given without a number, all available cores are used to run the workflow.
+
+**Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
+
+You can also modify the config file parameters at the command line, rather than manually as recommended in the configure config file section above.
+See our [command line options](../additional-docs/command-line-options.md) documentation for more information.
 
 ## Expected output
 

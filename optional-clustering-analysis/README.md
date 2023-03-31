@@ -9,11 +9,11 @@ This directory includes a clustering analysis workflow that can help users ident
 **Table of Contents**
 
 - [Analysis overview](#analysis-overview)
-- [Running the workflow](#running-the-workflow)
 - [Expected input](#expected-input)
-- [Parameters and config file](#parameters-and-config-file)
+- [Configure config file](#configure-config-file)
   - [Project-specific parameters](#project-specific-parameters)
   - [Clustering parameters](#clustering-parameters)
+- [Running the workflow](#running-the-workflow)
 - [Expected output](#expected-output)
   - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 
@@ -45,26 +45,6 @@ R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which must be installed locally prior to running the workflow.
 If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
 
-## Running the workflow
-
-The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`. 
-After navigating to within the root directory of the `scpca-downstream-analyses` repository, the below example command can be used to run the clustering workflow:
-
-```
-snakemake --snakefile cluster.snakefile \ 
-  --cores 2 \
-  --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
-```
-
-**You will want to replace the paths for `input_data_dir`, `results_dir` and `project_metadata` to successfully run the workflow.** 
-Where `input_data_dir` is the relative path to the directory where the input data files can be found, `results_dir` is the relative path to the directory where all results from running the workflow will be stored, and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
-See more information on project metadata in the [expected input section](#expected-input) below.
-
-**Note:**  If you did not install dependencies [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
-
 ## Expected input
 
 To run this workflow, you will need to provide:
@@ -76,9 +56,14 @@ For example, if you would like a range of `5:25` to be tested in increments of 5
 
 If you are working with data from the ScPCA portal, see our guide on preparing that data to run the clustering workflow [here](../additional-docs/working-with-scpca-portal-data.md).
 
-## Parameters and config file
+## Configure config file
 
 As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/config.yaml` which sets the defaults for project-specific parameters needed to run the clustering workflow.
+
+You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
+There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow with your own data.
+These parameters are specific to the project or dataset being processed.
+These project-specific parameters can be found under the [`Project-specific parameters` section](../config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found in [`cluster_config.yaml`](../config/cluster_config.yaml).
 
 ### Project-specific parameters
 
@@ -94,22 +79,6 @@ These include the following parameters:
 
 |[View Config File](../config/config.yaml)|
 |---|
-
-The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
-You must also specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
-If `--cores` is given without a number, all available cores are used to run the workflow.
-If you installed dependencies for the workflow [with conda via snakemake](../README.md#snakemakeconda-installation), you will need to provide the `--use_conda` flag as well.
-
-The below code is an example of running the clustering workflow using the required parameters.
-
-```
-snakemake --snakefile cluster.snakefile \ 
-  --cores 2 \
-  --use-conda \
-  --config input_data_dir="<RELATIVE PATH TO INPUT DATA DIRECTORY>" \
-  results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
-```
 
 ### Clustering parameters
 
@@ -128,6 +97,23 @@ The parameters found in the `config/cluster_config.yaml` file can be optionally 
 
 |[View Clustering Config File](../config/cluster_config.yaml)|
 |---|
+
+## Running the workflow
+
+The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`. 
+After you have successfully modified the required parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
+
+```
+snakemake --snakefile cluster.snakefile --cores 2 --use-conda
+```
+
+It is mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
+If `--cores` is given without a number, all available cores are used to run the workflow.
+
+**Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
+
+You can also modify the config file parameters at the command line, rather than manually as recommended in the configure config file section above.
+See our [command line options](../additional-docs/command-line-options.md) documentation for more information.
 
 ## Expected output
 

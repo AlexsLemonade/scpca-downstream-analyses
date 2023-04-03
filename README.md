@@ -57,7 +57,7 @@ To run the core analysis workflow you will want to implement the following steps
 3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#2-input-data-format)).
 The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data. If working with data from the ScPCA portal, see more information on preparing that data to run the core workflow [here](./additional-docs/working-with-scpca-portal-data.md).
 4. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
-5. Configure the [config file](./config/config.yaml) to adjust the `results_dir` and `project_metadata` parameters to point to the full path to your desired results directory and project metadata file that you created in step 4.
+5. [Configure the config file](#4-configure-config-file) to adjust the `results_dir` and `project_metadata` parameters to point to the full path to your desired results directory and project metadata file that you created in step 4.
 6. Open terminal to run the workflow using the following snakemake command:
 
 ```

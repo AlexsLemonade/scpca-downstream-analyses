@@ -84,6 +84,7 @@ Learn more about the [gene mapping parameters](../additional-docs/additional-par
 
 The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
 To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
+
 After you have successfully modified the required parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
 
 ```

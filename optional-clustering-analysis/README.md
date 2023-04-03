@@ -75,7 +75,7 @@ To run the workflow on your data, modify the following parameters in the `config
 |[View Config File](../config/config.yaml)|
 |---|
 
-The [`config/cluster_config.yaml`](../config/cluster_config.yaml) file also contains processing parameters like the type of graph-based clustering to be performed and the nearest neighbors values that should be used. 
+The [`config/cluster_config.yaml`](../config/cluster_config.yaml) file also contains processing parameters like the type of graph-based clustering to be performed and the nearest neighbors values that should be used.
 We have set default values for these parameters. 
 Learn more about the [processing parameters](../additional-docs/processing-parameters.md#clustering-analysis-parameters) and how to modify them.
 

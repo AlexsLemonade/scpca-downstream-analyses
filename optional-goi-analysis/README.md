@@ -78,6 +78,8 @@ The `perform_mapping` flag is used to indicate whether or not gene mapping will 
 
 To run the workflow without the gene mapping step, you will need to modify the `perform_mapping` parameter to be `FALSE` in the `config/goi_config.yaml` file.
 
+The `config/goi_config.yaml` file also contains processing parameters like how to handle multiple gene identifier mappings. 
+We have set default values for these parameters. 
 Learn more about the [gene mapping parameters](../additional-docs/additional-parameters.md#genes-of-interest-analysis-parameters) and how to modify them.
 
 ## Running the workflow

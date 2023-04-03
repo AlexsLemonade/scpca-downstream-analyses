@@ -12,9 +12,7 @@ This directory includes a genes of interest analysis workflow to help users eval
 - [Analysis overview](#analysis-overview)
 - [Expected input](#expected-input)
 - [Configure config file](#configure-config-file)
-  - [Project-specific parameters](#project-specific-parameters)
 - [Gene mapping](#gene-mapping)
-  - [Gene mapping parameters](#gene-mapping-parameters)
 - [Running the workflow](#running-the-workflow)
 - [Expected output](#expected-output)
 
@@ -52,18 +50,15 @@ If working with data from the ScPCA portal, see our guide on preparing that data
 
 ## Configure config file
 
-As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/config.yaml` which sets the defaults for project-specific parameters needed to run the genes of interest workflow.
+As in the main core workflow, we have provided an [example snakemake configuration file](config/config.yaml), `config/config.yaml`, which defines all parameters needed to run the workflow.
+Learn more about snakemake configuration files [here](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 
 You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
 There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow with your own data.
 These parameters are specific to the project or dataset being processed.
 These project-specific parameters can be found under the [`Project-specific parameters` section](../config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found in [`goi_config.yaml`](../config/goi_config.yaml).
 
-### Project-specific parameters
-
-There are a set of parameters included in the provided configuration files (`config/config.yaml`, `config/goi_config.yaml`) that will always need to be specified when running the genes of interest workflow.
-These parameters are specific to the project or dataset being processed.
-These include the following parameters:
+To run the workflow on your data, modify the following parameters in the `config/config.yaml` and `config/goi_config.yaml` files:
 
 | Parameter        | Description | Default value |
 |------------------|-------------| --------------|
@@ -81,28 +76,9 @@ The `SingleCellExperiment` objects that are returned by the core workflow will c
 If the provided genes of interest list contains another identifier type (e.g., gene symbol, Entrez id) that does not match the gene names present in the `SingleCellExperiment` objects, then mapping must be performed.
 The `perform_mapping` flag is used to indicate whether or not gene mapping will be performed and by default is set to `TRUE`.
 
-To run the workflow with the gene mapping step, you will only need to modify the required parameters mentioned in the [project-specific parameters section](#project-specific-parameters).
-
 To run the workflow without the gene mapping step, you will need to modify the `perform_mapping` parameter to be `FALSE` in the `config/goi_config.yaml` file.
 
-### Gene mapping parameters
-
-The [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/goi_config.yaml`, sets the defaults for additional parameters required for mapping the gene identifiers in the genes of interest workflow.
-These parameters will only be used if `perform_mapping` is set to `TRUE`.
-It is **not required** to alter these parameters to run the workflow, but if you would like to modify the gene identifier mapping, you can do so by changing these parameters. 
-
-The following gene mapping parameters found in the `config/goi_config.yaml` file can be optionally modified:
-
-| Parameter        | Description | Default value |
-|------------------|-------------|---------------|
-| `perform_mapping` | a binary value indicating whether or not to perform gene identifier mapping | `TRUE` |
-| `organism` | the organism associated with the provided genes and data | `"Homo sapiens"` |
-| `sce_rownames_identifier` | the type of gene identifiers found in the rownames of the `SingleCellExperiment` object; note that this parameter should not be changed unless the output of the core analysis workflow has been altered in some way prior to running this module | `"ENSEMBL"` |
-| `multi_mappings` | how to handle multiple gene identifier mappings when `perform_mapping` is `TRUE` | `"list"` |
-
-
-|[View Genes of Interest Config File](../config/goi_config.yaml)|
-|---|
+Learn more about the [gene mapping parameters](../additional-docs/additional-parameters.md#genes-of-interest-analysis-parameters) and how to modify them.
 
 ## Running the workflow
 

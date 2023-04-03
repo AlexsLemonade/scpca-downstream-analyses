@@ -11,8 +11,6 @@ This directory includes a clustering analysis workflow that can help users ident
 - [Analysis overview](#analysis-overview)
 - [Expected input](#expected-input)
 - [Configure config file](#configure-config-file)
-  - [Project-specific parameters](#project-specific-parameters)
-  - [Clustering parameters](#clustering-parameters)
 - [Running the workflow](#running-the-workflow)
 - [Expected output](#expected-output)
   - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
@@ -58,49 +56,33 @@ If you are working with data from the ScPCA portal, see our guide on preparing t
 
 ## Configure config file
 
-As in the main core workflow, we have provided a [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/config.yaml` which sets the defaults for project-specific parameters needed to run the clustering workflow.
+As in the main core workflow, we have provided an [example snakemake configuration file](config/config.yaml), `config/config.yaml`, which defines all parameters needed to run the workflow.
+Learn more about snakemake configuration files [here](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 
 You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
 There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow with your own data.
 These parameters are specific to the project or dataset being processed.
 These project-specific parameters can be found under the [`Project-specific parameters` section](../config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found in [`cluster_config.yaml`](../config/cluster_config.yaml).
 
-### Project-specific parameters
+To run the workflow on your data, modify the following parameters in the `config/config.yaml` file:
 
-There are a set of parameters included in the `config/config.yaml` file that will need to be specified when running the workflow.
-These parameters are specific to the project or dataset being processed.
-These include the following parameters:
-
-| Parameter        | Description | Default value |
-|------------------|-------------| --------------|
-| `input_data_dir` | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
-| `results_dir` | full path to the directory where output files will be stored | `"example-results"` |
-| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
+| Parameter        | Description |
+|------------------|-------------|
+| `input_data_dir` | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) |
+| `results_dir` | full path to the directory where output files will be stored |
+| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
 
 |[View Config File](../config/config.yaml)|
 |---|
 
-### Clustering parameters
-
-The [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/cluster_config.yaml` sets the defaults for all parameters needed to run the clustering workflow.
-It is **not required** to alter these parameters to run the workflow, but if you would like to change the type of clustering or range of nearest neighbor parameters, you can do so by changing these parameters. 
-
-The parameters found in the `config/cluster_config.yaml` file can be optionally modified and are as follows:
-
-| Parameter        | Description | Default value |
-|------------------|-------------|---------------|
-| `optional_cluster_types` | a comma-separated list of graph-based clustering type(s), options include "louvain" and/or "walktrap" (see more on these graph-based clustering methods in this [Community Detection Algorithms article](https://towardsdatascience.com/community-detection-algorithms-9bd8951e7dae)) | "louvain,walktrap" |
-| `nearest_neighbors_min` | the minimum value to use for a range of neareast neighbors values for exploration | 5 |
-| `nearest_neighbors_max` | the maximum value to use for a range of neareast neighbors values for exploration | 25 |
-| `nearest_neighbors_increment` | the increment to use when implementing the range number of nearest neighbors for cluster stats (e.g. a value of 5 with min of 5 and max of 25 will test the nearest neighbors values of 5, 10, 15, 20, and 25) | 5 |
-| `overwrite_results` | a binary value indicating whether or not to overwrite any existing clustering results | `TRUE` |
-
-|[View Clustering Config File](../config/cluster_config.yaml)|
-|---|
+The [`config/cluster_config.yaml`](../config/cluster_config.yaml) file also contains processing parameters like the type of graph-based clustering to be performed and the nearest neighbors values that should be used. 
+We have set default values for these parameters. 
+Learn more about the [processing parameters](../additional-docs/processing-parameters.md#clustering-analysis-parameters) and how to modify them.
 
 ## Running the workflow
 
-The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`. 
+The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`.
+
 After you have successfully modified the required parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
 
 ```

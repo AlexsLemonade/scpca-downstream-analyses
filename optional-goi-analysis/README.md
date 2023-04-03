@@ -67,10 +67,10 @@ These include the following parameters:
 
 | Parameter        | Description | Default value |
 |------------------|-------------| --------------|
-| `input_data_dir` | relative path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
-| `results_dir` | relative path to the directory where output files will be stored | `"example-results"` |
-| `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
-| `goi_list` | the file path to a tsv file containing the list of genes that are of interest | `"example-data/goi-lists/example_goi_list.tsv"` |
+| `input_data_dir` | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
+| `results_dir` | full path to the directory where output files will be stored | `"example-results"` |
+| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
+| `goi_list` | full path to a tsv file containing the list of genes that are of interest | `"example-data/goi-lists/example_goi_list.tsv"` |
 | `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"`; see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html) | `"SYMBOL"` |
 | `overwrite` | a binary value indicating whether or not to overwrite existing output files | `TRUE` |
 

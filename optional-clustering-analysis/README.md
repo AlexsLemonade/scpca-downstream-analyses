@@ -73,9 +73,9 @@ These include the following parameters:
 
 | Parameter        | Description | Default value |
 |------------------|-------------| --------------|
-| `input_data_dir` | relative path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
-| `results_dir` | relative path to the directory where output files will be stored | `"example-results"` |
-| `project_metadata` | relative path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
+| `input_data_dir` | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
+| `results_dir` | full path to the directory where output files will be stored | `"example-results"` |
+| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
 
 |[View Config File](../config/config.yaml)|
 |---|

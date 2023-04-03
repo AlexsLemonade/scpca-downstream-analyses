@@ -205,8 +205,8 @@ The parameters that are specific to the project or dataset being processed inclu
 
 | Parameter        | Description |
 |------------------|-------------|
-| `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
-| `project_metadata` | relative path to your specific project metadata TSV file |
+| `results_dir` | full path to the directory where output files from running the core workflow will be stored |
+| `project_metadata` | full path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
 
 **Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome.

@@ -1,6 +1,7 @@
 # Additional Workflow Parameters
 
-Below are additional parameters that are needed to run the analysis workflows in this repository.
+Below is a list of all additional parameters that are needed to run the analysis workflows in this repository.
+These parameters are all included in the config files and can optionally be altered when running the workflows, but are **not required to be changed**.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -16,7 +17,9 @@ Below are additional parameters that are needed to run the analysis workflows in
 
 ## Core analysis parameters
 
-The parameters found under the `Processing parameters` section of the [`config/config.yaml`](../config/config.yaml) file can be optionally modified via a text editor of your choice or at the command line per our documentation [here](./command-line-options.md).
+
+The [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/config.yaml` sets the defaults for all parameters needed to run the core analysis workflow.
+It is **not required** to alter these parameters to run the workflow, but if you would like to change the filtering method or the minimum cutoff for the number of genes detected per cell, you can do so by changing these parameters via a text editor of your choice or at the command line per our documentation [here](./command-line-options.md).
 
 ### Filtering parameters
 

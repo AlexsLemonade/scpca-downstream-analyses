@@ -18,7 +18,7 @@ In [step 4](../README.md#4-configure-config-file) of the main `README.md` file o
 There we recommend modifying the `config/config.yaml` file manually.
 
 All of the parameters in the config file can also be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
-The below code is an example of running the Snakemake workflow using the project-specific parameters.
+The below code is an example of running the Snakemake workflow using the required project-specific parameters.
 
 ```
 snakemake --cores 2 \
@@ -30,7 +30,7 @@ snakemake --cores 2 \
 You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow in the example above.
 Where `results_dir` is the full path to the results directory where all results from running the workflow will be stored and `project_metadata` is the full path to the TSV file containing the relevant information about your input files.
 
-You can find a list of parameters that can be modified at the command line for the core workflow under the [`project-specific parameters`](../README.md#project-specific-parameters) and [`processing parameters`](../README.md#processing-parameters) sections of the `README.md`.
+You can find the list of project-specific parameters that can be modified at the command line for the core workflow under the [configure config file section](../README.md#project-specific-parameters) and a list of additional processing parameters in the [separate documentation on additional parameters](./additional-parameters.md#core-analysis-parameters).
 
 
 ## Running the additional modules at the command line
@@ -47,5 +47,4 @@ snakemake --snakefile <module.snakefile> \
   project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
 ```
 
-See the [clustering module `parameters and config file` documentation](../optional-clustering-analysis/README.md#parameters-and-config-file) and the [genes of interest module `parameters and config file` documentation](../optional-goi-analysis/README.md#parameters-and-config-file) docs for a list of parameters that can be modified at the command line for each of the respective modules.
-
+See the separate `additional-parameters.md` documentation for a list of [additional parameters for the clustering module](./additional-parameters.md#clustering-analysis-parameters) and a list of [additional parameters for the genes of interest module](./additional-parameters.md#genes-of-interest-analysis-parameters).

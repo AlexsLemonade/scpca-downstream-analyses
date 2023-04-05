@@ -56,13 +56,16 @@ If you are working with data from the ScPCA portal, see our guide on preparing t
 
 ## Configure config file
 
-As in the main core workflow, we have provided an [example snakemake configuration file](config/config.yaml), `config/config.yaml`, which defines all parameters needed to run the workflow.
+As in the main core workflow, we have provided an [example snakemake configuration file](../config/config.yaml), `config/config.yaml`, which defines all parameters needed to run the workflow.
 Learn more about snakemake configuration files [here](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 
-You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
-There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow with your own data.
-These parameters are specific to the project or dataset being processed.
-These project-specific parameters can be found under the [`Project-specific parameters` section](../config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found in [`cluster_config.yaml`](../config/cluster_config.yaml).
+The config file contains two sets of parameters:
+
+- **[Project-specific Parameters](../config/config.yaml#L3)** : This set of parameters are for specifying dataset or project related details. 
+These parameters are **required** to run the workflow on your data.
+- **[Processing Parameters](../config/cluster_config.yaml)**: This set of parameters specify configurations for the type(s) of graph-based clustering to be performed, as well as the range of nearest neighbors values to use.
+You can change them to explore your data but it is optional.
+You can modify the relevant parameters by manually updating the `config/cluster_config.yaml` file using a text editor of your choice.
 
 To run the workflow on your data, modify the following parameters in the `config/config.yaml` file:
 
@@ -75,7 +78,7 @@ To run the workflow on your data, modify the following parameters in the `config
 |[View Config File](../config/config.yaml)|
 |---|
 
-The [`config/cluster_config.yaml`](../config/cluster_config.yaml) file also contains processing parameters like the type of graph-based clustering to be performed and the nearest neighbors values that should be used.
+The [`config/cluster_config.yaml`](../config/cluster_config.yaml) file also contains additional processing parameters like the type of graph-based clustering to be performed and the nearest neighbors values that should be used.
 We have set default values for these parameters. 
 Learn more about the [processing parameters](../additional-docs/processing-parameters.md#clustering-analysis-parameters) and how to modify them.
 

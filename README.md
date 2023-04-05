@@ -184,10 +184,13 @@ Each library ID should have a unique `filepath`.
 We have provided an [example snakemake configuration file](config/config.yaml), `config/config.yaml` which defines all parameters needed to run the workflow.
 Learn more about snakemake configuration files [here](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 
+The config file contains two sets of parameters:
+
+- **[Project-specific Parameters](./config/config.yaml#L3)** : This set of parameters are for specifying dataset or project related details. 
+These parameters are **required** to run the workflow on your data.
+- **[Processing Parameters](./config/config.yaml#L11)**: This set of parameters specify configurations for the type of filtering to be performed and for cutoffs like the minimum number of genes detected per cell, for example.
+You can change them to explore your data but it is optional.
 You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
-There are a set of parameters included in the `config/config.yaml` file that will **need to be specified** when running the workflow with your own data.
-These parameters are specific to the project or dataset being processed.
-These project-specific parameters can be found under the [`Project-specific parameters` section](./config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](./config/config.yaml#L11).
 
 To run the workflow on your data, modify the following parameters in the `config/config.yaml` file:
 
@@ -201,9 +204,9 @@ By default, these parameters point to the [example data](./example-data).
 The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md).
 Therefore, if you would like to test this workflow using the example data, you can continue to the next step, running the workflow, without modifying the config file.
 
-The config file also contains processing parameters like cutoffs for minimum genes detected, minimum unique molecular identifiers (UMI) per cell, etc. 
+The config file also contains additional processing parameters like cutoffs for minimum genes detected, minimum unique molecular identifiers (UMI) per cell, etc. 
 We have set default values for these parameters. 
-Learn more about the [processing parameters](./additional-docs/additional-parameters.md#core-analysis-parameters) and how to modify them.
+Learn more about the [additional processing parameters](./additional-docs/additional-parameters.md#core-analysis-parameters) and how to modify them.
 
 See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps.
 

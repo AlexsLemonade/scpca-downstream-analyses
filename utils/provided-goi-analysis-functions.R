@@ -191,7 +191,7 @@ plot_goi_expression_sina <- function(normalized_sce,
       y = gene_expression,
       color = gene_expression)) +
       ggforce::geom_sina(size = 0.2) +
-      labs(x = "gene id", y = "gene expression", color = "gene expression") +
+      labs(x = "Gene identifier", y = "Normalized gene expression", color = "Normalized \ngene expression") +
       stat_summary(
         aes(group = !!optional_plotting_column_sym),
         color = "red",
@@ -217,7 +217,7 @@ plot_goi_expression_sina <- function(normalized_sce,
       y = gene_expression,
       color = gene_expression)) +
       ggforce::geom_sina(size = 0.2) +
-      labs(x = gsub('_', ' ', sce_rownames_column_sym), y = "gene expression", color = "gene expression") +
+      labs(x = "Gene identifier", y = "Normalized gene expression", color = "Normalized \ngene expression") +
       stat_summary(
         aes(group = !!sce_rownames_column_sym),
         color = "red",
@@ -293,7 +293,7 @@ plot_goi_expression_umap <- function(normalized_sce,
       geom_point(size = 0.01) +
       facet_wrap(as.formula(paste("~", optional_plotting_column))) +
       scale_color_viridis_c() +
-      labs(x = "UMAP1", y = "UMAP2", color = "gene expression")
+      labs(x = "UMAP1", y = "UMAP2", color = "Normalized \ngene expression")
   } else {
     # Turn the SCE rownames column into a symbol for use when filtering
     sce_rownames_column_sym <- rlang::sym(sce_rownames_column)
@@ -305,7 +305,7 @@ plot_goi_expression_umap <- function(normalized_sce,
       geom_point(size = 0.01) +
       facet_wrap(as.formula(paste("~", sce_rownames_column))) +
       scale_color_viridis_c() +
-      labs(x = "UMAP1", y = "UMAP2", color = "gene expression")
+      labs(x = "UMAP1", y = "UMAP2", color = "Normalized \ngene expression")
   }
   
   return(umap_plot)
@@ -367,7 +367,7 @@ plot_goi_expression_pca <- function(normalized_sce,
       geom_point(size = 0.3) +
       facet_wrap(as.formula(paste("~", optional_plotting_column))) +
       scale_color_viridis_c() +
-      labs(color = "gene expression")
+      labs(color = "Normalized \ngene expression")
   } else {
     # Turn the SCE rownames column into a symbol for use when filtering
     sce_rownames_column_sym <- rlang::sym(sce_rownames_column)
@@ -379,7 +379,7 @@ plot_goi_expression_pca <- function(normalized_sce,
       geom_point(size = 0.3) +
       facet_wrap(as.formula(paste("~", sce_rownames_column))) +
       scale_color_viridis_c() +
-      labs(color = "gene expression")
+      labs(color = "Normalized \ngene expression")
   }
   
   return(pca_plot)

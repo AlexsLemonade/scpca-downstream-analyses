@@ -13,14 +13,11 @@
     - [How to install Snakemake](#how-to-install-snakemake)
   - [c) Additional dependencies](#c-additional-dependencies)
     - [Snakemake/conda installation](#snakemakeconda-installation)
-- [2. Input data format](#2-input-data-format)
-- [3. Metadata file format](#3-metadata-file-format)
-- [4. Running the workflow](#4-running-the-workflow)
-  - [Project-specific parameters](#project-specific-parameters)
-  - [Processing parameters](#processing-parameters)
-    - [Filtering parameters](#filtering-parameters)
-    - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
-- [5. Expected output](#5-expected-output)
+- [2. Verify input data format](#2-verify-input-data-format)
+- [3. Create metadata file](#3-create-metadata-file)
+- [4. Configure config file](#4-configure-config-file)
+- [5. Running the workflow](#5-running-the-workflow)
+- [6. Expected output](#6-expected-output)
   - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 - [Additional analysis modules](#additional-analysis-modules)
   - [Clustering analysis](#clustering-analysis)
@@ -59,19 +56,13 @@ To run the core analysis workflow you will want to implement the following steps
 2. [Install the packages and dependencies](#c-additional-dependencies) that are required to run the workflow.
 3. Ensure that the input single-cell gene expression data are stored as `SingleCellExperiment` objects in RDS files (see more on this in the ["Input data format" section](#2-input-data-format)).
 The workflow can directly take as input the `filtered` RDS files downloaded from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) or the output from the [scpca-nf workflow](https://github.com/AlexsLemonade/scpca-nf), a workflow that can be used to quantify your own single-cell/single-nuclei gene expression data. If working with data from the ScPCA portal, see more information on preparing that data to run the core workflow [here](./additional-docs/working-with-scpca-portal-data.md).
-1. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
-2. Open terminal to run the workflow using the following snakemake command and the `--config` flag to adjust the `results_dir` and `project_metadata` parameters to point to your desired results directory and project metadata file that you created in step 3:
+4. [Create a metadata tab-separated value (TSV) file](#3-metadata-file-format) that defines the sample id, library id, and filepath associated with the pre-processed `SingleCellExperiment` files to be used as input for the workflow.
+5. [Configure the config file](#4-configure-config-file) to adjust the `results_dir` and `project_metadata` parameters to point to the full path to your desired results directory and project metadata file that you created in step 4.
+6. Open terminal to run the workflow using the following snakemake command:
 
 ```
-snakemake --cores 2 \
-  --use-conda \
-  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE PATH TO YOUR PROJECT METADATA TSV>"
+snakemake --cores 2 --use-conda
 ```
-
-**You will want to replace the paths for both `results_dir` and `project_metadata` to successfully run the workflow.**
-Where `results_dir` is the relative path to the results directory where all results from running the workflow will be stored and `project_metadata` is the relative path to the TSV file containing the relevant information about your input files.
-See more information on project metadata in [section 3](#3-metadata-file-format) below.
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
@@ -161,7 +152,7 @@ To use the environment you have just created, you will need to run Snakemake wit
 
 If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/additional-docs/independent-installation-instructions.md).
 
-## 2. Input data format
+## 2. Verify input data format
 
 The expected input for our core single-cell downstream analysis pipeline is a [`SingleCellExperiment` object](https://rdrr.io/bioc/SingleCellExperiment/man/SingleCellExperiment.html) that has been stored as a RDS file.
 This `SingleCellExperiment` object should contain non-normalized gene expression data with barcodes as the column names and gene identifiers as the row names.
@@ -174,7 +165,7 @@ Note however that the input for this pipeline is **not required** to be scpca-nf
 
 If you are working with data downloaded from the ScPCA portal, see our guide on preparing that data to run the core workflow [here](./additional-docs/working-with-scpca-portal-data.md).
 
-## 3. Metadata file format
+## 3. Create metadata file
 
 Now the environment should be all set to implement the Snakemake workflow.
 Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the workflow.
@@ -188,118 +179,61 @@ Each library ID should have a unique `filepath`.
 |[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-library-metadata.tsv)|
 |---|
 
-## 4. Running the workflow
+## 4. Configure config file
 
-We have provided an example [snakemake configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), [`config/config.yaml`](config/config.yaml) which sets the defaults for all parameters needed to run the workflow.
+We have provided an [example snakemake configuration file](config/config.yaml), `config/config.yaml` which defines all parameters needed to run the workflow.
+Learn more about snakemake configuration files [here](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 
-See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps.
+The config file contains two sets of parameters:
 
-### Project-specific parameters
+- **[Project-specific Parameters](./config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details. 
+These parameters are **required** to run the workflow on your data.
+- **[Processing Parameters](./config/config.yaml#L11)**: This set of parameters specify configurations for the type of filtering to be performed and for cutoffs like the minimum number of genes detected per cell, for example.
+You can change them to explore your data but it is optional.
 
-There are a set of parameters included in the `config/config.yaml` file that will need to be specified when running the workflow.
-These parameters are specific to the project or dataset being processed.
-These include the following parameters:
+You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
+
+To run the workflow on your data, modify the following parameters in the `config/config.yaml` file:
 
 | Parameter        | Description |
 |------------------|-------------|
-| `results_dir` | relative path to the directory where output files from running the core workflow will be stored |
-| `project_metadata` | relative path to your specific project metadata TSV file |
+| `results_dir` | full path to the directory where output files from running the core workflow will be stored |
+| `project_metadata` | full path to your specific project metadata TSV file |
 | `mito_file` | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
 
-**Note:** The default mithochondrial gene list is compatible with any libraries aligned to the Ensembl version 104 of the Human transcriptome.
-For all datasets downloaded from the [ScPCA Portal](https://scpca.alexslemonade.org/), the Ensembl version used can be found by looking at the `assembly` column of the `metadata.json` file associated with that library.
-You should not need to change this parameter unless your dataset has been aligned to a different reference.
-If you are using your own data, you will need to grab all possible mitochondrial genes from the reference transcriptome used for alignment of your data and create a text file with one gene per line.
+By default, these parameters point to the [example data](./example-data). 
+The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md).
+Therefore, if you would like to test this workflow using the example data, you can continue to the next step, running the workflow, without modifying the config file.
+
+The config file also contains additional processing parameters like cutoffs for minimum genes detected, minimum unique molecular identifiers (UMI) per cell, etc. 
+We have set default values for these parameters. 
+Learn more about the [additional processing parameters](./additional-docs/additional-parameters.md#core-analysis-parameters) and how to modify them.
+
+See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps.
 
 |[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml)|
 |---|
 
-The above parameters can be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
-It is also mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
-If `--cores` is given without a number, all available cores are used to run the workflow.
-The below code is an example of running the Snakemake workflow using the project-specific parameters.
+## 5. Running the workflow
 
-```
-snakemake --cores 2 \
-  --use-conda \
-  --config results_dir="<RELATIVE PATH TO RESULTS DIRECTORY>" \
-  project_metadata="<RELATIVE_PATH TO YOUR PROJECT METADATA TSV>" \
-  mito_file="<FULL PATH TO MITOCHONDRIAL GENES TXT FILE>"
-```
-
-**You will want to replace the paths for `results_dir` and `project_metadata` to successfully run the workflow.**
-
-**Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
-
-You can also modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
-The project-specific parameters mentioned above can be found under the [`Project-specific parameters` section](./config/config.yaml#L3) of the config file, while the remaining parameters that can be optionally modified are found under the [`Processing parameters` section](./config/config.yaml#L11).
-
-We have also included example data in the `example-data` directory for testing purposes.
-The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md).
-The `config.yaml` file points to this example data by default.
-Therefore, if you would like to test this workflow using the example data, you can run snakemake with just the `--cores` and `--use-conda` flags as in the following example:
+After you have successfully modified the required project-specific parameters in the config file, you can run the snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
 
 ```
 snakemake --cores 2 --use-conda
 ```
 
-### Processing parameters
+It is mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
+If `--cores` is given without a number, all available cores are used to run the workflow.
 
-The parameters found under the `Processing parameters` section of the config file can be optionally modified, and are as follows:
+**Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
-#### Filtering parameters
+You can also modify the config file parameters at the command line, rather than manually as recommended in step 4.
+See our [command line options](./additional-docs/command-line-options.md) documentation for more information.
 
-There are two types of filtering methods that can be specified in the project metadata file, [`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual` filtering.
-For more information on choosing a filtering method, see [Filtering low quality cells](./additional-docs/processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md).
-Below are the parameters required to run either of the filtering methods.
-
-| Parameter        | Description | Default value |
-|------------------|-------------|---------------|
-| `seed` | an integer to be used to set a seed for reproducibility when running the workflow | 2021 |
-| `filtering_method` | `filtering_method`, the specified filtering method which can be one of "miQC" or "manual". For more information on choosing a filtering method, see [Filtering low quality cells](./additional-docs/processing-information.md#filtering-low-quality-cells) in the [processing information documentation](./additional-docs/processing-information.md) | "miQC" |
-| `prob_compromised_cutoff` | the maximum probability of a cell being compromised as calculated by [miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html), which is required when the `filtering_method` is set to `miQC` in the project metadata | 0.75 |
-| `filter_genes` | a binary value indicating whether or not to perform gene fitering | `FALSE` |
-| `gene_detected_row_cutoff` | the percent of cells a gene must be detected in; genes detected are only filtered if `filter_genes` is set to `TRUE` | 5 |
-| `gene_means_cutoff` | mean gene expression minimum threshold; mean gene expression is only filtered if `filter_genes` is set to `TRUE` | 0.1 |
-| `mito_percent_cutoff` | maximum percent mitochondrial reads per cell threshold, which is only required when `filtering_method` is set to `manual` | 20 |
-| `min_gene_cutoff` | minimum number of genes detected per cell | 200 |
-| `umi_count_cutoff` | minimum unique molecular identifiers (UMI) per cell, which is only required when `filtering_method` is set to `manual` | 500 |
-
-#### Dimensionality reduction and clustering parameters
-
-In the core workflow, PCA and UMAP results are calculated and stored, and the PCA coordinates are used for graph-based clustering.
-For more details on how the workflow performs [dimensionality reduction](./additional-docs/processing-information.md#dimensionality-reduction) and [clustering](./additional-docs/processing-information.md#clustering) see the documentation on [workflow processing information](./additional-docs/processing-information.md).
-Below are the parameters required to run the dimensionality reduction and clustering steps of the workflow.
-
-| Parameter        | Description | Default value |
-|------------------|-------------|---------------|
-| `n_genes_pca` | the `n` number of highly variable genes to select as input for PCA| 2000 |
-| `cluster_type` | the type of clustering to be performed, values can be "louvain" or "walktrap" (see more on these graph-based clustering methods in this [Community Detection Algorithms article](https://towardsdatascience.com/community-detection-algorithms-9bd8951e7dae)) | "louvain" |
-| `nearest_neighbors` | the `n` number of nearest neighbors when performing the chosen graph-based clustering method | 10 |
-
-These parameters can also be modified by manually updating the `config.yaml` file using a text editor of your choice or by supplying the parameters you would like to modify to the `--config` flag as in the following example:
-
-```
-snakemake --cores 2 \
-  --use-conda \
-  --config seed=2021 \
-  cluster_type="louvain" \
-  nearest_neighbors=10
-```
-
-**Note:** For Data Lab staff members working on development, the `project-specific-files` directory holds the files needed if testing with the shared data present on the Rstudio server at `/shared/scpca/gawad_data/scpca_processed_output`.
-The directory holds the`aml-config.yaml` file as well as the relevant project metadata file, `aml-library-metadata.tsv`.
-To run the workflow using the shared data, use the following command:
-
-```
-snakemake --cores 2 \
-  --configfile project-specific-files/aml-config.yaml`
-```
-
-Also note that new changes should be merged through a pull request to the `development` branch.
+**Note:** For Data Lab staff members working on development, new changes should be merged through a pull request to the `development` branch.
 Changes will be pushed to the `main` branch once changes are ready for a new release (per the [release checklist document](.github/ISSUE_TEMPLATE/release-checklist.md)).
 
-## 5. Expected output
+## 6. Expected output
 
 For each `SingleCellExperiment` and associated `library_id` used as input, the workflow will return two files: a processed `SingleCellExperiment` object containing normalized data and clustering results, and a summary HTML report detailing the filtering of low quality cells, dimensionality reduction, and clustering that was performed within the workflow.
 These files can be found in the `example_results` folder, as defined in the `config.yaml` file.

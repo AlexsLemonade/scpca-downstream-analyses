@@ -192,6 +192,7 @@ plot_goi_expression_sina <- function(normalized_sce,
       color = gene_expression)) +
       ggforce::geom_sina(size = 0.2) +
       labs(x = "Gene identifier", y = "Normalized gene expression", color = "Normalized \ngene expression") +
+      theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=1)) +
       stat_summary(
         aes(group = !!optional_plotting_column_sym),
         color = "red",
@@ -218,6 +219,7 @@ plot_goi_expression_sina <- function(normalized_sce,
       color = gene_expression)) +
       ggforce::geom_sina(size = 0.2) +
       labs(x = "Gene identifier", y = "Normalized gene expression", color = "Normalized \ngene expression") +
+      theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=1)) +
       stat_summary(
         aes(group = !!sce_rownames_column_sym),
         color = "red",

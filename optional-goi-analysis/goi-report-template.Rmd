@@ -139,6 +139,11 @@ The plot below displays the normalized and transformed expression for each of th
 genes of interest in comparison to the mean expression of all genes present in the dataset. 
 
 ```{r}
+# Set theme for plots below
+ggplot2::theme_set(theme_bw())
+```
+
+```{r}
 if(all.equal(goi_list$gene_id, goi_list$sce_rownames_identifier) == TRUE) {
   gene_id_column <- NULL
 } else {

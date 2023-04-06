@@ -186,10 +186,11 @@ Learn more about snakemake configuration files [here](https://snakemake.readthed
 
 The config file contains two sets of parameters:
 
-- **[Project-specific Parameters](./config/config.yaml#L3)** : This set of parameters are for specifying dataset or project related details. 
+- **[Project-specific Parameters](./config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details. 
 These parameters are **required** to run the workflow on your data.
 - **[Processing Parameters](./config/config.yaml#L11)**: This set of parameters specify configurations for the type of filtering to be performed and for cutoffs like the minimum number of genes detected per cell, for example.
 You can change them to explore your data but it is optional.
+
 You can modify the relevant parameters by manually updating the `config/config.yaml` file using a text editor of your choice.
 
 To run the workflow on your data, modify the following parameters in the `config/config.yaml` file:
@@ -215,7 +216,7 @@ See the [processing information documentation](./additional-docs/processing-info
 
 ## 5. Running the workflow
 
-After you have successfully modified the required parameters in the config file, you can run the snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
+After you have successfully modified the required project-specific parameters in the config file, you can run the snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
 
 ```
 snakemake --cores 2 --use-conda

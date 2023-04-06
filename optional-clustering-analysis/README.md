@@ -61,7 +61,7 @@ Learn more about snakemake configuration files [here](https://snakemake.readthed
 
 The config file contains two sets of parameters:
 
-- **[Project-specific Parameters](../config/config.yaml#L3)** : This set of parameters are for specifying dataset or project related details. 
+- **[Project-specific Parameters](../config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details. 
 These parameters are **required** to run the workflow on your data.
 - **[Processing Parameters](../config/cluster_config.yaml)**: This set of parameters specify configurations for the type(s) of graph-based clustering to be performed, as well as the range of nearest neighbors values to use.
 You can change them to explore your data but it is optional.
@@ -86,7 +86,7 @@ Learn more about the [processing parameters](../additional-docs/processing-param
 
 The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`.
 
-After you have successfully modified the required parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
+After you have successfully modified the required project-specific parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
 
 ```
 snakemake --snakefile cluster.snakefile --cores 2 --use-conda

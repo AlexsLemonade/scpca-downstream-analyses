@@ -14,7 +14,7 @@
 
 ## Running the core workflow at the command line
 
-In [step 4](../README.md#4-configure-config-file) of the main `README.md` file of this repository, we note that there are parameters that need to be modified in the provided config file to successfully run the workflow.
+In [step 4](../README.md#4-configure-config-file) of the main `README.md` file of this repository, we note that there are required project-specific parameters that need to be modified in the provided config file to successfully run the workflow.
 There we recommend modifying the `config/config.yaml` file manually.
 
 All of the parameters in the config file can also be modified at the command line by using the [`--config` flag](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).

@@ -1,7 +1,7 @@
 ---
 params:
   library: "library01"
-  normalized_sce: "example-results/sample01/library01_processed_sce.rds"
+  normalized_sce: "example-results/sample01/library01_processed.rds"
   date: !r Sys.Date()
   goi_input_directory: "example-results/sample01/goi-stats"
   project_root: NULL
@@ -137,6 +137,11 @@ Heatmap(heatmap_matrix,
 
 The plot below displays the normalized and transformed expression for each of the provided
 genes of interest in comparison to the mean expression of all genes present in the dataset. 
+
+```{r}
+# Set theme for plots below
+ggplot2::theme_set(theme_bw())
+```
 
 ```{r}
 if(all.equal(goi_list$gene_id, goi_list$sce_rownames_identifier) == TRUE) {

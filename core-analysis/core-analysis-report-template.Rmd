@@ -2,7 +2,7 @@
 params:
   library: Library
   pre_processed_sce: "data/Gawad_processed_data/SCPCS000216/SCPCL000290_filtered.rds"
-  processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_miQC_processed_sce.rds"
+  processed_sce: "results/Gawad_processed_data/SCPCS000216/SCPCL000290_processed.rds"
   cluster_type: "louvain"
   nearest_neighbors: 10
   project_root: NULL
@@ -97,23 +97,23 @@ sample_information <- tibble::tibble(
   "Cells after filtering" =
     format(num_filtered_cells, big.mark = ',', scientific = FALSE),
   "Filtering type" =
-    format(processed_meta$filtering, big.mark = ',', scientific = FALSE)
+    format(processed_meta$scpca_filter_method, big.mark = ',', scientific = FALSE),
+  "Minimum genes cutoff" =
+        format(processed_meta$min_gene_cutoff, big.mark = ',', scientific = FALSE)
 )
 
-if (processed_meta$filtering == "manually filtered"){
+if (processed_meta$scpca_filter_method == "manual"){
 
   sample_information <- sample_information %>%
     mutate(
       "UMI count cutoff" =
         format(processed_meta$umi_count_cutoff, big.mark = ',', scientific = FALSE),
       "Percent mito cutoff" =
-        format(processed_meta$mito_percent_cutoff, big.mark = ',', scientific = FALSE),
-      "Detected genes cutoff" =
-        format(processed_meta$detected_gene_cutoff, big.mark = ',', scientific = FALSE)
+        format(processed_meta$mito_percent_cutoff, big.mark = ',', scientific = FALSE)
     )
 }
 
-if (processed_meta$filtering == "miQC filtered" ){
+if (processed_meta$scpca_filter_method == "miQC" ){
 
   sample_information <- sample_information %>%
     mutate("Probability compromised cutoff" =
@@ -146,7 +146,7 @@ The lines on the plot indicate the cutoffs, where cells with number of genes exp
 Additionally, cells are colored by percent mitochondrial reads.
 Cells with percent mitochondrial reads above the provided cutoff are removed prior to downstream analysis.
 
-Here, cells were `r processed_meta$filtering`.
+Here, cells were filtered by `r processed_meta$scpca_filter_method`.
 
 
 ```{r}
@@ -161,15 +161,15 @@ if (is.null(pre_processed_sce$detected)) {
 
 
 ```{r}
-if (processed_meta$filtering == "manually filtered"){
+if (processed_meta$scpca_filter_method == "manual"){
   # Plot manual filtering thresholds
   filtered_cell_plot <- plot_manual_filtering(
     sce = pre_processed_sce,
-    detected_gene_cutoff = processed_meta$detected_gene_cutoff,
+    min_gene_cutoff = processed_meta$min_gene_cutoff,
     umi_count_cutoff = processed_meta$umi_count_cutoff
   )
 }
-if (processed_meta$filtering == "miQC filtered" ){
+if (processed_meta$scpca_filter_method == "miQC" ){
   # Remove `prob_compromised` if it exists
   pre_processed_sce$prob_compromised <- NULL
   # Plot model

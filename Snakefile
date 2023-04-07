@@ -18,7 +18,7 @@ else:
 
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{sample}/{library}_processed_sce.rds"),
+        expand(os.path.join(config["results_dir"], "{sample}/{library}_processed.rds"),
                zip,
                sample = SAMPLES,
                library = LIBRARY_ID),
@@ -69,7 +69,7 @@ rule filter_data:
         "  --gene_detected_row_cutoff {config[gene_detected_row_cutoff]}"
         "  --gene_means_cutoff {config[gene_means_cutoff]}"
         "  --mito_percent_cutoff {config[mito_percent_cutoff]}"
-        "  --detected_gene_cutoff {config[detected_gene_cutoff]}"
+        "  --min_gene_cutoff {config[min_gene_cutoff]}"
         "  --umi_count_cutoff {config[umi_count_cutoff]}"
         "  --prob_compromised_cutoff {config[prob_compromised_cutoff]}"
         "  --filtering_method {config[filtering_method]}"
@@ -112,7 +112,7 @@ rule clustering:
     input:
         "{basename}_dimreduced.rds"
     output:
-        "{basename}_processed_sce.rds"
+        "{basename}_processed.rds"
     log: "logs/{basename}/clustering.log"
     conda: "envs/scpca-renv.yaml"
     shell:
@@ -128,7 +128,7 @@ rule clustering:
 rule generate_report:
     input:
         pre_processed_sce = get_input_rds_files,
-        processed_sce =  "{basedir}/{sample_id}/{library_id}_processed_sce.rds"
+        processed_sce =  "{basedir}/{sample_id}/{library_id}_processed.rds"
     output:
         "{basedir}/{sample_id}/{library_id}_core_analysis_report.html"
     log: "logs/{basedir}/{sample_id}/{library_id}/generate_report.log"

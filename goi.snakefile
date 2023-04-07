@@ -30,10 +30,10 @@ rule target:
 
 rule calculate_goi:
     input:
-        "{basedir}/{library_id}_processed_sce.rds"
+        os.path.join(config["input_data_dir"], "{sample_id}/{library_id}_processed.rds")
     output:
-        output_dir = directory("{basedir}/{library_id}_goi_stats")
-    log: "logs/{basedir}/{library_id}/calculate_goi.log"
+        output_dir = directory(os.path.join(config["results_dir"], "{sample_id}/{library_id}_goi_stats"))
+    log: os.path.join("logs", config["results_dir"], "{sample_id}/{library_id}/calculate_goi.log")
     conda: "envs/scpca-renv.yaml"
     shell:
         " Rscript --vanilla 'optional-goi-analysis/goi-calculations.R'"
@@ -52,11 +52,11 @@ rule calculate_goi:
 
 rule generate_goi_report:
     input:
-        processed_sce = "{basedir}/{library_id}_processed_sce.rds",
-        goi_dir = "{basedir}/{library_id}_goi_stats"
+        processed_sce = os.path.join(config["input_data_dir"], "{sample_id}/{library_id}_processed.rds"),
+        goi_dir = os.path.join(config["results_dir"], "{sample_id}/{library_id}_goi_stats")
     output:
-        "{basedir}/{library_id}_goi_report.html"
-    log: "logs/{basedir}/{library_id}/goi_report.log"
+        os.path.join(config["results_dir"], "{sample_id}/{library_id}_goi_report.html")
+    log: os.path.join("logs", config["results_dir"], "{sample_id}/{library_id}/goi_report.log")
     conda: "envs/scpca-renv.yaml"
     shell:
         """

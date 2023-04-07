@@ -34,11 +34,11 @@ rule target:
 
 rule calculate_clustering:
     input:
-        "{basedir}/{library_id}_processed_sce.rds"
+        os.path.join(config["input_data_dir"], "{sample_id}/{library_id}_processed.rds")
     output:
-        sce = "{basedir}/{library_id}_clustered_sce.rds",
-        stats_dir = directory("{basedir}/{library_id}_clustering_stats")
-    log: "logs/{basedir}/{library_id}/calculate_clustering.log"
+        sce = os.path.join(config["results_dir"], "{sample_id}/{library_id}_clustered_sce.rds"),
+        stats_dir = directory(os.path.join(config["results_dir"], "{sample_id}/{library_id}_clustering_stats"))
+    log: os.path.join("logs", config["results_dir"], "{sample_id}/{library_id}/calculate_clustering.log")
     conda: "envs/scpca-renv.yaml"
     shell:
         " Rscript --vanilla 'optional-clustering-analysis/clustering-calculations.R'"

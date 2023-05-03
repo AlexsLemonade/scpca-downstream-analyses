@@ -12,12 +12,7 @@ option_list <- list(
   make_option(
     opt_str = c("--input_metadata_tsv"),
     type = "character",
-    help = "Path to the TSV file containing the list of library IDs corresponding to the libraries being integrated, must have a `library_id` column."
-  ),
-  make_option(
-    opt_str = c("--input_directory"),
-    type = "character",
-    help = "File path to the directory storing the input SCE object RDS files."
+    help = "Path to the TSV file containing the list of library IDs corresponding to the libraries being integrated, must have `library_id` and `processed_sce_filepath` columns."
   ),
   make_option(
     opt_str = c("-o", "--output_sce_file"),
@@ -68,24 +63,13 @@ if(is.null(opt$input_metadata_tsv)){
 } else {
   # List of library ids
   input_metadata <- readr::read_tsv(opt$input_metadata_tsv)
-  library_ids <- input_metadata$library_id
-}
-
-# Check that there is more than one library id associated with an SCE to be merged
-if(length(library_ids) == 1){
-  stop("Only 1 input file provided, no merging or integration will be performed for this group")
 }
 
 # List of SCE filepaths
-sce_files <- library_ids |> purrr::map(~ file.path(opt$input_directory, paste0(.x, "_processed.rds")))
+sce_files <- input_metadata$processed_sce_filepath
 
 # Check that input files exist
-missing_sce_files <- c()
-for (sce in sce_files) {
-  if(!file.exists(sce)){
-    missing_sce_files <- missing_sce_files + sce
-  }
-}
+missing_sce_files <- sce_files[!which(file.exists(sce_files))]
 if(length(missing_sce_files) > 0){
   stop(
     glue::glue(
@@ -106,9 +90,6 @@ if(opt$threads > 1){
 # Read in list of SCEs
 sce_list <- purrr::map(sce_files, readr::read_rds)
 
-# Set names of SCE list
-names(sce_list) <- library_ids
-
 # Check that all input RDS files contain SCE objects
 sce_checks <- purrr::map(sce_list,
                          \(x) is(x, "SingleCellExperiment"))
@@ -120,7 +101,6 @@ if(!all(sce_checks)){
 
 # Create combined SCE object
 merged_sce <- scpcaTools::merge_sce_list(sce_list,
-                                         batch_column = "library_id",
                                          preserve_rowdata_cols = "gene_symbol",
                                          cell_id_column = "cell_id")
 

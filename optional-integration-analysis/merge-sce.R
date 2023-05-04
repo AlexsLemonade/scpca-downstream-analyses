@@ -66,7 +66,8 @@ if(is.null(opt$input_metadata_tsv)){
 }
 
 # List of SCE filepaths
-sce_files <- input_metadata$processed_sce_filepath
+sce_files <- input_metadata$processed_sce_filepath |> 
+  purrr::set_names(input_metadata$library_id)
 
 # Check that input files exist
 missing_sce_files <- sce_files[!which(file.exists(sce_files))]

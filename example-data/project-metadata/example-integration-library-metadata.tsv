@@ -1,0 +1,3 @@
+sample_id	library_id	processed_sce_filepath
+sample01	library01	example-results/sample01/library01_processed.rds
+sample02	library02	example-results/sample02/library02_processed.rds

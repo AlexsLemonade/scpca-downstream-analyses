@@ -17,7 +17,7 @@ option_list <- list(
   make_option(
     opt_str = c("-o", "--output_sce_file"),
     type = "character",
-    help = "Path to output RDS file, must end in .rds"
+    help = "Path to output RDS file containing merged object, must end in .rds"
   ),
   optparse::make_option(
     c("--project_root"),

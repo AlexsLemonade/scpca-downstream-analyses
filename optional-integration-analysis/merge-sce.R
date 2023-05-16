@@ -26,6 +26,13 @@ option_list <- list(
     help = "Path to the root directory for the R project and where the `utils` folder lives."
   ),
   make_option(
+    opt_str = c("--n_hvg"),
+    type = "integer",
+    default = 2000,
+    help = "number of high variance genes to use for dimension reduction;
+            default is 2000"
+  ),
+  make_option(
     opt_str = c("-t", "--threads"),
     type = "integer",
     default = 1,

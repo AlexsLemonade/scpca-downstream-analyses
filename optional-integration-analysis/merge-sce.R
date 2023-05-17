@@ -26,6 +26,13 @@ option_list <- list(
     help = "Path to the root directory for the R project and where the `utils` folder lives."
   ),
   make_option(
+    opt_str = c("--n_hvg"),
+    type = "integer",
+    default = 2000,
+    help = "number of high variance genes to use for dimension reduction;
+            default is 2000"
+  ),
+  make_option(
     opt_str = c("-t", "--threads"),
     type = "integer",
     default = 1,
@@ -104,6 +111,38 @@ if(!all(sce_checks)){
 merged_sce <- scpcaTools::merge_sce_list(sce_list,
                                          preserve_rowdata_cols = "gene_symbol",
                                          cell_id_column = "cell_id")
+
+# HVG selection ----------------------------------------------------------------
+
+# Extract the batch column
+batch_column <- merged_sce$library_id
+
+# Model gene variance
+gene_var_block <- scran::modelGeneVar(merged_sce,
+                                      block = batch_column,
+                                      BPPARAM = bp_param)
+# Identify subset of variable genes
+hvg_list <- scran::getTopHVGs(gene_var_block,
+                              n = opt$n_hvg)
+
+metadata(merged_sce)$merged_hvgs <- hvg_list
+
+# Dim Reduction PCA and UMAP----------------------------------------------------
+
+# Multi batch PCA on merged object
+multi_pca <- batchelor::multiBatchPCA(merged_sce,
+                                      subset.row = hvg_list,
+                                      batch = batch_column,
+                                      preserve.single = TRUE,
+                                      BPPARAM = bp_param)
+
+# Add PCA results
+reducedDim(merged_sce, "PCA") <- multi_pca[[1]]
+
+# Add UMAP results
+merged_sce <- scater::runUMAP(merged_sce,
+                              dimred = "PCA",
+                              BPPARAM = bp_param)
 
 # Save combined SCE object
 readr::write_rds(merged_sce, opt$output_sce_file)

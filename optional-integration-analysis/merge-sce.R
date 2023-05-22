@@ -15,11 +15,16 @@ option_list <- list(
     help = "Path to the TSV file containing the list of library IDs corresponding to the libraries being integrated, must have `library_id` and `processed_sce_filepath` columns."
   ),
   make_option(
+    opt_str = c("--integration_group"),
+    type = "character",
+    help = "The integration group associated with the SCEs to be merged"
+  ),
+  make_option(
     opt_str = c("-o", "--output_sce_file"),
     type = "character",
     help = "Path to output RDS file containing merged object, must end in .rds"
   ),
-  optparse::make_option(
+  make_option(
     c("--project_root"),
     type = "character",
     default = NULL,
@@ -70,6 +75,15 @@ if(is.null(opt$input_metadata_tsv)){
 } else {
   # List of library ids
   input_metadata <- readr::read_tsv(opt$input_metadata_tsv)
+}
+
+# Check that integration group is provided
+if(is.null(opt$integration_group)){
+  stop("The name of the corresponding integration group is missing.")
+} else {
+  # Filter the metadata to include only information relevant to the specified integration group
+  input_metadata <- input_metadata %>%
+    dplyr::filter(integration_group == opt$integration_group)
 }
 
 # List of SCE filepaths

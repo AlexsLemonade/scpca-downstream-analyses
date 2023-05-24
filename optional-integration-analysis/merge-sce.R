@@ -78,8 +78,10 @@ if(is.null(opt$input_metadata_tsv)){
 }
 
 # Check that integration group is provided
-if(is.null(opt$integration_group)){
-  stop("The name of the corresponding integration group is missing.")
+if(is.null(opt$integration_group)) {
+  stop("The `integration_group` is missing and required for identifying which objects should be merged together.")
+} else if (!opt$integration_group %in% input_metadata$integration_group) {
+  stop("The provided `integration_group` is missing from the input metadata file.")
 } else {
   # Filter the metadata to include only information relevant to the specified integration group
   input_metadata <- input_metadata %>%

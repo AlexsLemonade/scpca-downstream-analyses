@@ -5,6 +5,7 @@
 
 # Load libraries
 library(optparse)
+library(dplyr)
 library(SingleCellExperiment)
 
 # Declare command line options

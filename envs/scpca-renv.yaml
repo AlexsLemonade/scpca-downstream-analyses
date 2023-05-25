@@ -5,7 +5,7 @@ channels:
   - defaults
 dependencies:
   - bioconductor-annotationdbi=1.60.0
-  - bioconductor-batchelor=1.16.0
+  - bioconductor-batchelor=1.14.1
   - bioconductor-beachmat=2.14.0
   - bioconductor-biobase=2.58.0
   - bioconductor-biocgenerics=0.44.0

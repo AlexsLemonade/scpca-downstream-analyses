@@ -882,12 +882,12 @@
     },
     "batchelor": {
       "Package": "batchelor",
-      "Version": "1.14.1",
+      "Version": "1.14.0",
       "Source": "Bioconductor",
       "git_url": "https://git.bioconductor.org/packages/batchelor",
       "git_branch": "RELEASE_3_16",
-      "git_last_commit": "a1f3e84",
-      "git_last_commit_date": "2023-01-02",
+      "git_last_commit": "a5912c3",
+      "git_last_commit_date": "2022-11-01",
       "Requirements": [
         "BiocGenerics",
         "BiocNeighbors",
@@ -909,7 +909,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "134c500c2be2e573a786fe216012eb95"
+      "Hash": "83c78fcfdbd59d5923d2862c9104b944"
     },
     "beachmat": {
       "Package": "beachmat",
@@ -2910,8 +2910,8 @@
       "Package": "scpcaTools",
       "Version": "0.2.1",
       "Source": "GitHub",
-      "RemoteType": "github",
       "Remotes": "AlexsLemonade/scpcaData",
+      "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scpcaTools",
       "RemoteUsername": "AlexsLemonade",

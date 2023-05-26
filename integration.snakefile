@@ -1,17 +1,17 @@
 import pandas as pd
 
+configfile: "config/config.yaml"
 configfile: "config/integration_config.yaml"
 
 # getting the samples information
-if os.path.exists(config['project_metadata']):
-  samples_information = pd.read_csv(config['project_metadata'], sep='\t', index_col=False)
+if os.path.exists(config['integration_project_metadata']):
+  samples_information = pd.read_csv(config['integration_project_metadata'], sep='\t', index_col=False)
 
   # get a list of the file paths and integration groups
-  FILEPATHS = list(samples_information['processed_sce_filepath'])
   GROUP = list(samples_information['integration_group'])
 else:
   # If the metadata file is missing, warn and fill with empty lists
-  print(f"Warning: Project metadata file '{config['project_metadata']}' is missing.")
+  print(f"Warning: Project metadata file '{config['integration_project_metadata']}' is missing.")
   samples_information = None
   GROUP = list()
 
@@ -23,7 +23,7 @@ rule target:
 
 rule merge_sces:
     input:
-        config["project_metadata"]
+        config["integration_project_metadata"]
     output:
         os.path.join(config["results_dir"], "{group}_merged_sce.rds")
     log: os.path.join("logs", config["results_dir"], "{group}_integration.log")
@@ -33,5 +33,7 @@ rule merge_sces:
         "  --input_metadata_tsv {input}"
         "  --integration_group {wildcards.group}"
         "  --output_sce_file {output}"
+        "  --n_hvg {config[n_hvg]}"
+        "  --threads {config[threads]}"
         "  --project_root $PWD"
         " &> {log}"

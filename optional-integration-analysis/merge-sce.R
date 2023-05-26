@@ -161,5 +161,8 @@ merged_sce <- scater::runUMAP(merged_sce,
                               dimred = "PCA",
                               BPPARAM = bp_param)
 
+# Save integration group info in metadata of combined SCE object
+metadata(merged_sce)$integration_group <- opt$integration_group
+
 # Save combined SCE object
 readr::write_rds(merged_sce, opt$output_sce_file)

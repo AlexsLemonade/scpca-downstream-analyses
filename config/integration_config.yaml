@@ -1,5 +1,6 @@
 # All parameters included in this file can be altered at the command line using the `--config` flag or by editing this file directly.
 
 ### Optional integration module specific parameters
-project_metadata: "example-data/project-metadata/example-integration-library-metadata.tsv"
-results_dir: "example-results"
+integration_project_metadata: "example-data/project-metadata/example-integration-library-metadata.tsv"
+n_hvg: 2000 # number of high variance genes to use for dimension reduction
+threads: 1 # number of multiprocessing threads to use

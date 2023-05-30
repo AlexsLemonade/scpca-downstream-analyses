@@ -33,7 +33,7 @@ rule merge_sces:
         "  --input_metadata_tsv {input}"
         "  --integration_group {wildcards.group}"
         "  --output_sce_file {output}"
-        "  --n_hvg {config[n_hvg]}"
+        "  --n_hvg {config[n_genes_pca]}"
         "  --threads {config[threads]}"
         "  --project_root $PWD"
         " &> {log}"

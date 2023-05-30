@@ -2,5 +2,4 @@
 
 ### Optional integration module specific parameters
 integration_project_metadata: "example-data/project-metadata/example-integration-library-metadata.tsv"
-n_hvg: 2000 # number of high variance genes to use for dimension reduction
 threads: 1 # number of multiprocessing threads to use

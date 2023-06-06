@@ -77,10 +77,8 @@ integration_methods <-  stringr::str_split(opt$integration_method, ",") %>%
   stringr::str_trim()
 
 # Check that we support the provided integration method(s)
-for (integration_method in integration_methods) {
-  if (!integration_method %in% c("fastMNN", "harmony")) {
-    stop("--integration_method must be either fastMNN, harmony, or both (comma-separated)")
-  }
+if (!all(integration_methods %in% c("fastMNN", "harmony"))) {
+  stop("--integration_method must be either fastMNN, harmony, or both (comma-separated)")
 }
 
 # Check that `library_id` is in merged SCE object

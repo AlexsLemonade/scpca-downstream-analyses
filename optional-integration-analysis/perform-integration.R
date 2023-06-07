@@ -27,15 +27,14 @@ option_list <- list(
     opt_str = c("--fastmnn_auto_merge"),
     action = "store_true",
     default = FALSE,
-    help = "Indicates whether or not to use the auto.merge option for `fastMNN` integration.
-    To perform auto.merge, use `--fastmnn_auto_merge`."
+    help = "Indicates whether or not to use the auto.merge option for `fastMNN` integration;
+    to perform auto.merge, use `--fastmnn_auto_merge`"
   ),
   make_option(
     opt_str = c("--fastmnn_merge_order"),
     type = "character",
     default = NULL,
-    help = "Vector of library ids in the order of which they should be merged; 
-    should only be provided when using `--fastmnn_auto_merge`."
+    help = "Optional vector of library ids in the order of which they should be merged"
   ),
   make_option(
     opt_str = c("-o", "--output_sce_file"),
@@ -103,11 +102,9 @@ if(!("library_id" %in% colnames(colData(merged_sce)))){
 
 # Perform integration with specified method
 if ("fastMNN" %in% integration_methods) {
-  if(opt$fastmnn_auto_merge == TRUE) {
-    if(is.null(opt$fastmnn_merge_order)){
-      stop("The character vector with library ids in the order of which they should be merged is missing.
-           Please provide this vector using --fastmnn_merge_order or re-run without --fastmnn_auto_merge.")
-    } else {
+  # Format `fastmnn_merge_order` if provided; can only be used when auto.merge is FALSE
+  if(is.null(opt$fastmnn_auto_merge)) {
+    if(!is.null(opt$fastmnn_merge_order)){
       fastmnn_merge_order <- stringr::str_split(opt$fastmnn_merge_order, ",") %>%
         unlist() %>%
         stringr::str_trim()

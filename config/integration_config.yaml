@@ -3,3 +3,4 @@
 ### Optional integration module specific parameters
 integration_project_metadata: "example-data/project-metadata/example-integration-library-metadata.tsv"
 threads: 1 # number of multiprocessing threads to use
+integration_method: "fastMNN, harmony" # method(s) to be used for integration

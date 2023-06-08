@@ -3,6 +3,10 @@
     "Version": "4.2.2",
     "Repositories": [
       {
+        "Name": "PPM",
+        "URL": "https://packagemanager.posit.co/cran/latest"
+      },
+      {
         "Name": "CRAN",
         "URL": "https://cloud.r-project.org"
       }
@@ -637,6 +641,20 @@
         "methods"
       ],
       "Hash": "0ad7d4b7e506364457d624c8353e1e4e"
+    },
+    "RcppArmadillo": {
+      "Package": "RcppArmadillo",
+      "Version": "0.12.2.0.0",
+      "Source": "Repository",
+      "Repository": "PPM",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "39aed0e5fbb0b775a1752ad7813fc56c"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -1797,6 +1815,28 @@
       ],
       "Hash": "88bb96eaf7140cdf29e374ef74182220"
     },
+    "harmony": {
+      "Package": "harmony",
+      "Version": "0.1.1",
+      "Source": "Repository",
+      "Repository": "PPM",
+      "Requirements": [
+        "Matrix",
+        "R",
+        "Rcpp",
+        "RcppArmadillo",
+        "RcppProgress",
+        "cowplot",
+        "dplyr",
+        "ggplot2",
+        "irlba",
+        "methods",
+        "rlang",
+        "tibble",
+        "tidyr"
+      ],
+      "Hash": "0c5a19c351e5ce6b053b852cb88c312a"
+    },
     "here": {
       "Package": "here",
       "Version": "1.0.1",
@@ -2910,8 +2950,8 @@
       "Package": "scpcaTools",
       "Version": "0.2.1",
       "Source": "GitHub",
-      "Remotes": "AlexsLemonade/scpcaData",
       "RemoteType": "github",
+      "Remotes": "AlexsLemonade/scpcaData",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scpcaTools",
       "RemoteUsername": "AlexsLemonade",

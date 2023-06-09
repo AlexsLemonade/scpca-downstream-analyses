@@ -3,8 +3,8 @@
     "Version": "4.2.2",
     "Repositories": [
       {
-        "Name": "PPM",
-        "URL": "https://packagemanager.posit.co/cran/latest"
+        "Name": "RSPM",
+        "URL": "https://packagemanager.rstudio.com/cran/latest"
       },
       {
         "Name": "CRAN",
@@ -644,9 +644,9 @@
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "0.12.2.0.0",
+      "Version": "0.12.4.0.0",
       "Source": "Repository",
-      "Repository": "PPM",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "Rcpp",
@@ -1817,9 +1817,9 @@
     },
     "harmony": {
       "Package": "harmony",
-      "Version": "0.1.1",
+      "Version": "0.1",
       "Source": "Repository",
-      "Repository": "PPM",
+      "Repository": "CRAN",
       "Requirements": [
         "Matrix",
         "R",
@@ -1835,7 +1835,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "0c5a19c351e5ce6b053b852cb88c312a"
+      "Hash": "1243bec2c9cd96d32ee48cafc74795bf18c3b50789e388ef8d80e4440940ae2b"
     },
     "here": {
       "Package": "here",

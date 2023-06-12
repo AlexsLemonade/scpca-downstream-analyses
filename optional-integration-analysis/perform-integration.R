@@ -24,6 +24,20 @@ option_list <- list(
     default is 'fastMNN, harmony'"
   ),
   make_option(
+    opt_str = c("--fastmnn_auto_merge"),
+    action = "store_true",
+    default = FALSE,
+    help = "Indicates whether or not to use the auto.merge option for `fastMNN` integration;
+    to perform auto.merge, use `--fastmnn_auto_merge` and this will override any input order"
+  ),
+  make_option(
+    opt_str = c("--fastmnn_merge_order"),
+    type = "character",
+    default = NULL,
+    help = "Optional vector of library ids in the order of which they should be merged;
+    will only be used if --fastmnn_auto_merge is FALSE"
+  ),
+  make_option(
     opt_str = c("-o", "--output_sce_file"),
     type = "character",
     help = "Path to output RDS file containing integrated object, must end in .rds"
@@ -89,9 +103,26 @@ if(!("library_id" %in% colnames(colData(merged_sce)))){
 
 # Perform integration with specified method
 if ("fastMNN" %in% integration_methods) {
+  # Format `fastmnn_merge_order` if provided; can only be used when auto.merge is FALSE
+  if(!opt$fastmnn_auto_merge) {
+    if(!is.null(opt$fastmnn_merge_order)){
+      fastmnn_merge_order <- stringr::str_split(opt$fastmnn_merge_order, ",") %>%
+        unlist() %>%
+        stringr::str_trim()
+      if(!all(colData(merged_sce)$library_id %in% fastmnn_merge_order)){
+        stop("The provided library ids do not match those in the SCE object. 
+             Please re-run and provide --fastmnn_merge_order with all library ids 
+             found in the `colData` of the SCE object.")
+      }
+    }
+  } else {
+    fastmnn_merge_order <- NULL
+  }
   integrated_sce <- integrate_sces(merged_sce,
                                    integration_method = "fastMNN",
-                                   batch_column = "library_id")
+                                   batch_column = "library_id",
+                                   auto.merge = opt$fastmnn_auto_merge,
+                                   merge.order = fastmnn_merge_order)
   scater::runUMAP(integrated_sce, dimred = "fastMNN_PCA", name = "fastMNN_UMAP")
 }
 

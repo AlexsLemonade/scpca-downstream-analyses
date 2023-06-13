@@ -4,7 +4,7 @@
 ## Set up ----------------------------------------------------------------------
 
 if (!("harmony" %in% installed.packages())) {
-  install.packages("harmony", repos = "http://cran.us.r-project.org")
+  remotes::install_version("harmony", version = "0.1.1")
 }
 
 # Load libraries

@@ -43,10 +43,10 @@ rule merge_sces:
         
 rule perform_integration:
     input:
-        os.path.join(config["results_dir"], "{group}_merged_sce.rds")
+        "{basedir}/{group}_merged_sce.rds"
     output:
-        os.path.join(config["results_dir"], "{group}_integrated_sce.rds")
-    log: os.path.join("logs", config["results_dir"], "{group}_perform_integration.log")
+        "{basedir}/{group}_integrated_sce.rds"
+    log: "logs/{basedir}/{group}_perform_integration.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         " Rscript --vanilla 'optional-integration-analysis/perform-integration.R'"

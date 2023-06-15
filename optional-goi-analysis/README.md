@@ -46,7 +46,7 @@ This `SingleCellExperiment` object must contain a log-normalized counts matrix i
 3. The genes of interest list, stored as a tab-separated value (TSV) file.
 This file should contain at least one column named `gene_id` with the relevant gene identifiers, and can optionally contain an additional column named `gene_set` that denotes the gene set that each gene identifier belongs to (see an example of this genes of interest file [here](../example-data/goi-lists/sample01_goi_list.tsv)).
 
-If working with data from the ScPCA portal, see our guide on preparing that data to run the genes of interest workflow [here](./additional-docs/working-with-scpca-portal-data.md).
+If working with data from the ScPCA portal, see our guide on preparing that data to run the genes of interest workflow [here](../additional-docs/working-with-scpca-portal-data.md).
 
 ## Configure config file
 

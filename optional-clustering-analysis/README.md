@@ -132,4 +132,4 @@ In the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecell
 - Clustering results stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, where `n` is a value within a range of nearest neighbors values provided to perform Louvain clustering, the column name would be `louvain_n` and can be accessed using `colData(sce)$louvain_n`.
 
-You can find more information on the above in the [processing information documentation](./additional-docs/processing-information.md).
+You can find more information on the above in the [processing information documentation](../additional-docs/processing-information.md).

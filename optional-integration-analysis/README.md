@@ -17,7 +17,6 @@ This directory includes a data integration analysis workflow that can help users
 
 ## Analysis overview
 
-Single-cell gene expression libraries are unique, which means that the optimal clustering is likely to be library-dependent.
 The data integration analysis workflow provided here can be used to explore multiple libraries simultaneously by integrating the data associated with specified libraries.
 
 There are three main steps of this data integration analysis workflow:

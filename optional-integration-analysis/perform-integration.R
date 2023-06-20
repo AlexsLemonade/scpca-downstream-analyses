@@ -3,6 +3,10 @@
 
 ## Set up ----------------------------------------------------------------------
 
+if (!("harmony" %in% installed.packages())) {
+  remotes::install_version("harmony", version = "0.1.1")
+}
+
 # Load libraries
 library(optparse)
 library(dplyr)
@@ -19,9 +23,9 @@ option_list <- list(
   make_option(
     opt_str = c("--integration_method"),
     type = "character",
-    default = "fastMNN, harmony",
+    default = "fastMNN,harmony",
     help = "The integration method(s) to use when performing integration; 
-    default is 'fastMNN, harmony'"
+    default is 'fastMNN,harmony'"
   ),
   make_option(
     opt_str = c("--fastmnn_auto_merge"),

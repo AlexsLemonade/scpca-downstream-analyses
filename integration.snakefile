@@ -19,6 +19,9 @@ rule target:
     input:
         expand(os.path.join(config["results_dir"], "{group}_merged_sce.rds"),
                zip,
+               group = GROUP),
+        expand(os.path.join(config["results_dir"], "{group}_integrated_sce.rds"),
+               zip,
                group = GROUP)
 
 rule merge_sces:
@@ -26,7 +29,7 @@ rule merge_sces:
         config["integration_project_metadata"]
     output:
         os.path.join(config["results_dir"], "{group}_merged_sce.rds")
-    log: os.path.join("logs", config["results_dir"], "{group}_integration.log")
+    log: os.path.join("logs", config["results_dir"], "{group}_merge_sce.log")
     conda: "envs/scpca-renv.yaml"
     shell:
         " Rscript --vanilla 'optional-integration-analysis/merge-sce.R'"
@@ -35,5 +38,21 @@ rule merge_sces:
         "  --output_sce_file {output}"
         "  --n_hvg {config[n_genes_pca]}"
         "  --threads {config[threads]}"
+        "  --project_root $PWD"
+        " &> {log}"
+        
+rule perform_integration:
+    input:
+        "{basedir}/{group}_merged_sce.rds"
+    output:
+        "{basedir}/{group}_integrated_sce.rds"
+    log: "logs/{basedir}/{group}_perform_integration.log"
+    conda: "envs/scpca-renv.yaml"
+    shell:
+        " Rscript --vanilla 'optional-integration-analysis/perform-integration.R'"
+        "  --merged_sce_file {input}"
+        "  --integration_method {config[integration_method]}"
+        "  --fastmnn_auto_merge"
+        "  --output_sce_file {output}"
         "  --project_root $PWD"
         " &> {log}"

@@ -1,6 +1,7 @@
 # Optional Integration Analysis
 
-This directory includes a data integration analysis workflow that can help users integrate data from multiple libraries. 
+This directory includes a data integration analysis workflow that can be used to combine data from multiple individual single-cell/single-nuclei libraries to obtain a single merged object. 
+The merged objects contain the raw and normalized counts for all included libraries as well as batch corrected PCA and UMAP results.
 
 **The data integration analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file or have downloaded data from the [ScPCA portal](https://scpca.alexslemonade.org/).**
 
@@ -17,32 +18,36 @@ This directory includes a data integration analysis workflow that can help users
 
 ## Analysis overview
 
-The data integration analysis workflow provided here can be used to explore multiple libraries simultaneously by integrating the data associated with specified libraries.
+The data integration analysis workflow provided here can be used to create a single object containing data from multiple libraries.
+First, the raw and normalized counts data from the original libraries are merged into a single object containing all cells and only shared genes across all libraries.
+Then, batch correction is performed using either `fastMNN` and/or `harmony` and batch corrected PCA and UMAP results are returned in the merged object.
+The merged objects are useful for exploring and comparing data in a group of single-cell/single-nuclei libraries together.
 
 There are three main steps of this data integration analysis workflow:
 
-1. **Merge**: The data from each of the libraries are first merged into one `SingleCellExperiment` object.
-2. **Integrate**: The merged data is integrated using [`fastMNN`](https://rdrr.io/github/LTLA/batchelor/man/fastMNN.html) and/or [`harmony`](https://portals.broadinstitute.org/harmony/articles/quickstart.html) as specified by the user.
-3. **Plot**: Once the data from the multiple libraries are integrated and stored in the `SingleCellExperiment` object, the results from each of the integration methods used are displayed in a UMAP plot.
-Additionally, integration performance metrics are shown for each of the integration methods.
+1. **Merge**: The counts data from each of the libraries are first merged into one `SingleCellExperiment` object.
+2. **Integrate**: The merged data is integrated using [`fastMNN`](https://rdrr.io/github/LTLA/batchelor/man/fastMNN.html) and/or [`harmony`](https://portals.broadinstitute.org/harmony/articles/quickstart.html) to obtain batch corrected reduced dimensionality embeddings.
+3. **Generate integration summary report**: Once the data from the multiple libraries are integrated and stored in the `SingleCellExperiment` object, the results from batch correction are evaluated to create a summary report.
+This report includes UMAPs showing all libraries before and after batch correction and summaries of a set of integration metrics.
 These metrics are displayed in plots and include iLISI, batch ARI, within-batch ARI, and batch average silhouette width (ASW).
 The plots are displayed in a html report for ease of reference.
 
 **Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.
 R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
-Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which must be installed locally prior to running the workflow.
 If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
+Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which can be installed independently if desired, but we recommend using Snakemake's conda integration to set up the R environment and all dependencies that the workflow will use.
 
 ## Create metadata file
 
 Before running the workflow, you will need to create a project metadata file as a tab-separated value (TSV) file that contains the relevant data for your input files needed to run the data integration workflow.
 The file should contain the following columns:
 
-- `sample_id`, unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`.
-- `library_id`, unique ID used for each set of cells that has been prepped and sequenced separately.
-- `processed_sce_filepath`, the full path to the RDS file containing the processed `SingleCellExperiment` object.
-Each library ID should have a unique `processed_sce_filepath`.
-- `integration_group`, the variable specifying which libraries should be grouped and integrated.
+| column name | description |
+| ----------- | ----------- |
+| `sample_id` |unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id` |
+| `library_id` | unique ID used for each set of cells that has been prepped and sequenced separately |
+| `processed_sce_filepath` | the full path to the RDS file containing the processed `SingleCellExperiment` object, each library ID should have a unique `processed_sce_filepath`; note that this RDS file is the output from the [core analysis workflow](../README.md#6-expected-output) OR the processed object from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/) |
+| `integration_group` | the variable specifying which libraries should be grouped and integrated |
 
 |[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-integration-library-metadata.tsv)|
 |---|
@@ -50,7 +55,7 @@ Each library ID should have a unique `processed_sce_filepath`.
 
 ## Configure config file
 
-As in the main core workflow, we have provided an [example snakemake configuration file](../config/config.yaml), `config/config.yaml`, which defines all parameters needed to run the workflow.
+As in the main core workflow, we have provided an [example snakemake configuration file, `config/config.yaml`](../config/config.yaml), which defines all parameters needed to run the workflow.
 Learn more about snakemake configuration files [here](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 
 The config file contains two sets of parameters:

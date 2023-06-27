@@ -1,9 +1,9 @@
 # Optional Integration Analysis
 
-This directory includes a data integration analysis workflow that can be used to combine data from multiple individual single-cell/single-nuclei libraries to obtain a single merged object. 
+This directory includes a data integration workflow that can be used to combine data from multiple individual single-cell/single-nuclei libraries to obtain a single merged object. 
 The merged objects contain the raw and normalized counts for all included libraries as well as batch corrected PCA and UMAP results.
 
-**The data integration analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file or have downloaded data from the [ScPCA portal](https://scpca.alexslemonade.org/).**
+**The data integration workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file or have downloaded data from the [ScPCA portal](https://scpca.alexslemonade.org/).**
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -18,12 +18,13 @@ The merged objects contain the raw and normalized counts for all included librar
 
 ## Analysis overview
 
-The data integration analysis workflow provided here can be used to create a single object containing data from multiple libraries.
+The data integration workflow provided here can be used to create a single object containing data from multiple libraries.
 First, the raw and normalized counts data from the original libraries are merged into a single object containing all cells and only shared genes across all libraries.
-Then, batch correction is performed using either [`fastMNN`](https://rdrr.io/github/LTLA/batchelor/man/fastMNN.html) and/or [`harmony`](https://portals.broadinstitute.org/harmony/articles/quickstart.html), and batch corrected PCA and UMAP results are returned in the merged object.
+Then, batch correction is performed using either [`fastMNN`](https://rdrr.io/github/LTLA/batchelor/man/fastMNN.html) and/or [`harmony`](https://portals.broadinstitute.org/harmony/articles/quickstart.html).
+Batch-corrected PCA and UMAP results are added to the merged object.
 The merged objects are useful for exploring and comparing data in a group of single-cell/single-nuclei libraries together.
 
-There are three main steps of this data integration analysis workflow:
+There are three main steps of this data integration workflow:
 
 1. **Merge**: The counts data from each of the libraries are first merged into one `SingleCellExperiment` object.
 2. **Integrate**: The merged data is integrated using [`fastMNN`](https://rdrr.io/github/LTLA/batchelor/man/fastMNN.html) and/or [`harmony`](https://portals.broadinstitute.org/harmony/articles/quickstart.html) to obtain batch corrected reduced dimensionality embeddings.
@@ -56,7 +57,7 @@ The file should contain the following columns:
 
 ## Configure config file
 
-As in the main core workflow, we have provided an [example snakemake configuration file, `config/integration_config.yaml`](../config/integration_config.yaml), which defines all parameters needed to run the workflow.
+As in the main core workflow, we have provided an [example snakemake configuration file, `config/integration_config.yaml`](../config/config.yaml), which defines all parameters needed to run the workflow.
 Learn more about snakemake configuration files [here](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 
 The config file contains two sets of parameters:

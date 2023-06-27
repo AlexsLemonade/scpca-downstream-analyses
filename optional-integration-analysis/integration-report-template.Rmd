@@ -1,0 +1,128 @@
+---
+params:
+  integration_group: "group01"
+  integrated_sce: "example-results/group01_integrated_sce.rds"
+  integration_method: "harmony"
+  batch_column: "library_id"
+  project_root: NULL
+  point_size: 0.7
+  seed: 2023
+  date: !r Sys.Date()
+title: "`r glue::glue('Integration analysis report for {params$integration_group}')`"
+author: "CCDL"
+date: "`r params$date`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+This notebook will plot the output of the `optional-integration-analysis/perform-integration.R` script, which allows for integration of multiple libraries.
+Here clustering was performed using the following clustering types:
+
+## Set Up
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE
+)
+
+# If project root is not provided use here::here() 
+if (is.null(params$project_root)) {
+  project_root <- here::here()
+} else {
+  project_root <- params$project_root
+} 
+
+# Tell knitr to knit from the project root to be able to load `renv` properly
+# This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
+knitr::opts_knit$set(root.dir = project_root)
+
+# Source in set up function
+source(file.path(project_root, "utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "integration-functions.R"))
+```
+
+```{r, include = FALSE}
+# Load project
+setup_renv(project_filepath = project_root)
+```
+
+```{r}
+# Load libraries
+library(readr)
+library(SingleCellExperiment)
+library(miQC)
+library(ggpubr)
+library(scater)
+library(dplyr)
+
+# Set theme for plotting
+library(ggplot2)
+point_size <- params$point_size
+
+# Read in integrated object
+integrated_sce <- readr::read_rds(params$integrated_sce)
+```
+
+## Explore datasets
+
+```{r results='asis'}
+# pull out an SCE object for this section
+# all SCEs in the list should be equivalent for these calculations and plots
+sce_coldata <- colData(integrated_sce) %>% tibble::as_tibble()
+
+# helper function to count
+count_groups <- function(colname) {
+  # colname: the column of interest we should count
+  colname_sym <- rlang::sym(colname)
+  sce_coldata %>%
+    dplyr::count(!!colname_sym, name = "count")
+}
+
+# How many batches?
+n_batch_df <- count_groups(params$batch_column)
+print(
+  glue::glue("There are {nrow(n_batch_df)} total batches, with the following number of cells:")
+)
+gt::gt(n_batch_df)
+```
+
+## UMAP plots
+
+```{r, fig.width=10, fig.height=10}
+# plot UMAPs and label by batch column
+# Split up string of integration methods
+integration_methods <-  stringr::str_split(params$integration_method, ",") %>%
+  unlist() %>%
+  stringr::str_trim()
+integration_methods <- c(integration_methods, "unintegrated")
+cell_label_column <- params$batch_column
+batch_umaps <- integration_methods %>%
+  purrr::map(~ plot_integration_umap(sce = integrated_sce,
+                                     integration_method = .x,
+                                     cell_label_column = params$batch_column,
+                                     legend_title = "Batches",
+                                     seed = params$seed))
+batch_legend <- cowplot::get_legend(batch_umaps[[1]])
+  
+ggpubr::ggarrange(plotlist = batch_umaps,
+                  common.legend = TRUE, 
+                  legend = "right",
+                  legend.grob = batch_legend, 
+                  ncol = 2, 
+                  nrow = 4) 
+```
+
+## Session info
+<details>
+<summary>R session information</summary>
+```{r}
+sessionInfo()
+```

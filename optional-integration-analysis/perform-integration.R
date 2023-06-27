@@ -127,14 +127,14 @@ if ("fastMNN" %in% integration_methods) {
                                    batch_column = "library_id",
                                    auto.merge = opt$fastmnn_auto_merge,
                                    merge.order = fastmnn_merge_order)
-  scater::runUMAP(integrated_sce, dimred = "fastMNN_PCA", name = "fastMNN_UMAP")
+  integrated_sce <- scater::runUMAP(integrated_sce, dimred = "fastMNN_PCA", name = "fastMNN_UMAP")
 }
 
 if ("harmony" %in% integration_methods) {
   integrated_sce <- integrate_sces(merged_sce,
                                    integration_method = "harmony",
                                    batch_column = "library_id")
-  scater::runUMAP(integrated_sce, dimred = "harmony_PCA", name = "harmony_UMAP")
+  integrated_sce <- scater::runUMAP(integrated_sce, dimred = "harmony_PCA", name = "harmony_UMAP")
 }
 
 # Write integrated object to file ----------------------------------------------

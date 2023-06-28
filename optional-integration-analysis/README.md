@@ -57,7 +57,7 @@ The file should contain the following columns:
 
 ## Configure config file
 
-As in the main core workflow, we have provided an [example snakemake configuration file, `config/integration_config.yaml`](../config/config.yaml), which defines all parameters needed to run the workflow.
+As in the main core workflow, we have provided an [example snakemake configuration file, `config/integration_config.yaml`](../config/integration_config.yaml), which defines all parameters needed to run the workflow.
 Learn more about snakemake configuration files [here](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html).
 
 The config file contains two sets of parameters:

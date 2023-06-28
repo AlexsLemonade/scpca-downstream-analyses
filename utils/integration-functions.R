@@ -94,3 +94,21 @@ plot_integration_umap <- function(sce,
   
   return(umap)
 }
+
+perform_dim_reduction <- function(merged_sce,
+                                  prefix = NULL){
+  
+  # create pca and umap names
+  pca_name <- "PCA"
+  umap_name <- "UMAP"
+  if(!is.null(prefix)){
+    pca_name <- paste(prefix, pca_name, sep = "_")
+    umap_name <- paste(prefix, umap_name, sep = "_")
+  }
+  
+  # add UMAP
+  merged_sce <- scater::runUMAP(merged_sce, dimred = pca_name, name = umap_name)
+  
+  return(merged_sce)
+  
+}

@@ -2,7 +2,7 @@
 params:
   integration_group: "group01"
   integrated_sce: "example-results/group01_integrated_sce.rds"
-  integration_method: "harmony"
+  integration_method: "fastMNN,harmony"
   batch_column: "library_id"
   project_root: NULL
   point_size: 0.7
@@ -115,9 +115,8 @@ batch_legend <- cowplot::get_legend(batch_umaps[[1]])
 ggpubr::ggarrange(plotlist = batch_umaps,
                   common.legend = TRUE, 
                   legend = "right",
-                  legend.grob = batch_legend, 
                   ncol = 2, 
-                  nrow = 4) 
+                  nrow = 2) 
 ```
 
 ## Session info

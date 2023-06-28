@@ -66,6 +66,7 @@ if(is.null(opt$project_root)){
 
 # Source in set up functions
 source(file.path(project_root, "utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "integration-functions.R"))
 
 # Check R version
 check_r_version()
@@ -122,21 +123,28 @@ if ("fastMNN" %in% integration_methods) {
   } else {
     fastmnn_merge_order <- NULL
   }
-  integrated_sce <- integrate_sces(merged_sce,
+  fastMNN_integrated_sce <- integrate_sces(merged_sce,
                                    integration_method = "fastMNN",
                                    batch_column = "library_id",
                                    auto.merge = opt$fastmnn_auto_merge,
-                                   merge.order = fastmnn_merge_order)
-  integrated_sce <- scater::runUMAP(integrated_sce, dimred = "fastMNN_PCA", name = "fastMNN_UMAP")
+                                   merge.order = fastmnn_merge_order) %>%
+    perform_dim_reduction(prefix = "fastMNN")
+  
+  reducedDim(merged_sce, "fastMNN_PCA") <- reducedDim(fastMNN_integrated_sce, "fastMNN_PCA")
+  reducedDim(merged_sce, "fastMNN_UMAP") <- reducedDim(fastMNN_integrated_sce, "fastMNN_UMAP")
+  
 }
 
 if ("harmony" %in% integration_methods) {
-  integrated_sce <- integrate_sces(merged_sce,
+  harmony_integrated_sce <- integrate_sces(merged_sce,
                                    integration_method = "harmony",
-                                   batch_column = "library_id")
-  integrated_sce <- scater::runUMAP(integrated_sce, dimred = "harmony_PCA", name = "harmony_UMAP")
+                                   batch_column = "library_id") %>%
+    perform_dim_reduction(prefix = "harmony")
+  
+  reducedDim(merged_sce, "harmony_PCA") <- reducedDim(harmony_integrated_sce, "harmony_PCA")
+  reducedDim(merged_sce, "harmony_UMAP") <- reducedDim(harmony_integrated_sce, "harmony_UMAP")
 }
 
 # Write integrated object to file ----------------------------------------------
 
-readr::write_rds(integrated_sce, opt$output_sce_file)
+readr::write_rds(merged_sce, opt$output_sce_file)

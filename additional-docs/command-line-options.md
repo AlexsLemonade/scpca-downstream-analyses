@@ -22,7 +22,6 @@ The below code is an example of running the Snakemake workflow using the require
 
 ```
 snakemake --cores 2 \
-  --use-conda \
   --config results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
   project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"
 ```
@@ -41,7 +40,6 @@ The below code is an example of running the additional workflow(s) using the pro
 ```
 snakemake --snakefile <module.snakefile> \ 
   --cores 2 \
-  --use-conda \
   --config input_data_dir="<FULL PATH TO INPUT DATA DIRECTORY>" \
   results_dir="<FULL PATH TO RESULTS DIRECTORY>" \
   project_metadata="<FULL PATH TO YOUR PROJECT METADATA TSV>"

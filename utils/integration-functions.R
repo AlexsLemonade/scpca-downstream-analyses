@@ -5,22 +5,39 @@
 #
 # source(file.path("utils", "integration-functions.R"))
 
-plot_umap_panel <- function(sce,
-                            cell_label_column,
-                            umap_name,
-                            plot_colors,
-                            plot_title = NULL, 
-                            legend_title = NULL,
-                            legend_labels = NULL,
-                            seed = NULL){
+plot_integration_umap <- function(sce,
+                                  integration_method,
+                                  cell_label_column,
+                                  include_legend_counts = TRUE,
+                                  legend_title = NULL, 
+                                  legend_labels = NULL,
+                                  plot_colors = NULL,
+                                  plot_title = NULL,
+                                  seed = NULL) {
   
   set.seed(seed)
   
-  # check that plot_colors is equal to the number of categories present in the cell label column
-  color_categories <- unique(colData(sce)[,cell_label_column])
-  if(length(plot_colors) != length(color_categories)){
-    stop("Number of colors provided must be equal to the number of categories used to classify cells in
-         the specified cell_label_column.")
+  # check that column to label cells by is present in colData
+  if(!cell_label_column %in% colnames(colData(sce))){
+    stop("Provided cell_label_column should be present in the SCE object.")
+  }
+  
+  
+  # Define colors if not provided, or if provided check the size
+  if (is.null(plot_colors)) {
+    num_colors <- length(unique(sce[[cell_label_column]]))
+    plot_colors <- rainbow(num_colors)    
+  } else {
+    if (!(length(plot_colors)) == length(unique(sce[[cell_label_column]]))) {
+      stop("The number of provided colors does not match the number of labels.")
+    }
+  }
+  
+  if(integration_method == "unintegrated"){
+    umap_name <- "UMAP"
+  } else {
+    # grab dim reduction name to use for plotting
+    umap_name <- paste0(integration_method, "_UMAP")
   }
   
   # randomly shuffle cells prior to plotting
@@ -49,64 +66,23 @@ plot_umap_panel <- function(sce,
   return(umap)
 }
 
-plot_integration_umap <- function(sce,
-                                  integration_method,
-                                  cell_label_column,
-                                  include_legend_counts = TRUE,
-                                  legend_title = NULL, 
-                                  legend_labels = NULL,
-                                  plot_colors = NULL,
-                                  seed = NULL) {
+add_integrated_pcs <- function(merged_sce,
+                               integrated_pcs,
+                               integration_method){  
   
-  set.seed(seed)
-  
-  # check that column to label cells by is present in colData
-  if(!cell_label_column %in% colnames(colData(sce))){
-    stop("Provided cell_label_column should be present in the SCE object.")
+  # check that integration method is provided
+  if(is.null(integration_method)){
+    stop("Integration method is missing.")
+  } else if (!integration_method %in% c("fastMNN", "harmony")) {
+    stop("Integration method can be 'fastMNN' or 'harmony'.")
   }
-  
-  
-  # Define colors if not provided, or if provided check the size
-  if (is.null(plot_colors)) {
-    num_colors <- length(unique(sce[[cell_label_column]]))
-    plot_colors <- rainbow(num_colors)    
-  } else {
-    if (!(length(plot_colors)) == length(unique(sce[[cell_label_column]]))) {
-      stop("The number of provided colors does not match the number of labels.")
-    }
-  }
-  
-  if(integration_method == "unintegrated"){
-    umap_name <- "UMAP"
-  } else {
-    # grab dim reduction name to use for plotting
-    umap_name <- paste0(integration_method, "_UMAP")
-  }
-  
-  umap <- plot_umap_panel(sce = sce,
-                          cell_label_column,
-                          umap_name = umap_name, 
-                          plot_colors = plot_colors,
-                          plot_title = integration_method,
-                          legend_title = legend_title,
-                          legend_labels = legend_labels,
-                          seed = seed)
-  
-  return(umap)
-}
-
-perform_dim_reduction <- function(merged_sce,
-                                  prefix = NULL){
   
   # create pca and umap names
-  pca_name <- "PCA"
-  umap_name <- "UMAP"
-  if(!is.null(prefix)){
-    pca_name <- paste(prefix, pca_name, sep = "_")
-    umap_name <- paste(prefix, umap_name, sep = "_")
-  }
+  pca_name <- glue::glue("{integration_method}_PCA")
+  umap_name <- glue::glue("{integration_method}_UMAP")
   
   # add UMAP
+  reducedDim(merged_sce, pca_name) <- integrated_pcs
   merged_sce <- scater::runUMAP(merged_sce, dimred = pca_name, name = umap_name)
   
   return(merged_sce)

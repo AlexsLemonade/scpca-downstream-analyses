@@ -66,7 +66,7 @@ snakemake --cores 2
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
-These dependencies can be installed as [part of the setup mentioned in step 2 above](#snakemakeconda-installation).
+These dependencies should be installed as [part of the installation mentioned in step 1](#snakemakeconda-installation).
 
 **Output Files**
 There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
@@ -145,7 +145,8 @@ bash setup_envs.sh
 This script will use Snakemake to install all necessary components for the workflow in an isolated environment.
 If you are on an Apple Silicon (M1/M2/Arm) Mac, this should properly handle setting up R to use an Intel-based build for compatibility with Bioconductor packages.
 
-To use the environment you have just created, you will need to run Snakemake with the `--use-conda` flag, which we set as a default in the [config file](#4-configure-config-file).
+By default, the Snakemake workflows inside this repo will utilize this conda environment. 
+If you have not completed this step, the workflows will not run successfully.
 
 ## 2. Verify input data format
 

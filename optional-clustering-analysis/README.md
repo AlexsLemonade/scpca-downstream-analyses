@@ -38,9 +38,10 @@ Cluster validity and stability results are also calculated.
 Additionally, metrics associated with each of the clustering results such as silhouette width, cluster purity, and cluster stability (as described above) are calculated and plotted.
 The plots are displayed in a html report for ease of reference.
 
-**Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
-Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
-These dependencies should be installed as [part of the installation mentioned in step 1 of this repository's main README file](../README.md#snakemakeconda-installation).
+**Note** that the same [software requirements for the core workflow](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/cbethell/make-conda-default/README.md#c-additional-dependencies) are also required for this clustering workflow. 
+R 4.2 is required for running our pipeline, along with Bioconductor 3.15. If you are using conda, dependencies can be installed as [part of the initial setup](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/cbethell/make-conda-default/README.md#snakemakeconda-installation). 
+Package dependencies for the analysis workflows in this repository are managed using [renv](https://rstudio.github.io/renv/index.html), which can be installed independently if desired. 
+Still, we recommend using Snakemake's conda integration to set up the R environment and all dependencies that the workflow will use.
 
 ## Expected input
 

@@ -46,6 +46,11 @@ knitr::opts_knit$set(root.dir = project_root)
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 source(file.path(project_root, "utils", "integration-functions.R"))
+
+# Install `gt` package
+if(!("gt" %in% installed.packages())){
+  install.packages("gt", repos = "http://cran.us.r-project.org")
+}
 ```
 
 ```{r, include = FALSE}

@@ -31,10 +31,10 @@ The normalized and transformed expression for each of the provided genes of inte
 UMAP and PCA plots are also provided, where each dot represents a cell and the color indicates the individual gene of interest’s expression.
 
 
-**Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.
-R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
-Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which must be installed locally prior to running the workflow.
-If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
+**Note** that the same [software requirements for the core workflow](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/cbethell/make-conda-default/README.md#c-additional-dependencies) are also required for this clustering workflow. 
+R 4.2 is required for running our pipeline, along with Bioconductor 3.15. If you are using conda, dependencies can be installed as [part of the initial setup](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/cbethell/make-conda-default/README.md#snakemakeconda-installation). 
+Package dependencies for the analysis workflows in this repository are managed using [renv](https://rstudio.github.io/renv/index.html), which can be installed independently if desired. 
+Still, we recommend using Snakemake's conda integration to set up the R environment and all dependencies that the workflow will use.
 
 ## Expected input
 
@@ -90,16 +90,14 @@ Learn more about the [gene mapping parameters](../additional-docs/additional-par
 The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
 To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
 
-After you have successfully modified the required project-specific parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
+After you have successfully modified the required project-specific parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` flag as in the following example: 
 
 ```
-snakemake --snakefile goi.snakefile --cores 2 --use-conda
+snakemake --snakefile goi.snakefile --cores 2
 ```
 
 It is mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
 If `--cores` is given without a number, all available cores are used to run the workflow.
-
-**Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
 You can also modify the config file parameters at the command line, rather than manually as recommended in the configure config file section above.
 See our [command line options](../additional-docs/command-line-options.md) documentation for more information.

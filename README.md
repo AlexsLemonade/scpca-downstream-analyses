@@ -61,12 +61,15 @@ The workflow can directly take as input the `filtered` RDS files downloaded from
 6. Open terminal to run the workflow using the following snakemake command:
 
 ```
-snakemake --cores 2
+snakemake --cores 2 --use-conda
 ```
 
 **Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
-These dependencies should be installed as [part of the installation mentioned in step 1](#snakemakeconda-installation).
+If you are using conda, dependencies can be installed as [part of the setup mentioned in step 2 above](#snakemakeconda-installation).
+
+If you did not install dependencies with [conda via snakemake](#snakemakeconda-installation) in step 2, you will need to remove the `--use-conda` flag from the command above.
+See the section on [running the workflow](#4-running-the-workflow) for more information.
 
 **Output Files**
 There are two expected output files thay will be associated with each provided `SingleCellExperiment` object and `library_id`:
@@ -145,8 +148,9 @@ bash setup_envs.sh
 This script will use Snakemake to install all necessary components for the workflow in an isolated environment.
 If you are on an Apple Silicon (M1/M2/Arm) Mac, this should properly handle setting up R to use an Intel-based build for compatibility with Bioconductor packages.
 
-By default, the Snakemake workflows inside this repo will utilize this conda environment. 
-If you have not completed this step, the workflows will not run successfully.
+To use the environment you have just created, you will need to run Snakemake with the `--use-conda` flag each time.
+
+If you would like to perform installation without the conda environments as described above, see the [independent installation instructions document](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/additional-docs/independent-installation-instructions.md).
 
 ## 2. Verify input data format
 
@@ -212,14 +216,16 @@ See the [processing information documentation](./additional-docs/processing-info
 
 ## 5. Running the workflow
 
-After you have successfully modified the required project-specific parameters in the config file, you can run the snakemake workflow with just the `--cores` flag as in the following example: 
+After you have successfully modified the required project-specific parameters in the config file, you can run the snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
 
 ```
-snakemake --cores 2
+snakemake --cores 2 --use-conda
 ```
 
 It is mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
 If `--cores` is given without a number, all available cores are used to run the workflow.
+
+**Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
 You can also modify the config file parameters at the command line, rather than manually as recommended in step 4.
 See our [command line options](./additional-docs/command-line-options.md) documentation for more information.

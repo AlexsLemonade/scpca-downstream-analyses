@@ -60,11 +60,8 @@ setup_renv(project_filepath = project_root)
 
 ```{r}
 # Load libraries
-library(readr)
 library(SingleCellExperiment)
-library(miQC)
 library(ggpubr)
-library(scater)
 library(dplyr)
 
 # Set theme for plotting

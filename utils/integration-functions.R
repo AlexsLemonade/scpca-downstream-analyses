@@ -8,13 +8,25 @@
 plot_integration_umap <- function(sce,
                                   integration_method,
                                   cell_label_column,
-                                  include_legend_counts = TRUE,
                                   legend_title = NULL, 
                                   legend_labels = NULL,
                                   plot_colors = NULL,
                                   plot_title = NULL,
                                   seed = NULL) {
   
+  # Purpose: Generate UMAP plots using integration results from a SingleCellExperiment object 
+  
+  # Args:
+  #   sce: SingleCellExperiment object containing integration results
+  #   integration_method: the method used to perform integration. i.e. "fastMNN", "harmony"
+  #   cell_label_column: the name of the colData column to label cells by
+  #   legend_title: the title of the plot legend
+  #   legend_labels: a vector of names to use to label the legend
+  #   plot_colors: a vector of colors to use when plotting; default is NULL
+  #   plot_title: the title of the plot
+  #   seed: an integer to set the seed as for reproducibility
+  
+  # set seed for reproducibility 
   set.seed(seed)
   
   # check that column to label cells by is present in colData
@@ -69,6 +81,13 @@ plot_integration_umap <- function(sce,
 add_integrated_pcs <- function(merged_sce,
                                integrated_pcs,
                                integration_method){  
+  # Purpose: Add integrated PCs as calculated by the integration method to the 
+  #          merged SingleCellExperiment object 
+  
+  # Args:
+  #   merged_sce: a merged SingleCellExperiment object
+  #   integrated_pcs: the full set of integrated pcs
+  #   integration_method: the method used to perform integration. i.e. "fastMNN", "harmony"
   
   # check that integration method is provided
   if(is.null(integration_method)){

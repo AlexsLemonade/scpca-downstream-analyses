@@ -14,7 +14,7 @@ plot_integration_umap <- function(sce,
                                   plot_title = NULL,
                                   seed = NULL) {
   
-  # Purpose: Generate UMAP plots using integration results from a SingleCellExperiment object 
+  # Purpose: Generate UMAP plots for a merged or integrated SingleCellExperiment object containing multiple batches
   
   # Args:
   #   sce: SingleCellExperiment object containing integration results

@@ -66,6 +66,7 @@ if(is.null(opt$project_root)){
 
 # Source in set up functions
 source(file.path(project_root, "utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "integration-functions.R"))
 
 # Check R version
 check_r_version()
@@ -122,21 +123,29 @@ if ("fastMNN" %in% integration_methods) {
   } else {
     fastmnn_merge_order <- NULL
   }
-  integrated_sce <- integrate_sces(merged_sce,
+  fastMNN_integrated_sce <- integrate_sces(merged_sce,
                                    integration_method = "fastMNN",
                                    batch_column = "library_id",
                                    auto.merge = opt$fastmnn_auto_merge,
                                    merge.order = fastmnn_merge_order)
-  scater::runUMAP(integrated_sce, dimred = "fastMNN_PCA", name = "fastMNN_UMAP")
+  
+  merged_sce <- add_integrated_pcs(merged_sce,
+                                   integrated_pcs = reducedDim(fastMNN_integrated_sce, "fastMNN_PCA"),
+                                   integration_method = "fastMNN")
+  
 }
 
 if ("harmony" %in% integration_methods) {
-  integrated_sce <- integrate_sces(merged_sce,
+  harmony_integrated_sce <- integrate_sces(merged_sce,
                                    integration_method = "harmony",
                                    batch_column = "library_id")
-  scater::runUMAP(integrated_sce, dimred = "harmony_PCA", name = "harmony_UMAP")
+  
+  merged_sce <- add_integrated_pcs(merged_sce,
+                                   integrated_pcs = reducedDim(harmony_integrated_sce, "harmony_PCA"),
+                                   integration_method = "harmony")
 }
+
 
 # Write integrated object to file ----------------------------------------------
 
-readr::write_rds(integrated_sce, opt$output_sce_file)
+readr::write_rds(merged_sce, opt$output_sce_file)

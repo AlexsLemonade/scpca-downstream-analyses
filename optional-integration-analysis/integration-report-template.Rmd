@@ -63,6 +63,7 @@ setup_renv(project_filepath = project_root)
 library(SingleCellExperiment)
 library(ggpubr)
 library(dplyr)
+library(scpcaTools)
 
 # Set theme for plotting
 library(ggplot2)
@@ -128,6 +129,34 @@ ggpubr::ggarrange(plotlist = batch_umaps,
                   legend = "right",
                   ncol = 2, 
                   nrow = 2) 
+```
+
+## Batch ASW plots
+
+```{r}
+# Prepare vector of PC names
+pc_names <-  stringr::str_split(params$integration_method, ",") %>%
+  unlist() |>
+  stringr::str_trim() |>
+  purrr::map(\(method) paste(method, "PCA", sep = "_"))
+
+# Set PC name for the unintegrated
+pc_names <- c(pc_names, "PCA")
+
+# Calculate average silhouette width values
+asw_results <-
+  calculate_silhouette_width(
+    merged_sce = integrated_sce,
+    pc_list = pc_names,
+    batch_column = params$batch_column,
+    seed = params$seed
+  )
+
+# Plot average silhouette width
+plot_asw(asw_df = asw_results,
+         seed = params$seed,
+         by_batch = TRUE,
+         batch_label = params$batch_column)
 ```
 
 ## Session info

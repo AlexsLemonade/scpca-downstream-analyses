@@ -1,6 +1,7 @@
 ---
 params:
   integration_group: "group01"
+  input_metadata_tsv: "example-data/project-metadata/example-integration-library-metadata.tsv"
   integrated_sce: "example-results/group01_integrated_sce.rds"
   integration_method: "fastMNN,harmony"
   batch_column: "library_id"
@@ -129,6 +130,42 @@ ggpubr::ggarrange(plotlist = batch_umaps,
                   ncol = 2, 
                   nrow = 2) 
 ```
+
+## Within-batch ARI plots
+
+Below we calculate the within-batch ARI values.
+The metric measures how well a given integration method preserves biological heterogeneity by comparing pre- and post-integration clustering assignments for each library.
+We take each original SCE object, prior to any merging, and perform graph-based clustering.
+The same clustering is then performed on the integrated object.
+For each library that is present in the integrated object, the original cluster assignments are compared to the cells’ new cluster assignments post integration by calculating the ARI between these two cluster assignments.
+Within-batch ARI values close to 1 indicate that biological heterogeneity has been preserved.
+
+```{r}
+# List of SCE filepaths
+input_metadata <- readr::read_tsv(params$input_metadata_tsv)
+sce_files <- input_metadata$processed_sce_filepath
+# Read in list of SCEs
+sce_list <- purrr::map(sce_files, readr::read_rds) |>
+  purrr::set_names(input_metadata$library_id)
+
+# Prepare vector of PC names
+pc_names <-  stringr::str_split(params$integration_method, ",") %>%
+  unlist() |>
+  stringr::str_trim() |>
+  purrr::map(\(method) paste(method, "PCA", sep = "_"))
+# Set PC name for the unintegrated
+pc_names <- c(pc_names, "PCA")
+
+# Calculate within-batch ARI values
+within_batch_ari_df <- scpcaTools::calculate_within_batch_ari(individual_sce_list = sce_list,
+                                                  pc_names = pc_names,
+                                                  merged_sce = integrated_sce,
+                                                  batch_column = params$batch_column,
+                                                  BLUSPARAM = bluster::NNGraphParam(cluster.fun = "louvain", type = "jaccard"),
+                                                  seed = params$seed)
+                                                  
+```
+
 
 ## Session info
 <details>

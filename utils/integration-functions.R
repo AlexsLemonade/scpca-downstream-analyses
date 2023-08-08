@@ -107,3 +107,66 @@ add_integrated_pcs <- function(merged_sce,
   return(merged_sce)
   
 }
+
+plot_asw <- function(asw_df,
+                     seed = NULL, 
+                     batch_label) {
+  # Purpose: Function to plot average silhouette width (ASW) metric
+  #
+  # Args: 
+  #   asw_df: data frame containing silhouette width values calculated on both
+  #   integrated and unintegrated SCEs. Expected columns are at least
+  #   `rep`, `silhouette_width`, `silhouette_cluster`, and `integration_method`.
+  #   seed: for sina plot reproducibility
+  #   batch_label: label to include in plot for batch, if by_batch is TRUE
+  
+  # Set seed if given
+  set.seed(seed)
+  
+  # Check that all expected columns are present in dataframe
+  expected_columns <- c("pc_name", "rep", "silhouette_width", "silhouette_cluster")
+  if(!all(expected_columns%in% colnames(asw_df))){
+    stop("Required columns are missing from input dataframe, make sure that `calculate_silhouette_width` has been run successfully.")
+  }
+  
+  # Prepare and plot data by batch
+  asw_plot <- asw_df %>%
+    # the `silhouette_cluster` column contains the true identity; rename for ease
+    dplyr::group_by(rep, pc_name, silhouette_cluster) %>%
+    dplyr::summarize(# Use absolute value: https://github.com/AlexsLemonade/sc-data-integration/issues/149
+      asw = mean(abs(silhouette_width))) %>%
+    dplyr::ungroup() %>%
+    ggplot() +
+    aes(x = pc_name,
+        y = asw,
+        color = silhouette_cluster) +
+    ggforce::geom_sina(size = 1,
+                       alpha = 0.5,
+                       position = position_dodge(width = 0.5)) +
+    # add median/IQR pointrange to plot
+    stat_summary(
+      aes(group = silhouette_cluster),
+      color = "black",
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      },
+      geom = "pointrange",
+      position = position_dodge(width = 0.5),
+      size = 0.2
+    ) 
+  
+  # Add shared labeling
+  asw_plot <- asw_plot + 
+    labs(
+      x = "Integration method",
+      y = "Average silhouette width"
+    )
+  
+  # return the plot
+  return(asw_plot)
+  
+}

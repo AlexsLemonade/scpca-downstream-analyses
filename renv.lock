@@ -2922,15 +2922,15 @@
     },
     "scpcaTools": {
       "Package": "scpcaTools",
-      "Version": "0.2.1",
+      "Version": "0.2.2",
       "Source": "GitHub",
-      "Remotes": "AlexsLemonade/scpcaData",
+      "Remotes": "AlexsLemonade/scpcaData, github::immunogenomics/lisi",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scpcaTools",
       "RemoteUsername": "AlexsLemonade",
-      "RemoteRef": "v0.2.1",
-      "RemoteSha": "f58b932dd2cd10dc5ab835006d371bee8fae9b3f",
+      "RemoteRef": "main",
+      "RemoteSha": "47644e14efbb9d37db37c8e08324f53dc769763e",
       "Requirements": [
         "BiocGenerics",
         "DropletUtils",
@@ -2939,6 +2939,7 @@
         "S4Vectors",
         "SingleCellExperiment",
         "SummarizedExperiment",
+        "bluster",
         "dplyr",
         "fishpond",
         "flexmix",
@@ -2954,7 +2955,7 @@
         "tidyr",
         "tximport"
       ],
-      "Hash": "35c8704138238e12f03501e7c365fd88"
+      "Hash": "ad60f57690048e7d564f31dc9305c665"
     },
     "scran": {
       "Package": "scran",

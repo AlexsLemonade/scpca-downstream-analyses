@@ -22,6 +22,9 @@ rule target:
                group = GROUP),
         expand(os.path.join(config["results_dir"], "{group}_integrated_sce.rds"),
                zip,
+               group = GROUP),
+        expand(os.path.join(config["results_dir"], "{group}_integration_report.html"),
+               zip,
                group = GROUP)
 
 rule merge_sces:
@@ -56,3 +59,27 @@ rule perform_integration:
         "  --output_sce_file {output}"
         "  --project_root $PWD"
         " &> {log}"
+        
+rule generate_integration_report:
+    input:
+        integrated_sce = "{basedir}/{group}_integrated_sce.rds"
+    output:
+        "{basedir}/{group}_integration_report.html"
+    log: "logs/{basedir}/{group}/integration_report.log"
+    conda: "envs/scpca-renv.yaml"
+    shell:
+        """
+        Rscript --vanilla -e "
+          source(file.path('$PWD', 'utils', 'setup-functions.R'))
+          setup_renv(project_filepath = '$PWD')
+          rmarkdown::render('optional-integration-analysis/integration-report-template.Rmd',
+                            clean = TRUE,
+                            output_file = '{output}',
+                            output_dir = dirname('{output}'),
+                            params = list(integration_group = '{wildcards.group}',
+                                          integrated_sce = '{input.integrated_sce}',
+                                          integration_method = '{config[integration_method]}',
+                                          batch_column = '{config[batch_column]}'),
+                           envir = new.env())
+        " &> {log}
+        """

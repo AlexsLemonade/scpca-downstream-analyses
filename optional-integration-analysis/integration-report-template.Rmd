@@ -190,13 +190,40 @@ pc_names <-  stringr::str_split(params$integration_method, ",") %>%
 pc_names <- c(pc_names, "PCA")
 
 # Calculate within-batch ARI values
-within_batch_ari_df <- scpcaTools::calculate_within_batch_ari(individual_sce_list = sce_list,
-                                                  pc_names = pc_names,
-                                                  merged_sce = integrated_sce,
-                                                  batch_column = params$batch_column,
-                                                  BLUSPARAM = bluster::NNGraphParam(cluster.fun = "louvain", type = "jaccard"),
-                                                  seed = params$seed)
+within_batch_ari_df <-
+  scpcaTools::calculate_within_batch_ari(
+    individual_sce_list = sce_list,
+    pc_names = pc_names,
+    merged_sce = integrated_sce,
+    batch_column = params$batch_column,
+    BLUSPARAM = bluster::NNGraphParam(cluster.fun = "louvain", type = "jaccard"),
+    seed = params$seed
+  )
+
+within_batch_ari_df$ari <- as.numeric(within_batch_ari_df$ari)
                                                   
+```
+
+```{r}
+ggplot(within_batch_ari_df, aes(x = pc_name , y = ari, color = batch_id)) +
+  geom_point() +
+  ggforce::geom_sina() +
+  # add median point to plot
+  stat_summary(
+    color = "red",
+    fun = "median",
+    fun.min = function(x) {
+      quantile(x, 0.25)
+    },
+    fun.max = function(x) {
+      quantile(x, 0.75)
+    },
+    geom = "pointrange",
+    size = 0.4
+  ) +
+  labs(x = "Integration method",
+       y = "ARI",
+       color = "Batch")
 ```
 
 ## Session info

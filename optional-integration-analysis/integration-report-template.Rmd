@@ -68,6 +68,7 @@ library(dplyr)
 # Set theme for plotting
 library(ggplot2)
 point_size <- params$point_size
+theme_set(theme_bw())
 
 # Check that integrated object file exists
 if(!file.exists(params$integrated_sce)){

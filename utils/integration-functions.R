@@ -67,10 +67,11 @@ plot_integration_umap <- function(sce,
                        labels = legend_labels) +
     # relabel legend and resize dots
     guides(color = guide_legend(override.aes = list(size = 3),
-                                label.theme = element_text(size = 16))) +
+                                label.theme = element_text(size = 12))) +
     theme(legend.position = "none",
           text = element_text(size = 14),
           legend.title = element_text(size = 16)) +
+    theme_bw() +
     labs(
       title = plot_title
     )
@@ -130,14 +131,21 @@ plot_asw <- function(asw_df,
   }
   
   # Prepare and plot data by batch
-  asw_plot <- asw_df %>%
+  asw_plot <- asw_df |>
+    dplyr::mutate(
+      integration_method = dplyr::if_else(
+        pc_name == "PCA",
+        "Pre-Integration",
+        stringr::str_remove(pc_name, "_PCA")
+      ),
+      integration_method_factor = forcats::fct_relevel(integration_method, "Pre-Integration")
+    ) |>
     # the `silhouette_cluster` column contains the true identity; rename for ease
-    dplyr::group_by(rep, pc_name, silhouette_cluster) %>%
-    dplyr::summarize(# Use absolute value: https://github.com/AlexsLemonade/sc-data-integration/issues/149
-      asw = mean(abs(silhouette_width))) %>%
-    dplyr::ungroup() %>%
+    dplyr::group_by(rep, integration_method_factor, silhouette_cluster) |>
+    dplyr::summarize(asw = mean(abs(silhouette_width))) |>
+    dplyr::ungroup() |>
     ggplot() +
-    aes(x = pc_name,
+    aes(x = integration_method_factor,
         y = asw,
         color = silhouette_cluster) +
     ggforce::geom_sina(size = 1,
@@ -157,13 +165,16 @@ plot_asw <- function(asw_df,
       geom = "pointrange",
       position = position_dodge(width = 0.5),
       size = 0.2
-    ) 
+    ) +
+    guides(color = guide_legend(override.aes = list(size = 3),
+                                label.theme = element_text(size = 12)))
   
   # Add shared labeling
   asw_plot <- asw_plot + 
     labs(
       x = "Integration method",
-      y = "Average silhouette width"
+      y = "Average silhouette width",
+      color = "Batch"
     )
   
   # return the plot

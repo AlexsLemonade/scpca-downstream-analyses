@@ -70,8 +70,6 @@ rule generate_integration_report:
     shell:
         """
         Rscript --vanilla -e "
-          source(file.path('$PWD', 'utils', 'setup-functions.R'))
-          setup_renv(project_filepath = '$PWD')
           rmarkdown::render('optional-integration-analysis/integration-report-template.Rmd',
                             clean = TRUE,
                             output_file = '{output}',

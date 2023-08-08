@@ -110,10 +110,7 @@ add_integrated_pcs <- function(merged_sce,
 
 plot_asw <- function(asw_df,
                      seed = NULL, 
-                     by_batch, 
-                     batch_label, 
-                     plot_colors = NULL, 
-                     legend_labels = NULL) {
+                     batch_label) {
   # Purpose: Function to plot average silhouette width (ASW) metric
   #
   # Args: 
@@ -121,9 +118,7 @@ plot_asw <- function(asw_df,
   #   integrated and unintegrated SCEs. Expected columns are at least
   #   `rep`, `silhouette_width`, `silhouette_cluster`, and `integration_method`.
   #   seed: for sina plot reproducibility
-  #   by_batch: whether to take the average and color by the batch
   #   batch_label: label to include in plot for batch, if by_batch is TRUE
-  #   legend_labels: optional vector of labels to use in the legend
   
   # Set seed if given
   set.seed(seed)
@@ -135,72 +130,34 @@ plot_asw <- function(asw_df,
   }
   
   # Prepare and plot data by batch
-  if (by_batch) {
-    asw_plot <- asw_df %>%
-      # the `silhouette_cluster` column contains the true identity; rename for ease
-      dplyr::group_by(rep, pc_name, silhouette_cluster) %>%
-      dplyr::summarize(
-        # Use absolute value: https://github.com/AlexsLemonade/sc-data-integration/issues/149
-        asw = mean(abs(silhouette_width))
-      ) %>%
-      dplyr::ungroup() %>%
-      ggplot() +
-      aes(x = pc_name,
-          y = asw, 
-          color = silhouette_cluster) +
-      ggforce::geom_sina(size = 1, alpha = 0.5,
-                         position = position_dodge(width = 0.5)) +
-      # add median/IQR pointrange to plot
-      stat_summary(
-        aes(group = silhouette_cluster),
-        color = "black",
-        fun = "median",
-        fun.min = function(x) {
-          quantile(x, 0.25)
-        },
-        fun.max = function(x) {
-          quantile(x, 0.75)
-        },
-        geom = "pointrange",
-        position = position_dodge(width = 0.5),
-        size = 0.2
-      ) 
-    
-    if (is.null(plot_colors)) {
-      asw_plot <- asw_plot + 
-        ggokabeito::scale_color_okabe_ito(name = batch_label) 
-    } else {
-      asw_plot <- asw_plot + 
-        scale_color_manual(name = batch_label, values = plot_colors, labels = legend_labels)  
-    }
-  } else { 
-    # or without batch grouping/coloring
-    asw_plot <- asw_df %>%
-      dplyr::group_by(rep, pc_name) %>%
-      dplyr::summarize(
-        # Use absolute value: https://github.com/AlexsLemonade/sc-data-integration/issues/149
-        asw = mean(abs(silhouette_width))
-      ) %>%
-      dplyr::ungroup() %>%
-      ggplot() +
-      aes(x = integration_method_factor,
-          y = asw) +
-      ggforce::geom_sina(size = 0.8, alpha = 0.7,
-                         position = position_dodge(width = 0.5)) +
-      # add median/IQR pointrange to plot
-      stat_summary(
-        color = "red",
-        fun = "median",
-        fun.min = function(x) {
-          quantile(x, 0.25)
-        },
-        fun.max = function(x) {
-          quantile(x, 0.75)
-        },
-        geom = "pointrange",
-        size = 0.3
-      )
-  }
+  asw_plot <- asw_df %>%
+    # the `silhouette_cluster` column contains the true identity; rename for ease
+    dplyr::group_by(rep, pc_name, silhouette_cluster) %>%
+    dplyr::summarize(# Use absolute value: https://github.com/AlexsLemonade/sc-data-integration/issues/149
+      asw = mean(abs(silhouette_width))) %>%
+    dplyr::ungroup() %>%
+    ggplot() +
+    aes(x = pc_name,
+        y = asw,
+        color = silhouette_cluster) +
+    ggforce::geom_sina(size = 1,
+                       alpha = 0.5,
+                       position = position_dodge(width = 0.5)) +
+    # add median/IQR pointrange to plot
+    stat_summary(
+      aes(group = silhouette_cluster),
+      color = "black",
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      },
+      geom = "pointrange",
+      position = position_dodge(width = 0.5),
+      size = 0.2
+    ) 
   
   # Add shared labeling
   asw_plot <- asw_plot + 

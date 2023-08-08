@@ -65,7 +65,7 @@ rule generate_integration_report:
         integrated_sce = "{basedir}/{group}_integrated_sce.rds"
     output:
         "{basedir}/{group}_integration_report.html"
-    log: "{basedir}/{group}/integration_report.log"
+    log: "logs/{basedir}/{group}/integration_report.log"
     conda: "envs/scpca-renv.yaml"
     shell:
         """

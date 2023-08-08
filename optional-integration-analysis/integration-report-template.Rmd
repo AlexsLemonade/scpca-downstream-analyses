@@ -63,7 +63,6 @@ setup_renv(project_filepath = project_root)
 library(SingleCellExperiment)
 library(ggpubr)
 library(dplyr)
-library(scpcaTools)
 
 # Set theme for plotting
 library(ggplot2)
@@ -82,12 +81,12 @@ integrated_sce <- readr::read_rds(params$integrated_sce)
 ```{r results='asis'}
 # pull out an SCE object for this section
 # all SCEs in the list should be equivalent for these calculations and plots
-sce_coldata <- colData(integrated_sce) %>% 
+sce_coldata <- colData(integrated_sce) |> 
   tibble::as_tibble()
 
 # How many batches?
 colname_sym <- rlang::sym(params$batch_column)
-n_batch_df <- sce_coldata %>%
+n_batch_df <- sce_coldata |>
   dplyr::count(!!colname_sym, name = "count")
 
 print(
@@ -100,8 +99,8 @@ gt::gt(n_batch_df)
 
 ```{r}
 # create batch label vector
-batch_plot_labels <- n_batch_df %>%
-  dplyr::mutate(label = paste0(!!colname_sym, " (N=", count, ")")) %>%
+batch_plot_labels <- n_batch_df |>
+  dplyr::mutate(label = paste0(!!colname_sym, " (N=", count, ")")) |>
   dplyr::pull(label)
 ```
 
@@ -109,12 +108,12 @@ batch_plot_labels <- n_batch_df %>%
 ```{r, fig.width=10, fig.height=10}
 # plot UMAPs and label by batch column
 # split up string of integration methods
-integration_methods <-  stringr::str_split(params$integration_method, ",") %>%
-  unlist() %>%
+integration_methods <-  stringr::str_split(params$integration_method, ",") |>
+  unlist() |>
   stringr::str_trim()
 integration_methods <- c(integration_methods, "unintegrated")
 
-batch_umaps <- integration_methods %>%
+batch_umaps <- integration_methods |>
   purrr::map(~ plot_integration_umap(sce = integrated_sce,
                                      integration_method = .x,
                                      cell_label_column = params$batch_column,
@@ -142,17 +141,16 @@ Therefore, a well-integrated dataset would show lower batch ASW values compared 
 
 ```{r}
 # Prepare vector of PC names
-pc_names <-  stringr::str_split(params$integration_method, ",") %>%
-  unlist() |>
+pc_names <-  stringr::str_split_1(params$integration_method, ",") |>
   stringr::str_trim() |>
-  purrr::map(\(method) paste(method, "PCA", sep = "_"))
+  paste0("_PCA")
 
-# Set PC name for the unintegrated
+# Add unintegrated PCA to pc names
 pc_names <- c(pc_names, "PCA")
 
 # Calculate average silhouette width values
 asw_results <-
-  calculate_silhouette_width(
+  scpcaTools::calculate_silhouette_width(
     merged_sce = integrated_sce,
     pc_names = pc_names,
     batch_column = params$batch_column,
@@ -162,7 +160,6 @@ asw_results <-
 # Plot average silhouette width
 plot_asw(asw_df = asw_results,
          seed = params$seed,
-         by_batch = TRUE,
          batch_label = params$batch_column)
 ```
 

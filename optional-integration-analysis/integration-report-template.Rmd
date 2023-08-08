@@ -154,7 +154,7 @@ pc_names <- c(pc_names, "PCA")
 asw_results <-
   calculate_silhouette_width(
     merged_sce = integrated_sce,
-    pc_list = pc_names,
+    pc_names = pc_names,
     batch_column = params$batch_column,
     seed = params$seed
   )

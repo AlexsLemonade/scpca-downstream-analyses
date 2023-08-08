@@ -6,7 +6,7 @@ if [[ "$(uname)" == 'Darwin' && "$(uname -m)" == 'arm64' ]]; then
 fi
 
 
-SCPCATOOLS_VERS='v0.2.1'
+SCPCATOOLS_VERS='main'
 
 # install github packages
 Rscript --vanilla -e \

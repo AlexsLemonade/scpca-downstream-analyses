@@ -1504,6 +1504,22 @@
       ],
       "Hash": "e80750aec5717dedc019ad7ee40e4a7c"
     },
+    "forcats": {
+      "Package": "forcats",
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cli",
+        "glue",
+        "lifecycle",
+        "magrittr",
+        "rlang",
+        "tibble"
+      ],
+      "Hash": "1a0a9a3d5083d0d573c4214576f1e690"
+    },
     "foreach": {
       "Package": "foreach",
       "Version": "1.5.2",
@@ -2446,7 +2462,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "6b0c222c5071efe0f3baf3dae9aa40e2"
+      "Hash": "a7f498a1b2a4a6816148e498509f6e1d"
     },
     "plogr": {
       "Package": "plogr",
@@ -2679,7 +2695,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "227045be9aee47e6dda9bb38ac870d67"
+      "Hash": "63d15047eb239f95160112bcadc4fcb9"
     },
     "renv": {
       "Package": "renv",
@@ -2930,7 +2946,7 @@
       "RemoteRepo": "scpcaTools",
       "RemoteUsername": "AlexsLemonade",
       "RemoteRef": "main",
-      "RemoteSha": "47644e14efbb9d37db37c8e08324f53dc769763e",
+      "RemoteSha": "7982096108d031510eb925d1d6d600caf91a4c7f",
       "Requirements": [
         "BiocGenerics",
         "DropletUtils",
@@ -2955,7 +2971,7 @@
         "tidyr",
         "tximport"
       ],
-      "Hash": "ad60f57690048e7d564f31dc9305c665"
+      "Hash": "0d2f93694b0a13151934658cfd3bf5ad"
     },
     "scran": {
       "Package": "scran",
@@ -3076,7 +3092,7 @@
         "withr",
         "xtable"
       ],
-      "Hash": "c2eae3d8c670fa9dfa35a12066f4a1d5"
+      "Hash": "f7f201522eedbc95f10ef323b100ff29"
     },
     "sitmo": {
       "Package": "sitmo",

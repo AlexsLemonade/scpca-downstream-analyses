@@ -177,7 +177,9 @@ Within-batch ARI values close to 1 indicate that biological heterogeneity has be
 ```{r}
 # List of SCE filepaths
 input_metadata <- readr::read_tsv(params$input_metadata_tsv)
-sce_files <- input_metadata$processed_sce_filepath
+sce_files <- input_metadata |>
+  dplyr::filter(integration_group == params$integration_group) |>
+  dplyr::pull(processed_sce_filepath)
 # Read in list of SCEs
 sce_list <- purrr::map(sce_files, readr::read_rds) |>
   purrr::set_names(input_metadata$library_id)
@@ -191,14 +193,23 @@ within_batch_ari_df <-
     batch_column = params$batch_column,
     BLUSPARAM = bluster::NNGraphParam(cluster.fun = "louvain", type = "jaccard"),
     seed = params$seed
-  )
-
-within_batch_ari_df$ari <- as.numeric(within_batch_ari_df$ari)
+ ) |>
+  dplyr::mutate(ari = as.numeric(ari))
                                                   
 ```
 
 ```{r}
-ggplot(within_batch_ari_df, aes(x = pc_name , y = ari, color = batch_id)) +
+within_batch_ari_plot <- within_batch_ari_df |>
+  dplyr::mutate(
+    integration_method = dplyr::if_else(
+      pc_name == "PCA",
+      "Pre-Integration",
+      stringr::str_remove(pc_name, "_PCA")
+    ),
+    integration_method_factor = forcats::fct_relevel(integration_method, "Pre-Integration")
+  ) |>
+  ggplot() +
+  aes(x = pc_name , y = ari, color = batch_id) +
   geom_point() +
   ggforce::geom_sina() +
   # add median point to plot
@@ -214,9 +225,15 @@ ggplot(within_batch_ari_df, aes(x = pc_name , y = ari, color = batch_id)) +
     geom = "pointrange",
     size = 0.4
   ) +
+  guides(color = guide_legend(
+    override.aes = list(size = 3),
+    label.theme = element_text(size = 12)
+  )) +
   labs(x = "Integration method",
        y = "ARI",
        color = "Batch")
+
+within_batch_ari_plot
 ```
 
 ## Session info

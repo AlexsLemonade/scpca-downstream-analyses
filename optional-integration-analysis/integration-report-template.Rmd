@@ -176,9 +176,9 @@ Within-batch ARI values close to 1 indicate that biological heterogeneity has be
 
 ```{r}
 # List of SCE filepaths
-input_metadata <- readr::read_tsv(params$input_metadata_tsv)
+input_metadata <- readr::read_tsv(params$input_metadata_tsv) |> 
+  dplyr::filter(integration_group == params$integration_group)
 sce_files <- input_metadata |>
-  dplyr::filter(integration_group == params$integration_group) |>
   dplyr::pull(processed_sce_filepath)
 # Read in list of SCEs
 sce_list <- purrr::map(sce_files, readr::read_rds) |>
@@ -209,8 +209,7 @@ within_batch_ari_plot <- within_batch_ari_df |>
     integration_method_factor = forcats::fct_relevel(integration_method, "Pre-Integration")
   ) |>
   ggplot() +
-  aes(x = pc_name , y = ari, color = batch_id) +
-  geom_point() +
+  aes(x = integration_method_factor, y = ari, color = batch_id) +
   ggforce::geom_sina() +
   # add median point to plot
   stat_summary(

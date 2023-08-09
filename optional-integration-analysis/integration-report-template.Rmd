@@ -215,7 +215,7 @@ within_batch_ari_plot <- within_batch_ari_df |>
   ggforce::geom_sina() +
   # add median point to plot
   stat_summary(
-    color = "red",
+    color = "black",
     fun = "median",
     fun.min = function(x) {
       quantile(x, 0.25)
@@ -224,7 +224,7 @@ within_batch_ari_plot <- within_batch_ari_df |>
       quantile(x, 0.75)
     },
     geom = "pointrange",
-    size = 0.4
+    size = 0.2
   ) +
   guides(color = guide_legend(
     override.aes = list(size = 3),

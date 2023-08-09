@@ -5,6 +5,7 @@ params:
   integrated_sce: "example-results/group01_integrated_sce.rds"
   integration_method: "fastMNN,harmony"
   batch_column: "library_id"
+  cell_id_column: "cell_id"
   project_root: NULL
   point_size: 0.7
   seed: 2023
@@ -191,6 +192,7 @@ within_batch_ari_df <-
     pc_names = pc_names,
     merged_sce = integrated_sce,
     batch_column = params$batch_column,
+    cell_id_column = params$cell_id_column,
     BLUSPARAM = bluster::NNGraphParam(cluster.fun = "louvain", type = "jaccard"),
     seed = params$seed
  ) |>

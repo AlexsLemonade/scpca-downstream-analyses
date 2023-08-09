@@ -2946,7 +2946,7 @@
       "RemoteRepo": "scpcaTools",
       "RemoteUsername": "AlexsLemonade",
       "RemoteRef": "main",
-      "RemoteSha": "7982096108d031510eb925d1d6d600caf91a4c7f",
+      "RemoteSha": "39dbed38b3b906b132783f45b3e3a3a7a85bc729",
       "Requirements": [
         "BiocGenerics",
         "DropletUtils",
@@ -2971,7 +2971,7 @@
         "tidyr",
         "tximport"
       ],
-      "Hash": "0d2f93694b0a13151934658cfd3bf5ad"
+      "Hash": "ac287aa860a17a5fe3447762bcffaffc"
     },
     "scran": {
       "Package": "scran",

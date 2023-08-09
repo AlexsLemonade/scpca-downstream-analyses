@@ -129,7 +129,7 @@ example_results
 └── <integration_group>_merged_sce.rds
 ```
 
-You can also download a ZIP file with an example of the output from running the data integration workflow, including the summary HTML report, processed `SingleCellExperiment` objects stored as RDS files, and the clustering statistics saved as TSV files [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/integration_example_results.zip).
+You can also download a ZIP file with an example of the output from running the data integration workflow, including the summary HTML report and the integrated `SingleCellExperiment` object stored as an RDS file, [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/integration_example_results.zip).
 
 ### What to expect in the output `SingleCellExperiment` object
 

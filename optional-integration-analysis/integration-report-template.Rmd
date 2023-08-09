@@ -182,14 +182,6 @@ sce_files <- input_metadata$processed_sce_filepath
 sce_list <- purrr::map(sce_files, readr::read_rds) |>
   purrr::set_names(input_metadata$library_id)
 
-# Prepare vector of PC names
-pc_names <-  stringr::str_split(params$integration_method, ",") %>%
-  unlist() |>
-  stringr::str_trim() |>
-  purrr::map(\(method) paste(method, "PCA", sep = "_"))
-# Set PC name for the unintegrated
-pc_names <- c(pc_names, "PCA")
-
 # Calculate within-batch ARI values
 within_batch_ari_df <-
   scpcaTools::calculate_within_batch_ari(

@@ -12,6 +12,7 @@ These parameters are all included in the config files and can optionally be alte
   - [Dimensionality reduction and clustering parameters](#dimensionality-reduction-and-clustering-parameters)
 - [Clustering analysis parameters](#clustering-analysis-parameters)
 - [Genes of interest analysis parameters](#genes-of-interest-analysis-parameters)
+- [Integration analysis parameters](#integration-analysis-parameters)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

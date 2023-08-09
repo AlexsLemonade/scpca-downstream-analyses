@@ -10,9 +10,12 @@ The merged objects contain the raw and normalized counts for all included librar
 **Table of Contents**
 
 - [Analysis overview](#analysis-overview)
+- [Expected input](#expected-input)
 - [Create metadata file](#create-metadata-file)
 - [Configure config file](#configure-config-file)
 - [Running the workflow](#running-the-workflow)
+- [Expected output](#expected-output)
+  - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -90,7 +93,7 @@ To run the workflow on your data, modify the following parameters in the `config
 
 The [`config/integration_config.yaml`](../config/integration_config.yaml) file also contains additional processing parameters like the integration method(s) that should be used and the number of mulit-processing threads to use when merging the data.
 We have set default values for these parameters. 
-Learn more about the [processing parameters](../additional-docs/processing-parameters.md#integration-analysis-parameters) and how to modify them.
+Learn more about the [processing parameters](../additional-docs/additional-parameters.md#integration-analysis-parameters) and how to modify them.
 
 ## Running the workflow
 

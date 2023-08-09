@@ -90,3 +90,20 @@ The following gene mapping parameters found in the `config/goi_config.yaml` file
 
 |[View Genes of Interest Config File](../config/goi_config.yaml)|
 |---|
+
+## Integration analysis parameters
+
+The [configuration file](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html), `config/integration_config.yaml` sets the defaults for all parameters needed to run the data integration workflow.
+It is **not required** to alter these parameters to run the workflow, but if you would like to change the integration method(s) or the number of multi-processing threads to use, you can do so by changing these parameters via a text editor of your choice or at the command line per our documentation [here](./command-line-options.md). 
+
+The parameters found in the `config/integration_config.yaml` file can be optionally modified and are as follows:
+
+| Parameter        | Description | Default value |
+|------------------|-------------|---------------|
+| `threads` | the number of multiprocessing threads to use | 1 |
+| `integration_method` | the method(s) to be used for integration | `"fastMNN,harmony"` |
+| `batch_column` | the name of the `SingleCellExperiment` column that indicates the grouping of interest; this will generally be batches or cell types | `"library_id"` |
+| `cell_id_column` | the name of the `SingleCellExperiment` column that contains the cell barcodes | `"cell_id"` |
+
+|[View Integration Config File](../config/integration_config.yaml)|
+|---|

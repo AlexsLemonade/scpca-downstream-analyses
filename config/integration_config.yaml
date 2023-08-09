@@ -7,3 +7,4 @@ integration_project_metadata: "example-data/project-metadata/example-integration
 ### Processing parameters
 threads: 1 # number of multiprocessing threads to use
 integration_method: "fastMNN,harmony" # method(s) to be used for integration
+batch_column: "library_id" # the name of the SCE column that contains batch labels

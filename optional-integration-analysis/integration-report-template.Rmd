@@ -1,9 +1,11 @@
 ---
 params:
   integration_group: "group01"
+  input_metadata_tsv: "example-data/project-metadata/example-integration-library-metadata.tsv"
   integrated_sce: "example-results/group01_integrated_sce.rds"
   integration_method: "fastMNN,harmony"
   batch_column: "library_id"
+  cell_id_column: "cell_id"
   project_root: NULL
   point_size: 0.7
   seed: 2023
@@ -162,6 +164,77 @@ asw_results <-
 plot_asw(asw_df = asw_results,
          seed = params$seed,
          batch_label = params$batch_column)
+```
+
+## Within-batch ARI plots
+
+Below we calculate the within-batch ARI values.
+The metric measures how well a given integration method preserves biological heterogeneity by comparing pre- and post-integration clustering assignments for each library.
+We take each original SCE object, prior to any merging, and perform graph-based clustering.
+The same clustering is then performed on the integrated object.
+For each library that is present in the integrated object, the original cluster assignments are compared to the cells’ new cluster assignments post integration by calculating the ARI between these two cluster assignments.
+Within-batch ARI values close to 1 indicate that biological heterogeneity has been preserved.
+
+```{r}
+# List of SCE filepaths
+input_metadata <- readr::read_tsv(params$input_metadata_tsv) |> 
+  dplyr::filter(integration_group == params$integration_group)
+sce_files <- input_metadata |>
+  dplyr::pull(processed_sce_filepath)
+# Read in list of SCEs
+sce_list <- purrr::map(sce_files, readr::read_rds) |>
+  purrr::set_names(input_metadata$library_id)
+
+# Calculate within-batch ARI values
+within_batch_ari_df <-
+  scpcaTools::calculate_within_batch_ari(
+    individual_sce_list = sce_list,
+    pc_names = pc_names,
+    merged_sce = integrated_sce,
+    batch_column = params$batch_column,
+    cell_id_column = params$cell_id_column,
+    BLUSPARAM = bluster::NNGraphParam(cluster.fun = "louvain", type = "jaccard"),
+    seed = params$seed
+ ) |>
+  dplyr::mutate(ari = as.numeric(ari))
+                                                  
+```
+
+```{r}
+within_batch_ari_plot <- within_batch_ari_df |>
+  dplyr::mutate(
+    integration_method = dplyr::if_else(
+      pc_name == "PCA",
+      "Pre-Integration",
+      stringr::str_remove(pc_name, "_PCA")
+    ),
+    integration_method_factor = forcats::fct_relevel(integration_method, "Pre-Integration")
+  ) |>
+  ggplot() +
+  aes(x = integration_method_factor, y = ari, color = batch_id) +
+  ggforce::geom_sina() +
+  # add median point to plot
+  stat_summary(
+    color = "black",
+    fun = "median",
+    fun.min = function(x) {
+      quantile(x, 0.25)
+    },
+    fun.max = function(x) {
+      quantile(x, 0.75)
+    },
+    geom = "pointrange",
+    size = 0.2
+  ) +
+  guides(color = guide_legend(
+    override.aes = list(size = 3),
+    label.theme = element_text(size = 12)
+  )) +
+  labs(x = "Integration method",
+       y = "ARI",
+       color = "Batch")
+
+within_batch_ari_plot
 ```
 
 ## Session info

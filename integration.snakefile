@@ -77,7 +77,8 @@ rule generate_integration_report:
                             params = list(integration_group = '{wildcards.group}',
                                           integrated_sce = '{input.integrated_sce}',
                                           integration_method = '{config[integration_method]}',
-                                          batch_column = '{config[batch_column]}'),
+                                          batch_column = '{config[batch_column]}',
+                                          cell_id_column = '{config[cell_id_column]}'),
                            envir = new.env())
         " &> {log}
         """

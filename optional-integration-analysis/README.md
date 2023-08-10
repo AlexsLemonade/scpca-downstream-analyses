@@ -15,7 +15,7 @@ The merged objects contain the raw and normalized counts for all included librar
 - [Configure config file](#configure-config-file)
 - [Running the workflow](#running-the-workflow)
 - [Expected output](#expected-output)
-  - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
+  - [What to expect in the integrated `SingleCellExperiment` object](#what-to-expect-in-the-integrated-singlecellexperiment-object)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -117,8 +117,8 @@ See our [command line options](../additional-docs/command-line-options.md) docum
 
 For each provided `integration_group`, the workflow will return two files saved in the `results_dir` specified in the config file:
 
-1. The `<integration_group>_integrated_sce.rds` file containing the `SingleCellExperiment` object that has integrated data stored for each `integration_method` as specified in the project metadata.
-2. The `<integration_group>_integration_report.html` file, which is the summary html report with plots containing and comparing the data integration results.
+1. The `<integration_group>_integrated_sce.rds` file containing the `SingleCellExperiment` object containing batch-corrected embeddings for each `integration_method` specified in the project metadata.
+2. The `<integration_group>_integration_report.html` file is a summary html report containing plots that summarize the data integration results.
 
 Below is an example of the nested file structure you can expect.
 
@@ -134,8 +134,8 @@ You can also download a ZIP file with an example of the output from running the 
 
 In the [`reducedDim`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#dimensionality-reduction-results) of the integrated `SingleCellExperiment` object, you can find the following:
 
-- Integrated results stored in the reduced dimensions and named using the associated type of integration performed.
-For example, where `fastMNN` is the type of integration performed, the PCA integration results are stored in `fastMNN_PCA` and can be accessed using `reducedDim(sce, "fastMNN_PCA")`.
+Batch-corrected embeddings stored in the reduced dimensions and named using the associated type of integration performed.
+For example, if `fastMNN` is the type of integration performed, the PCA integration results are stored in `fastMNN_PCA` and can be accessed using `reducedDim(sce, "fastMNN_PCA")`.
 The UMAP results can similary be accessed using `reducedDim(sce, "fastMNN_UMAP")`.
 
 You can find more information on the above in the [processing information documentation](../additional-docs/processing-information.md).

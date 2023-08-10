@@ -17,9 +17,6 @@ else:
 
 rule target:
     input:
-        expand(os.path.join(config["results_dir"], "{group}_merged_sce.rds"),
-               zip,
-               group = GROUP),
         expand(os.path.join(config["results_dir"], "{group}_integrated_sce.rds"),
                zip,
                group = GROUP),
@@ -31,7 +28,7 @@ rule merge_sces:
     input:
         config["integration_project_metadata"]
     output:
-        os.path.join(config["results_dir"], "{group}_merged_sce.rds")
+        temp(os.path.join(config["results_dir"], "{group}_merged_sce.rds"))
     log: os.path.join("logs", config["results_dir"], "{group}_merge_sce.log")
     conda: "envs/scpca-renv.yaml"
     shell:

@@ -291,3 +291,10 @@ There is an optional genes of interest analysis pipeline in the `optional-goi-an
 This workflow can help users evaluate expression of a specific list of genes in their sample dataset and how the expression values compare to the remaining genes in the dataset.
 
 For more on what's in the genes of interest analysis workflow and how to run the workflow, see the [`README.md`](optional-goi-analysis/README.md) file in the genes of interest analysis subdirectory.
+
+### Data integration analysis
+
+There is an optional data integration analysis pipeline in the `optional-integration-analysis` subdirectory of this repository.
+This workflow can can be used to combine data from multiple individual single-cell/single-nuclei libraries to obtain a single integrated object. 
+
+For more on what's in the data integration analysis workflow and how to run the workflow, see the [`README.md`](optional-integration-analysis/README.md) file in the integration analysis subdirectory.

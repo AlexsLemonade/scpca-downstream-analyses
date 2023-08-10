@@ -33,8 +33,12 @@ There are three main steps of this data integration workflow:
 2. **Integrate**: The merged data is integrated using [`fastMNN`](https://rdrr.io/github/LTLA/batchelor/man/fastMNN.html) and/or [`harmony`](https://portals.broadinstitute.org/harmony/articles/quickstart.html) to obtain batch corrected reduced dimensionality embeddings.
 3. **Generate integration summary report**: Once the data from the multiple libraries are integrated and stored in the `SingleCellExperiment` object, the results from batch correction are evaluated to create a summary report.
 This report includes UMAPs showing data from all libraries before and after batch correction and summaries of a set of integration metrics.
-These metrics include iLISI, batch ARI, within-batch ARI, and batch average silhouette width (ASW).
 The plots are displayed in a html report for ease of reference.
+
+The metrics we use to evaluate integration, as mentioned in step 3 above, include:
+
+- Batch average silhouette width (ASW), which is used to assess consistency within clusters and measures how well a given data point adheres to its own cluster vs. other clusters.
+- Within-batch ARI, which measures how well a given integration method preserves biological heterogeneity by comparing pre- and post-integration clustering assignments for each library.
 
 **Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.
 R 4.2 is required for running our pipeline, along with Bioconductor 3.15.

@@ -45,7 +45,8 @@ Package dependencies for the analysis workflows in this repository are managed u
 
 To run this workflow, you will need to provide:
 
-1. Two or more RDS files containing normalized [output `SingleCellExperiment` objects](../README.md#expected-output) from the core dowstream analyses workflow or the processed `SingleCellExperiment` objects downloaded from the ScPCA portal (found in the `_processed.rds` file).
+1. Two or more RDS files containing normalized [`SingleCellExperiment` objects](../README.md#expected-output).
+These can be objects output from the core dowstream analyses workflow or the processed `SingleCellExperiment` objects downloaded from the ScPCA portal (found in the `_processed.rds` file).
 Each `SingleCellExperiment` object must contain a log-normalized counts matrix in an assay named `logcounts`.
 2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, including `sample_id`, `library_id`, `processed_sce_filepath`, and `integration_group` (see more on this in the ["Create metadata file" section](#create-metadata-file) and an example of this metadata file [here](../project-metadata/example-integration-library-metadata.tsv)).
 
@@ -114,29 +115,28 @@ See our [command line options](../additional-docs/command-line-options.md) docum
 
 ## Expected output
 
-For each provided `integration_group`, the workflow will return three files in the `results_dir` specified in the config file:
+For each provided `integration_group`, the workflow will return two files saved in the `results_dir` specified in the config file:
 
-1. The `_merged_sce.rds` file containing the `SingleCellExperiment` object that results from merging the individual `SingleCellExperiment` objects specified in the project metadata.
-2. The `_integrated_sce.rds` file containing the `SingleCellExperiment` object that has integrated data stored for each `integration_method` as specified in the project metadata.
-2. The `_integration_report.html` file, which is the summary html report with plots containing and comparing the data integration results.
+1. The `<integration_group>_integrated_sce.rds` file containing the `SingleCellExperiment` object that has integrated data stored for each `integration_method` as specified in the project metadata.
+2. The `<integration_group>_integration_report.html` file, which is the summary html report with plots containing and comparing the data integration results.
 
 Below is an example of the nested file structure you can expect.
 
 ```
 example_results
 ├── <integration_group>_integrated_sce.rds
-├── <integration_group>_integration_report.html
-└── <integration_group>_merged_sce.rds
+└── <integration_group>_integration_report.html
 ```
 
 You can also download a ZIP file with an example of the output from running the data integration workflow, including the summary HTML report and the integrated `SingleCellExperiment` object stored as an RDS file, [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/integration_example_results.zip).
 
-### What to expect in the output `SingleCellExperiment` object
+### What to expect in the integrated `SingleCellExperiment` object
 
-In the [`reducedDim`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#dimensionality-reduction-results) of the integrated output `SingleCellExperiment` object, you can find the following:
+In the [`reducedDim`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#dimensionality-reduction-results) of the integrated `SingleCellExperiment` object, you can find the following:
 
 - Integrated results stored in the reduced dimensions and named using the associated type of integration performed.
-For example, where `fastMNN` is the type of integration performed, the integration results are stored in `fastMNN_PCA` and can be accessed using `reducedDim(sce, "fastMNN_PCA")`.
+For example, where `fastMNN` is the type of integration performed, the PCA integration results are stored in `fastMNN_PCA` and can be accessed using `reducedDim(sce, "fastMNN_PCA")`.
+The UMAP results can similary be accessed using `reducedDim(sce, "fastMNN_UMAP")`.
 
 You can find more information on the above in the [processing information documentation](../additional-docs/processing-information.md).
 

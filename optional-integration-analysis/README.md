@@ -10,9 +10,12 @@ The merged objects contain the raw and normalized counts for all included librar
 **Table of Contents**
 
 - [Analysis overview](#analysis-overview)
+- [Expected input](#expected-input)
 - [Create metadata file](#create-metadata-file)
 - [Configure config file](#configure-config-file)
 - [Running the workflow](#running-the-workflow)
+- [Expected output](#expected-output)
+  - [What to expect in the output `SingleCellExperiment` object](#what-to-expect-in-the-output-singlecellexperiment-object)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -37,6 +40,16 @@ The plots are displayed in a html report for ease of reference.
 R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
 If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which can be installed independently if desired, but we recommend using Snakemake's conda integration to set up the R environment and all dependencies that the workflow will use.
+
+## Expected input
+
+To run this workflow, you will need to provide:
+
+1. Two or more RDS files containing normalized [output `SingleCellExperiment` objects](../README.md#expected-output) from the core dowstream analyses workflow or the processed `SingleCellExperiment` objects downloaded from the ScPCA portal (found in the `_processed.rds` file).
+Each `SingleCellExperiment` object must contain a log-normalized counts matrix in an assay named `logcounts`.
+2. A project metadata tab-separated value (TSV) file containing relevant information about your data necessary for processing, including `sample_id`, `library_id`, `processed_sce_filepath`, and `integration_group` (see more on this in the ["Create metadata file" section](#create-metadata-file) and an example of this metadata file [here](../project-metadata/example-integration-library-metadata.tsv)).
+
+If working with data from the ScPCA portal, see our guide on preparing that data to run the data integration workflow [here](../additional-docs/working-with-scpca-portal-data.md).
 
 ## Create metadata file
 
@@ -80,7 +93,7 @@ To run the workflow on your data, modify the following parameters in the `config
 
 The [`config/integration_config.yaml`](../config/integration_config.yaml) file also contains additional processing parameters like the integration method(s) that should be used and the number of mulit-processing threads to use when merging the data.
 We have set default values for these parameters. 
-Learn more about the [processing parameters](../additional-docs/processing-parameters.md#integration-analysis-parameters) and how to modify them.
+Learn more about the [processing parameters](../additional-docs/additional-parameters.md#integration-analysis-parameters) and how to modify them.
 
 ## Running the workflow
 
@@ -98,3 +111,32 @@ If `--cores` is given without a number, all available cores are used to run the 
 
 You can also modify the config file parameters at the command line, rather than manually as recommended in the configure config file section above.
 See our [command line options](../additional-docs/command-line-options.md) documentation for more information.
+
+## Expected output
+
+For each provided `integration_group`, the workflow will return three files in the `results_dir` specified in the config file:
+
+1. The `_merged_sce.rds` file containing the `SingleCellExperiment` object that results from merging the individual `SingleCellExperiment` objects specified in the project metadata.
+2. The `_integrated_sce.rds` file containing the `SingleCellExperiment` object that has integrated data stored for each `integration_method` as specified in the project metadata.
+2. The `_integration_report.html` file, which is the summary html report with plots containing and comparing the data integration results.
+
+Below is an example of the nested file structure you can expect.
+
+```
+example_results
+├── <integration_group>_integrated_sce.rds
+├── <integration_group>_integration_report.html
+└── <integration_group>_merged_sce.rds
+```
+
+You can also download a ZIP file with an example of the output from running the data integration workflow, including the summary HTML report and the integrated `SingleCellExperiment` object stored as an RDS file, [here](https://scpca-references.s3.amazonaws.com/example-data/scpca-downstream-analyses/integration_example_results.zip).
+
+### What to expect in the output `SingleCellExperiment` object
+
+In the [`reducedDim`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#dimensionality-reduction-results) of the integrated output `SingleCellExperiment` object, you can find the following:
+
+- Integrated results stored in the reduced dimensions and named using the associated type of integration performed.
+For example, where `fastMNN` is the type of integration performed, the integration results are stored in `fastMNN_PCA` and can be accessed using `reducedDim(sce, "fastMNN_PCA")`.
+
+You can find more information on the above in the [processing information documentation](../additional-docs/processing-information.md).
+

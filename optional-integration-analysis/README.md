@@ -37,7 +37,7 @@ The plots are displayed in a html report for ease of reference.
 
 The metrics we use to evaluate integration, as mentioned in step 3 above, include:
 
-- Batch average silhouette width (ASW), which is used to assess consistency within clusters and measures how well a given data point adheres to its own cluster vs. other clusters.
+- Batch average silhouette width (ASW), which assesses consistency within clusters and measures how close a given data point adheres to cells from the same cluster vs. other clusters.
 - Within-batch ARI, which measures how well a given integration method preserves biological heterogeneity by comparing pre- and post-integration clustering assignments for each library.
 
 **Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.

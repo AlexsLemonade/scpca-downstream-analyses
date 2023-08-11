@@ -91,8 +91,8 @@ merged_sce <- readr::read_rds(opt$merged_sce_file)
 # Integrate SCEs ---------------------------------------------------------------
 
 # Split up string of integration methods
-integration_methods <-  stringr::str_split(opt$integration_method, ",") %>%
-  unlist() %>%
+integration_methods <-  stringr::str_split(opt$integration_method, ",") |>
+  unlist() |>
   stringr::str_trim()
 
 # Check that we support the provided integration method(s)
@@ -111,8 +111,8 @@ if ("fastMNN" %in% integration_methods) {
   # Format `fastmnn_merge_order` if provided; can only be used when auto.merge is FALSE
   if(!opt$fastmnn_auto_merge) {
     if(!is.null(opt$fastmnn_merge_order)){
-      fastmnn_merge_order <- stringr::str_split(opt$fastmnn_merge_order, ",") %>%
-        unlist() %>%
+      fastmnn_merge_order <- stringr::str_split(opt$fastmnn_merge_order, ",") |>
+        unlist() |>
         stringr::str_trim()
       if(!all(colData(merged_sce)$library_id %in% fastmnn_merge_order)){
         stop("The provided library ids do not match those in the SCE object. 

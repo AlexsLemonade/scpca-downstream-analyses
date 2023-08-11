@@ -85,7 +85,7 @@ if(is.null(opt$integration_group)) {
   stop("The provided `integration_group` is missing from the input metadata file.")
 } else {
   # Filter the metadata to include only information relevant to the specified integration group
-  input_metadata <- input_metadata %>%
+  input_metadata <- input_metadata |>
     dplyr::filter(integration_group == opt$integration_group)
 }
 

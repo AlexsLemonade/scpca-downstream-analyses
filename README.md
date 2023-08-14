@@ -22,6 +22,7 @@
 - [Additional analysis modules](#additional-analysis-modules)
   - [Clustering analysis](#clustering-analysis)
   - [Genes of interest analysis](#genes-of-interest-analysis)
+  - [Data integration analysis](#data-integration-analysis)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -45,8 +46,8 @@ Cluster assignments are stored in the `SingleCellExperiment` object returned by 
 
 You can read more details about the individual steps of the workflow in the processing documentation linked below:
 
-|[View Processing Information Documentation](./additional-docs/processing-information.md)|
-|---|
+| [View Processing Information Documentation](./additional-docs/processing-information.md) |
+| ---------------------------------------------------------------------------------------- |
 
 ## Quick Start Guide
 
@@ -64,7 +65,7 @@ The workflow can directly take as input the `filtered` RDS files downloaded from
 snakemake --cores 2 --use-conda
 ```
 
-**Note** that R 4.1 is required for running our pipeline, along with Bioconductor 3.14.
+**Note** that R 4.2 is required for running our pipeline, along with Bioconductor 3.16.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), and `renv` must be installed locally prior to running the workflow.
 If you are using conda, dependencies can be installed as [part of the setup mentioned in step 2 above](#snakemakeconda-installation).
 
@@ -176,8 +177,8 @@ The file should contain the following columns:
 - `filepath`, the full path to the RDS file containing the pre-processed `SingleCellExperiment` object.
 Each library ID should have a unique `filepath`.
 
-|[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-library-metadata.tsv)|
-|---|
+| [View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-library-metadata.tsv) |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## 4. Configure config file
 
@@ -186,7 +187,7 @@ Learn more about snakemake configuration files [here](https://snakemake.readthed
 
 The config file contains two sets of parameters:
 
-- **[Project-specific Parameters](./config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details. 
+- **[Project-specific Parameters](./config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details.
 These parameters are **required** to run the workflow on your data.
 - **[Processing Parameters](./config/config.yaml#L11)**: This set of parameters specify configurations for the type of filtering to be performed and for cutoffs like the minimum number of genes detected per cell, for example.
 You can change them to explore your data but it is optional.
@@ -195,28 +196,28 @@ You can modify the relevant parameters by manually updating the `config/config.y
 
 To run the workflow on your data, modify the following parameters in the `config/config.yaml` file:
 
-| Parameter        | Description |
-|------------------|-------------|
-| `results_dir` | full path to the directory where output files from running the core workflow will be stored |
-| `project_metadata` | full path to your specific project metadata TSV file |
-| `mito_file` | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
+| Parameter          | Description                                                                                                                                                                                                                                                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `results_dir`      | full path to the directory where output files from running the core workflow will be stored                                                                                                                                                                                                                                                       |
+| `project_metadata` | full path to your specific project metadata TSV file                                                                                                                                                                                                                                                                                              |
+| `mito_file`        | full path to a file containing a list of mitochondrial genes specific to the reference genome or transcriptome version used for alignment. By default, the workflow will use the mitochondrial gene list obtained from Ensembl version 104 of the Human transcriptome which can be found in the [`reference-files` directory](./reference-files). |
 
-By default, these parameters point to the [example data](./example-data). 
+By default, these parameters point to the [example data](./example-data).
 The two example `_filtered.rds` files were both processed using the [`scpca-nf` workflow](https://github.com/AlexsLemonade/scpca-nf/blob/main/examples/README.md).
 Therefore, if you would like to test this workflow using the example data, you can continue to the next step, running the workflow, without modifying the config file.
 
-The config file also contains additional processing parameters like cutoffs for minimum genes detected, minimum unique molecular identifiers (UMI) per cell, etc. 
-We have set default values for these parameters. 
+The config file also contains additional processing parameters like cutoffs for minimum genes detected, minimum unique molecular identifiers (UMI) per cell, etc.
+We have set default values for these parameters.
 Learn more about the [additional processing parameters](./additional-docs/additional-parameters.md#core-analysis-parameters) and how to modify them.
 
 See the [processing information documentation](./additional-docs/processing-information.md) for more information on the individual workflow steps and how the parameters are used in each of the steps.
 
-|[View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml)|
-|---|
+| [View Config File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/config/config.yaml) |
+| ----------------------------------------------------------------------------------------------------------- |
 
 ## 5. Running the workflow
 
-After you have successfully modified the required project-specific parameters in the config file, you can run the snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
+After you have successfully modified the required project-specific parameters in the config file, you can run the snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example:
 
 ```
 snakemake --cores 2 --use-conda
@@ -256,27 +257,27 @@ You can also download a ZIP file with an example of the output from running the 
 
 ### What to expect in the output `SingleCellExperiment` object
 
-As a result of the normalization step of the workflow, a log-transformed normalized expression matrix can be accessed using [`logcounts(sce)`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#adding-more-assays).
+As a result of the normalization step of the workflow, a log-transformed normalized expression matrix can be accessed using [`logcounts(sce)`](https://bioconductor.org/books/3.16/OSCA.intro/the-singlecellexperiment-class.html#adding-more-assays).
 
-In the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the output `SingleCellExperiment` object, you can find the following:
+In the [`colData`](https://bioconductor.org/books/3.16/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the output `SingleCellExperiment` object, you can find the following:
 
 - Clustering results stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, if using the default values of Louvain clustering with a nearest neighbors parameter of 10, the column name would be `louvain_10` and can be accessed using `colData(sce)$louvain_10`.
 
-In the [`metadata`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#other-metadata) of the output `SingleCellExperiment` object, which can be accessed using `metadata(sce)`,  you can find the following information:
+In the [`metadata`](https://bioconductor.org/books/3.16/OSCA.intro/the-singlecellexperiment-class.html#other-metadata) of the output `SingleCellExperiment` object, which can be accessed using `metadata(sce)`,  you can find the following information:
 
-| Metadata Key       | Description |
-|----------------------------|-------------|
-| `scpca_filter_method` | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data. |
-| `prob_compromised_cutoff` | The maximum probability of cells being compromised, which is only present when the `filtering_method` is set to `miQC`. |
-| `miQC_model` | The linear mixture model calculated by `miQC` and therefore is only present when `filtering_method` is set to `miQC`. |
-| `mito_percent_cutoff` | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`. |
-| `genes_filtered` | Indicates whether or not genes have been filtered. |
-| `detected_gene_cutoff` | Minimum number of genes detected per cell, which is only present when `filtering_method` is set to `manual`. |
-| `umi_count_cutoff` | Minimum unique molecular identifiers (UMI) per cell, which is only present when `filtering_method` is set to `manual`. |
-| `num_filtered_cells_retained` | The number of cells retained after filtering using the specified filtering method, either `miQC` or `manual`. |
-| `normalization` | The type of normalization performed (`log-normalization` or `deconvolution` when clustering of similar cells using [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) prior to normalization with `scater::logNormCounts()` is successful). |
-| `highly_variable_genes` | The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html). |
+| Metadata Key                  | Description                                                                                                                                                                                                                                                          |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `scpca_filter_method`         | The type of filtering performed ([`miQC`](https://bioconductor.org/packages/release/bioc/html/miQC.html) or `manual`) on the expression data.                                                                                                                        |
+| `prob_compromised_cutoff`     | The maximum probability of cells being compromised, which is only present when the `filtering_method` is set to `miQC`.                                                                                                                                              |
+| `miQC_model`                  | The linear mixture model calculated by `miQC` and therefore is only present when `filtering_method` is set to `miQC`.                                                                                                                                                |
+| `mito_percent_cutoff`         | Maximum percent mitochondrial reads per cell threshold, which is only present when `filtering_method` is set to `manual`.                                                                                                                                            |
+| `genes_filtered`              | Indicates whether or not genes have been filtered.                                                                                                                                                                                                                   |
+| `detected_gene_cutoff`        | Minimum number of genes detected per cell, which is only present when `filtering_method` is set to `manual`.                                                                                                                                                         |
+| `umi_count_cutoff`            | Minimum unique molecular identifiers (UMI) per cell, which is only present when `filtering_method` is set to `manual`.                                                                                                                                               |
+| `num_filtered_cells_retained` | The number of cells retained after filtering using the specified filtering method, either `miQC` or `manual`.                                                                                                                                                        |
+| `normalization`               | The type of normalization performed (`log-normalization` or `deconvolution` when clustering of similar cells using [`scran::quickCluster()`](https://rdrr.io/bioc/scran/man/quickCluster.html) prior to normalization with `scater::logNormCounts()` is successful). |
+| `highly_variable_genes`       | The subset of the most variable genes, determined using [`scran::getTopHVGs()`](https://rdrr.io/bioc/scran/man/getTopHVGs.html).                                                                                                                                     |
 
 You can find more information on the above in the [processing information documentation](./additional-docs/processing-information.md).
 
@@ -301,6 +302,6 @@ For more on what's in the genes of interest analysis workflow and how to run the
 ### Data integration analysis
 
 There is an optional data integration analysis pipeline in the `optional-integration-analysis` subdirectory of this repository.
-This workflow can can be used to combine data from multiple individual single-cell/single-nuclei libraries to obtain a single integrated object. 
+This workflow can can be used to combine data from multiple individual single-cell/single-nuclei libraries to obtain a single integrated object.
 
 For more on what's in the data integration analysis workflow and how to run the workflow, see the [`README.md`](optional-integration-analysis/README.md) file in the integration analysis subdirectory.

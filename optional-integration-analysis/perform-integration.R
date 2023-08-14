@@ -3,15 +3,8 @@
 
 ## Set up ----------------------------------------------------------------------
 
-if (!("harmony" %in% installed.packages())) {
-  remotes::install_version("harmony", version = "0.1.1")
-}
-
-# Load libraries
+# Load optparse
 library(optparse)
-library(dplyr)
-library(SingleCellExperiment)
-library(scpcaTools)
 
 # Declare command line options
 option_list <- list(
@@ -24,7 +17,7 @@ option_list <- list(
     opt_str = c("--integration_method"),
     type = "character",
     default = "fastMNN,harmony",
-    help = "The integration method(s) to use when performing integration; 
+    help = "The integration method(s) to use when performing integration;
     default is 'fastMNN,harmony'"
   ),
   make_option(
@@ -74,6 +67,15 @@ check_r_version()
 # Set up renv
 setup_renv(project_filepath = project_root)
 
+# Harmony is not on conda-forge, so we install it here if needed
+if (!("harmony" %in% installed.packages())) {
+  remotes::install_version("harmony", version = "0.1.1", repos = "https://packagemanager.posit.co/cran/latest")
+}
+
+# Load additional libraries
+library(SingleCellExperiment)
+library(scpcaTools)
+
 # Check that file extension for output file is correct
 if(!(stringr::str_ends(opt$output_sce_file, ".rds"))){
   stop("output file name must end in .rds")
@@ -102,7 +104,7 @@ if (!all(integration_methods %in% c("fastMNN", "harmony"))) {
 
 # Check that `library_id` is in merged SCE object
 if(!("library_id" %in% colnames(colData(merged_sce)))){
-  stop("The 'library_id' column is missing from the `colData` of the merged SCE 
+  stop("The 'library_id' column is missing from the `colData` of the merged SCE
        object and is needed for integration.")
 }
 
@@ -115,8 +117,8 @@ if ("fastMNN" %in% integration_methods) {
         unlist() |>
         stringr::str_trim()
       if(!all(colData(merged_sce)$library_id %in% fastmnn_merge_order)){
-        stop("The provided library ids do not match those in the SCE object. 
-             Please re-run and provide --fastmnn_merge_order with all library ids 
+        stop("The provided library ids do not match those in the SCE object.
+             Please re-run and provide --fastmnn_merge_order with all library ids
              found in the `colData` of the SCE object.")
       }
     }
@@ -128,18 +130,18 @@ if ("fastMNN" %in% integration_methods) {
                                    batch_column = "library_id",
                                    auto.merge = opt$fastmnn_auto_merge,
                                    merge.order = fastmnn_merge_order)
-  
+
   merged_sce <- add_integrated_pcs(merged_sce,
                                    integrated_pcs = reducedDim(fastMNN_integrated_sce, "fastMNN_PCA"),
                                    integration_method = "fastMNN")
-  
+
 }
 
 if ("harmony" %in% integration_methods) {
   harmony_integrated_sce <- integrate_sces(merged_sce,
                                    integration_method = "harmony",
                                    batch_column = "library_id")
-  
+
   merged_sce <- add_integrated_pcs(merged_sce,
                                    integrated_pcs = reducedDim(harmony_integrated_sce, "harmony_PCA"),
                                    integration_method = "harmony")

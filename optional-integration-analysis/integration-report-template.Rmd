@@ -13,14 +13,14 @@ params:
 title: "`r glue::glue('Integration analysis report for {params$integration_group}')`"
 author: "CCDL"
 date: "`r params$date`"
-output: 
+output:
   html_document:
     toc: true
     toc_depth: 2
     toc_float: true
     number_sections: true
     code_folding: hide
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -34,12 +34,12 @@ knitr::opts_chunk$set(
   warning = FALSE
 )
 
-# If project root is not provided use here::here() 
+# If project root is not provided use here::here()
 if (is.null(params$project_root)) {
   project_root <- here::here()
 } else {
   project_root <- params$project_root
-} 
+}
 
 # Tell knitr to knit from the project root to be able to load `renv` properly
 # This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
@@ -48,11 +48,6 @@ knitr::opts_knit$set(root.dir = project_root)
 # Source in set up function
 source(file.path(project_root, "utils", "setup-functions.R"))
 source(file.path(project_root, "utils", "integration-functions.R"))
-
-# Install `gt` package
-if(!("gt" %in% installed.packages())){
-  install.packages("gt", repos = "http://cran.us.r-project.org")
-}
 ```
 
 ```{r, include = FALSE}
@@ -84,7 +79,7 @@ integrated_sce <- readr::read_rds(params$integrated_sce)
 ```{r results='asis'}
 # pull out an SCE object for this section
 # all SCEs in the list should be equivalent for these calculations and plots
-sce_coldata <- colData(integrated_sce) |> 
+sce_coldata <- colData(integrated_sce) |>
   tibble::as_tibble()
 
 # How many batches?
@@ -125,12 +120,12 @@ batch_umaps <- integration_methods |>
                                      legend_labels = batch_plot_labels,
                                      seed = params$seed))
 batch_legend <- cowplot::get_legend(batch_umaps[[1]])
-  
+
 ggpubr::ggarrange(plotlist = batch_umaps,
-                  common.legend = TRUE, 
+                  common.legend = TRUE,
                   legend = "right",
-                  ncol = 2, 
-                  nrow = 2) 
+                  ncol = 2,
+                  nrow = 2)
 ```
 
 ## Batch ASW plots
@@ -177,7 +172,7 @@ Within-batch ARI values close to 1 indicate that biological heterogeneity has be
 
 ```{r}
 # List of SCE filepaths
-input_metadata <- readr::read_tsv(params$input_metadata_tsv) |> 
+input_metadata <- readr::read_tsv(params$input_metadata_tsv) |>
   dplyr::filter(integration_group == params$integration_group)
 sce_files <- input_metadata |>
   dplyr::pull(processed_sce_filepath)
@@ -197,7 +192,7 @@ within_batch_ari_df <-
     seed = params$seed
  ) |>
   dplyr::mutate(ari = as.numeric(ari))
-                                                  
+
 ```
 
 ```{r}

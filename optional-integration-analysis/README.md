@@ -1,6 +1,6 @@
 # Optional Integration Analysis
 
-This directory includes a data integration workflow that can be used to combine data from multiple individual single-cell/single-nuclei libraries to obtain a single merged object. 
+This directory includes a data integration workflow that can be used to combine data from multiple individual single-cell/single-nuclei libraries to obtain a single merged object.
 The merged objects contain the raw and normalized counts for all included libraries as well as batch corrected PCA and UMAP results.
 
 **The data integration workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file or have downloaded data from the [ScPCA portal](https://scpca.alexslemonade.org/).**
@@ -41,7 +41,7 @@ The metrics we use to evaluate integration, as mentioned in step 3 above, includ
 - Within-batch ARI, which measures how well a given integration method preserves biological heterogeneity by comparing pre- and post-integration clustering assignments for each library.
 
 **Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.
-R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
+R 4.2 is required for running our pipeline, along with Bioconductor 3.16.
 If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which can be installed independently if desired, but we recommend using Snakemake's conda integration to set up the R environment and all dependencies that the workflow will use.
 
@@ -62,15 +62,15 @@ Before running the workflow, you must create a project metadata file as a tab-se
 Each row in the metadata should correspond to a single-cell/single-nuclei library to include in integration.
 The file should contain the following columns:
 
-| column name | description |
-| ----------- | ----------- |
-| `sample_id` | Unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`. |
-| `library_id` | Unique ID used for each set of cells that has been prepped and sequenced separately. |
+| column name              | description                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample_id`              | Unique ID for each piece of tissue or sample that cells were obtained from,  all libraries that were sampled from the same piece of tissue should have the same `sample_id`.                                                                                                                                                                                                                                                                                        |
+| `library_id`             | Unique ID used for each set of cells that has been prepped and sequenced separately.                                                                                                                                                                                                                                                                                                                                                                                |
 | `processed_sce_filepath` | The full path to the RDS file containing the processed `SingleCellExperiment` object, each library ID should have a unique `processed_sce_filepath`; note that this RDS file is the output RDS file from the [core analysis workflow](../README.md#6-expected-output) OR the processed file from the [Single-cell Pediatric Cancer Atlas portal](https://scpca.alexslemonade.org/). The filename should contain the following format, `<library_id>_processed.rds`. |
-| `integration_group` | Name used to specify which libraries should be merged. All libraries with the same `integration_group` will be merged and integrated into a single `SingleCellExperiment` object. |
+| `integration_group`      | Name used to specify which libraries should be merged. All libraries with the same `integration_group` will be merged and integrated into a single `SingleCellExperiment` object.                                                                                                                                                                                                                                                                                   |
 
-|[View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-integration-library-metadata.tsv)|
-|---|
+| [View Example Metadata File](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/main/example-data/project-metadata/example-integration-library-metadata.tsv) |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 
 ## Configure config file
@@ -80,7 +80,7 @@ Learn more about snakemake configuration files [here](https://snakemake.readthed
 
 The config file contains two sets of parameters:
 
-- **[Project-specific Parameters](../config/integration_config.yaml#L3)**: This set of parameters are for specifying dataset or project related details. 
+- **[Project-specific Parameters](../config/integration_config.yaml#L3)**: This set of parameters are for specifying dataset or project related details.
 These parameters are **required** to run the workflow on your data.
 - **[Processing Parameters](../config/integration_config.yaml#L7)**: This set of parameters specify configurations for the integration method(s) to be performed.
 You can change them to explore your data but it is optional.
@@ -88,24 +88,24 @@ You can modify the relevant parameters by manually updating the `config/integrat
 
 To run the workflow on your data, modify the following parameters in the `config/integration_config.yaml` file:
 
-| Parameter        | Description |
-|------------------|-------------|
-| `results_dir` | full path to the directory where output files will be stored |
+| Parameter                      | Description                                                      |
+| ------------------------------ | ---------------------------------------------------------------- |
+| `results_dir`                  | full path to the directory where output files will be stored     |
 | `integration_project_metadata` | full path to your integration-specific project metadata TSV file |
 
-|[View Integration Config File](../config/integration_config.yaml)|
-|---|
+| [View Integration Config File](../config/integration_config.yaml) |
+| ----------------------------------------------------------------- |
 
 The [`config/integration_config.yaml`](../config/integration_config.yaml) file also contains additional processing parameters like the integration method(s) that should be used and the number of mulit-processing threads to use when merging the data.
-We have set default values for these parameters. 
+We have set default values for these parameters.
 Learn more about the [processing parameters](../additional-docs/additional-parameters.md#integration-analysis-parameters) and how to modify them.
 
 ## Running the workflow
 
-The execution file with the data integration Snakemake workflow is named `integration.snakefile` and can be found in the root directory. 
+The execution file with the data integration Snakemake workflow is named `integration.snakefile` and can be found in the root directory.
 To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `integration.snakefile`.
 
-After you have successfully modified the required project-specific parameters in the `integration_config.yaml` file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example:  
+After you have successfully modified the required project-specific parameters in the `integration_config.yaml` file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example:
 
 ```
 snakemake --snakefile integration.snakefile --cores 2 --use-conda

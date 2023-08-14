@@ -61,7 +61,7 @@ dependencies:
   - r-beeswarm=0.4.0
   - r-bh=1.81.0_1
   - r-bigd=0.2.0
-  - r-biocmanager=1.30.20
+  - r-biocmanager=1.30.22
   - r-bit=4.0.5
   - r-bit64=4.0.5
   - r-bitops=1.0_7

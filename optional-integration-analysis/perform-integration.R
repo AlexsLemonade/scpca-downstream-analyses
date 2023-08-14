@@ -67,11 +67,6 @@ check_r_version()
 # Set up renv
 setup_renv(project_filepath = project_root)
 
-# Harmony is not on conda-forge, so we install it here if needed
-if (!("harmony" %in% installed.packages())) {
-  remotes::install_version("harmony", version = "0.1.1", repos = "https://packagemanager.posit.co/cran/latest")
-}
-
 # Load additional libraries
 library(SingleCellExperiment)
 library(scpcaTools)

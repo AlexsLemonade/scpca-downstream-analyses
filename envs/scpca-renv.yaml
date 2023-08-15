@@ -51,6 +51,7 @@ dependencies:
   - bioconductor-tximport=1.26.0
   - bioconductor-xvector=0.38.0
   - bioconductor-zlibbioc=1.44.0
+  - conda-ecosystem-user-package-isolation=1.0
   - pandoc=2.19.2
   - r-abind=1.4_5
   - r-askpass=1.1
@@ -324,5 +325,4 @@ dependencies:
   - r-yaml=2.3.7
   - r-zip=2.2.2
 variables:
-  R_LIBS_USER: null
   RENV_PROJECT: null

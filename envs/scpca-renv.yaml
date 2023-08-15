@@ -325,5 +325,4 @@ dependencies:
   - r-yaml=2.3.7
   - r-zip=2.2.2
 variables:
-  R_LIBS_USER: null
   RENV_PROJECT: null

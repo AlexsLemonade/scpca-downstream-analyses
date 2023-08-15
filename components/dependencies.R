@@ -7,5 +7,6 @@
 #
 # library(dplyr)
 #
-library(uwot)
+library(remotes)
 library(markdown)
+library(uwot)

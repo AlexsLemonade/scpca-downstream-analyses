@@ -14,9 +14,6 @@ project_metadata: "example-data/project-metadata/example-library-metadata.tsv"
 # Changes to these are not required and can therefore be left at the default values.
 # Although one may want to alter these parameters for exploratory purposes.
 
-# use conda environment -- this parameter is required to run the workflow(s) and should not be modified
-use-conda: TRUE
-
 # seed to use for all steps
 seed: 2021
 

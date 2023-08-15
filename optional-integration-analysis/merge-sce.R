@@ -5,8 +5,7 @@
 
 # Load libraries
 library(optparse)
-library(dplyr)
-library(SingleCellExperiment)
+
 
 # Declare command line options
 option_list <- list(
@@ -65,6 +64,9 @@ check_r_version()
 # Set up renv
 setup_renv(project_filepath = project_root)
 
+# Load additional library
+library(SingleCellExperiment)
+
 # Check that file extension for output file is correct
 if(!(stringr::str_ends(opt$output_sce_file, ".rds"))){
   stop("output file name must end in .rds")
@@ -90,7 +92,7 @@ if(is.null(opt$integration_group)) {
 }
 
 # List of SCE filepaths
-sce_files <- input_metadata$processed_sce_filepath |> 
+sce_files <- input_metadata$processed_sce_filepath |>
   purrr::set_names(input_metadata$library_id)
 
 # Check that input files exist

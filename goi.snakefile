@@ -3,10 +3,6 @@ import pandas as pd
 configfile: "config/config.yaml"
 configfile: "config/goi_config.yaml"
 
-# use conda environment
-if 'use-conda' in config and config['use-conda']:
-    workflow.use_conda = True
-    
 # getting the samples information
 if os.path.exists(config['project_metadata']):
   samples_information = pd.read_csv(config['project_metadata'], sep='\t', index_col=False)

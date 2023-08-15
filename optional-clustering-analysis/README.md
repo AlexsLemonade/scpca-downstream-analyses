@@ -1,6 +1,6 @@
 # Optional Clustering Analysis
 
-This directory includes a clustering analysis workflow that can help users identify the optimal clustering method and parameters for each library in their dataset. 
+This directory includes a clustering analysis workflow that can help users identify the optimal clustering method and parameters for each library in their dataset.
 
 **The clustering analysis workflow cannot be implemented until after users have successfully run the main downstream analysis core workflow as described in this repository's main [README.md](../README.md) file or have downloaded data from the [ScPCA portal](https://scpca.alexslemonade.org/).**
 
@@ -38,10 +38,10 @@ Cluster validity and stability results are also calculated.
 Additionally, metrics associated with each of the clustering results such as silhouette width, cluster purity, and cluster stability (as described above) are calculated and plotted.
 The plots are displayed in a html report for ease of reference.
 
-**Note** that the same [software requirements for the core workflow](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/cbethell/make-conda-default/README.md#c-additional-dependencies) are also required for this clustering workflow. 
-R 4.2 is required for running our pipeline, along with Bioconductor 3.15. If you are using conda, dependencies can be installed as [part of the initial setup](https://github.com/AlexsLemonade/scpca-downstream-analyses/blob/cbethell/make-conda-default/README.md#snakemakeconda-installation). 
-Package dependencies for the analysis workflows in this repository are managed using [renv](https://rstudio.github.io/renv/index.html), which can be installed independently if desired. 
-Still, we recommend using Snakemake's conda integration to set up the R environment and all dependencies that the workflow will use.
+**Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.
+R 4.2 is required for running our pipeline, along with Bioconductor 3.16.
+Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which must be installed locally prior to running the workflow.
+If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
 
 ## Expected input
 
@@ -61,7 +61,7 @@ Learn more about snakemake configuration files [here](https://snakemake.readthed
 
 The config file contains two sets of parameters:
 
-- **[Project-specific Parameters](../config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details. 
+- **[Project-specific Parameters](../config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details.
 These parameters are **required** to run the workflow on your data.
 - **[Processing Parameters](../config/cluster_config.yaml)**: This set of parameters specify configurations for the type(s) of graph-based clustering to be performed, as well as the range of nearest neighbors values to use.
 You can change them to explore your data but it is optional.
@@ -69,31 +69,33 @@ You can modify the relevant parameters by manually updating the `config/cluster_
 
 To run the workflow on your data, modify the following parameters in the `config/config.yaml` file:
 
-| Parameter        | Description |
-|------------------|-------------|
-| `input_data_dir` | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) |
-| `results_dir` | full path to the directory where output files will be stored |
-| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) |
+| Parameter          | Description                                                                                                                      |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `input_data_dir`   | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) |
+| `results_dir`      | full path to the directory where output files will be stored                                                                     |
+| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow)    |
 
-|[View Config File](../config/config.yaml)|
-|---|
+| [View Config File](../config/config.yaml) |
+| ----------------------------------------- |
 
 The [`config/cluster_config.yaml`](../config/cluster_config.yaml) file also contains additional processing parameters like the type of graph-based clustering to be performed and the nearest neighbors values that should be used.
-We have set default values for these parameters. 
+We have set default values for these parameters.
 Learn more about the [processing parameters](../additional-docs/processing-parameters.md#clustering-analysis-parameters) and how to modify them.
 
 ## Running the workflow
 
 The execution file with the clustering Snakemake workflow is named `cluster.snakefile` and can be found in the root directory. To tell snakemake to run the specific clustering workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `cluster.snakefile`.
 
-After you have successfully modified the required project-specific parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` flag as in the following example: 
+After you have successfully modified the required project-specific parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example:
 
 ```
-snakemake --snakefile cluster.snakefile --cores 2
+snakemake --snakefile cluster.snakefile --cores 2 --use-conda
 ```
 
 It is mandatory to specify the number of CPU cores for snakemake to use by using the [`--cores` flag](https://snakemake.readthedocs.io/en/stable/tutorial/advanced.html?highlight=cores#step-1-specifying-the-number-of-used-threads).
 If `--cores` is given without a number, all available cores are used to run the workflow.
+
+**Note:** If you did not install dependencies [with conda via snakemake](#snakemakeconda-installation), you will need to remove the `--use-conda` flag.
 
 You can also modify the config file parameters at the command line, rather than manually as recommended in the configure config file section above.
 See our [command line options](../additional-docs/command-line-options.md) documentation for more information.
@@ -125,7 +127,7 @@ You can also download a ZIP file with an example of the output from running the 
 
 ### What to expect in the output `SingleCellExperiment` object
 
-In the [`colData`](https://bioconductor.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the output `SingleCellExperiment` object, you can find the following:
+In the [`colData`](https://.org/books/3.13/OSCA.intro/the-singlecellexperiment-class.html#handling-metadata) of the output `SingleCellExperiment` object, you can find the following:
 
 - Clustering results stored in a metadata column named using the associated clustering type and nearest neighbours values.
 For example, where `n` is a value within a range of nearest neighbors values provided to perform Louvain clustering, the column name would be `louvain_n` and can be accessed using `colData(sce)$louvain_n`.

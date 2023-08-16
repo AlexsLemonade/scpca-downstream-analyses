@@ -6,16 +6,16 @@ if [[ "$(uname)" == 'Darwin' && "$(uname -m)" == 'arm64' ]]; then
 fi
 
 
-SCPCATOOLS_VERS='main'
+SCPCATOOLS_VERS='v0.2.3'
 
 # install packages not on conda-forge
 Rscript --vanilla -e \
   "
   # install Harmony from CRAN
   remotes::install_version(
-    'harmony', 
-    version = '0.1.1', 
-    repos = 'https://cloud.r-project.org', 
+    'harmony',
+    version = '0.1.1',
+    repos = 'https://cloud.r-project.org',
     upgrade = FALSE
   )
 

@@ -32,7 +32,7 @@ UMAP and PCA plots are also provided, where each dot represents a cell and the c
 
 
 **Note** that the same [software requirements for the core workflow](../README.md#3-additional-dependencies) are also required for this clustering workflow.
-R 4.2 is required for running our pipeline, along with Bioconductor 3.15.
+R 4.2 is required for running our pipeline, along with Bioconductor 3.16.
 Package dependencies for the analysis workflows in this repository are managed using [`renv`](https://rstudio.github.io/renv/index.html), which must be installed locally prior to running the workflow.
 If you are using conda, dependencies can be installed as [part of the initial setup](../README.md#snakemakeconda-installation).
 
@@ -55,7 +55,7 @@ Learn more about snakemake configuration files [here](https://snakemake.readthed
 
 The config file contains two sets of parameters:
 
-- **[Project-specific Parameters](../config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details. 
+- **[Project-specific Parameters](../config/config.yaml#L3)**: This set of parameters are for specifying dataset or project related details.
 These parameters are **required** to run the workflow on your data.
 - **[Processing Parameters](../config/goi_config.yaml)**: This set of parameters specify configurations for how to handle multiple gene identifier mappings, for example.
 You can change them to explore your data but it is optional.
@@ -63,26 +63,26 @@ You can modify the relevant parameters by manually updating the `config/goi_conf
 
 To run the workflow on your data, modify the following parameters in the `config/config.yaml` and `config/goi_config.yaml` files:
 
-| Parameter        | Description | Default value |
-|------------------|-------------| --------------|
-| `input_data_dir` | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow) | `"example_results"` |
-| `results_dir` | full path to the directory where output files will be stored | `"example-results"` |
-| `project_metadata` | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow) | `"example-data/project-metadata/example-library-metadata.tsv"` |
-| `goi_list` | full path to a tsv file containing the list of genes that are of interest | `"example-data/goi-lists/example_goi_list.tsv"` |
-| `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"`; see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html) | `"SYMBOL"` |
-| `overwrite` | a binary value indicating whether or not to overwrite existing output files | `TRUE` |
+| Parameter             | Description                                                                                                                                                                                                                                                         | Default value                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `input_data_dir`      | full path to the directory where the input data files can be found (default will be the `results_dir` used in the core workflow)                                                                                                                                    | `"example_results"`                                            |
+| `results_dir`         | full path to the directory where output files will be stored                                                                                                                                                                                                        | `"example-results"`                                            |
+| `project_metadata`    | full path to your specific project metadata TSV file (use the same `project_metadata` used in the prerequisite core workflow)                                                                                                                                       | `"example-data/project-metadata/example-library-metadata.tsv"` |
+| `goi_list`            | full path to a tsv file containing the list of genes that are of interest                                                                                                                                                                                           | `"example-data/goi-lists/example_goi_list.tsv"`                |
+| `provided_identifier` | the type of gene identifiers used to populate the genes of interest list; example values that can implemented here include `"ENSEMBL"`, `"ENTREZID"`, `"SYMBOL"`; see more keytypes [here](https://jorainer.github.io/ensembldb/reference/EnsDb-AnnotationDbi.html) | `"SYMBOL"`                                                     |
+| `overwrite`           | a binary value indicating whether or not to overwrite existing output files                                                                                                                                                                                         | `TRUE`                                                         |
 
 ## Gene mapping
 
-The first step in the workflow is to ensure that the input gene identifiers provided in the genes of interest list match the gene identifiers present in the `SingleCellExperiment` object. 
+The first step in the workflow is to ensure that the input gene identifiers provided in the genes of interest list match the gene identifiers present in the `SingleCellExperiment` object.
 The `SingleCellExperiment` objects that are returned by the core workflow will contain gene names as Ensembl ids.
 If the provided genes of interest list contains another identifier type (e.g., gene symbol, Entrez id) that does not match the gene names present in the `SingleCellExperiment` objects, then mapping must be performed.
 The `perform_mapping` flag is used to indicate whether or not gene mapping will be performed and by default is set to `TRUE`.
 
 To run the workflow without the gene mapping step, you will need to modify the `perform_mapping` parameter to be `FALSE` in the `config/goi_config.yaml` file.
 
-The `config/goi_config.yaml` file also contains additional processing parameters like how to handle multiple gene identifier mappings. 
-We have set default values for these parameters. 
+The `config/goi_config.yaml` file also contains additional processing parameters like how to handle multiple gene identifier mappings.
+We have set default values for these parameters.
 Learn more about the [gene mapping parameters](../additional-docs/additional-parameters.md#genes-of-interest-analysis-parameters) and how to modify them.
 
 ## Running the workflow
@@ -90,7 +90,7 @@ Learn more about the [gene mapping parameters](../additional-docs/additional-par
 The execution file with the genes of interest Snakemake workflow is named `goi.snakefile` and can be found in the root directory.
 To tell snakemake to run the specific genes of interest workflow be sure to use the `--snakefile` or `-s` option followed by the name of the snakefile, `goi.snakefile`.
 
-After you have successfully modified the required project-specific parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example: 
+After you have successfully modified the required project-specific parameters in the config file and navigated to within the root directory of the `scpca-downstream-analyses` repository, you can run the clustering Snakemake workflow with just the `--cores` and `--use-conda` flags as in the following example:
 
 ```
 snakemake --snakefile goi.snakefile --cores 2 --use-conda

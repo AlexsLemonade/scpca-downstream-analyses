@@ -1,0 +1,240 @@
+---
+params:
+  integration_group: "group01"
+  input_metadata_tsv: "example-data/project-metadata/example-integration-library-metadata.tsv"
+  integrated_sce: "example-results/group01_integrated_sce.rds"
+  integration_method: "fastMNN,harmony"
+  batch_column: "library_id"
+  cell_id_column: "cell_id"
+  project_root: NULL
+  point_size: 0.7
+  seed: 2023
+  date: !r Sys.Date()
+title: "`r glue::glue('Integration analysis report for {params$integration_group}')`"
+author: "CCDL"
+date: "`r params$date`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+This notebook includes a summary of a single integrated dataset produced from running the data integration workflow.
+
+## Set Up
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE
+)
+
+# If project root is not provided use here::here()
+if (is.null(params$project_root)) {
+  project_root <- here::here()
+} else {
+  project_root <- params$project_root
+}
+
+# Tell knitr to knit from the project root to be able to load `renv` properly
+# This path goes into effect for SUBSEQUENT chunks, hence the need for 2 chunks
+knitr::opts_knit$set(root.dir = project_root)
+
+# Source in set up function
+source(file.path(project_root, "utils", "setup-functions.R"))
+source(file.path(project_root, "utils", "integration-functions.R"))
+```
+
+```{r, include = FALSE}
+# Load project
+setup_renv(project_filepath = project_root)
+```
+
+```{r}
+# Load libraries
+library(SingleCellExperiment)
+library(ggpubr)
+library(dplyr)
+
+# Set theme for plotting
+library(ggplot2)
+point_size <- params$point_size
+theme_set(theme_bw())
+
+# Check that integrated object file exists
+if(!file.exists(params$integrated_sce)){
+  stop(paste(params$integrated_sce, "does not exist."))
+}
+# Read in integrated object
+integrated_sce <- readr::read_rds(params$integrated_sce)
+```
+
+## Explore datasets
+
+```{r results='asis'}
+# pull out an SCE object for this section
+# all SCEs in the list should be equivalent for these calculations and plots
+sce_coldata <- colData(integrated_sce) |>
+  tibble::as_tibble()
+
+# How many batches?
+colname_sym <- rlang::sym(params$batch_column)
+n_batch_df <- sce_coldata |>
+  dplyr::count(!!colname_sym, name = "count")
+
+print(
+  glue::glue("There are {nrow(n_batch_df)} libraries stored in the merged and integrated dataset, with the following number of cells:")
+)
+gt::gt(n_batch_df)
+```
+
+## UMAP plots
+
+```{r}
+# create batch label vector
+batch_plot_labels <- n_batch_df |>
+  dplyr::mutate(label = paste0(!!colname_sym, " (N=", count, ")")) |>
+  dplyr::pull(label)
+```
+
+
+```{r, fig.width=10, fig.height=10}
+# plot UMAPs and label by batch column
+# split up string of integration methods
+integration_methods <-  stringr::str_split(params$integration_method, ",") |>
+  unlist() |>
+  stringr::str_trim()
+integration_methods <- c(integration_methods, "unintegrated")
+
+batch_umaps <- integration_methods |>
+  purrr::map(~ plot_integration_umap(sce = integrated_sce,
+                                     integration_method = .x,
+                                     cell_label_column = params$batch_column,
+                                     legend_title = "Library",
+                                     plot_title = .x,
+                                     legend_labels = batch_plot_labels,
+                                     seed = params$seed))
+batch_legend <- cowplot::get_legend(batch_umaps[[1]])
+
+ggpubr::ggarrange(plotlist = batch_umaps,
+                  common.legend = TRUE,
+                  legend = "right",
+                  ncol = 2,
+                  nrow = 2)
+```
+
+## Batch ASW plots
+
+Below we look at the batch average silhouette width (ASW) across integration methods.
+Silhouette width is used to assess consistency within clusters and measures how well a given data point adheres to its own cluster vs. other clusters.
+To calculate this quantity, cells are first downsampled to 80% of the total number of cells.
+Batch silhouette width is calculated across 20 replicates of downsampling, and the mean silhouette widths are calculated (ASW) and shown below.
+The batch silhouette width therefore measures to what extent a given data point adheres to its batch group, which is not desired after integration.
+Therefore, a well-integrated dataset would show lower batch ASW values compared to an unintegrated or poorly-integrated dataset.
+
+```{r}
+# Prepare vector of PC names
+pc_names <-  stringr::str_split_1(params$integration_method, ",") |>
+  stringr::str_trim() |>
+  paste0("_PCA")
+
+# Add unintegrated PCA to pc names
+pc_names <- c(pc_names, "PCA")
+
+# Calculate average silhouette width values
+asw_results <-
+  scpcaTools::calculate_silhouette_width(
+    merged_sce = integrated_sce,
+    pc_names = pc_names,
+    batch_column = params$batch_column,
+    seed = params$seed
+  )
+
+# Plot average silhouette width
+plot_asw(asw_df = asw_results,
+         seed = params$seed,
+         batch_label = params$batch_column)
+```
+
+## Within-batch ARI plots
+
+Below we calculate the within-batch ARI values.
+The metric measures how well a given integration method preserves biological heterogeneity by comparing pre- and post-integration clustering assignments for each library.
+We take each original SCE object, prior to any merging, and perform graph-based clustering.
+The same clustering is then performed on the integrated object.
+For each library that is present in the integrated object, the original cluster assignments are compared to the cells’ new cluster assignments post integration by calculating the ARI between these two cluster assignments.
+Within-batch ARI values close to 1 indicate that biological heterogeneity has been preserved.
+
+```{r}
+# List of SCE filepaths
+input_metadata <- readr::read_tsv(params$input_metadata_tsv) |>
+  dplyr::filter(integration_group == params$integration_group)
+sce_files <- input_metadata |>
+  dplyr::pull(processed_sce_filepath)
+# Read in list of SCEs
+sce_list <- purrr::map(sce_files, readr::read_rds) |>
+  purrr::set_names(input_metadata$library_id)
+
+# Calculate within-batch ARI values
+within_batch_ari_df <-
+  scpcaTools::calculate_within_batch_ari(
+    individual_sce_list = sce_list,
+    pc_names = pc_names,
+    merged_sce = integrated_sce,
+    batch_column = params$batch_column,
+    cell_id_column = params$cell_id_column,
+    BLUSPARAM = bluster::NNGraphParam(cluster.fun = "louvain", type = "jaccard"),
+    seed = params$seed
+ ) |>
+  dplyr::mutate(ari = as.numeric(ari))
+
+```
+
+```{r}
+within_batch_ari_plot <- within_batch_ari_df |>
+  dplyr::mutate(
+    integration_method = dplyr::if_else(
+      pc_name == "PCA",
+      "Pre-Integration",
+      stringr::str_remove(pc_name, "_PCA")
+    ),
+    integration_method_factor = forcats::fct_relevel(integration_method, "Pre-Integration")
+  ) |>
+  ggplot() +
+  aes(x = integration_method_factor, y = ari, color = batch_id) +
+  ggforce::geom_sina() +
+  # add median point to plot
+  stat_summary(
+    color = "black",
+    fun = "median",
+    fun.min = function(x) {
+      quantile(x, 0.25)
+    },
+    fun.max = function(x) {
+      quantile(x, 0.75)
+    },
+    geom = "pointrange",
+    size = 0.2
+  ) +
+  guides(color = guide_legend(
+    override.aes = list(size = 3),
+    label.theme = element_text(size = 12)
+  )) +
+  labs(x = "Integration method",
+       y = "ARI",
+       color = "Batch")
+
+within_batch_ari_plot
+```
+
+## Session info
+<details>
+<summary>R session information</summary>
+```{r}
+sessionInfo()
+```
